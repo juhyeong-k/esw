@@ -123,6 +123,9 @@ void * capture_thread(void *arg)
     bool isFirst = true;
     int index;
     int i;
+    
+    // addr of image buffer
+    unsigned char *addr;
 
     v4l2_reqbufs(v4l2, NUMBUF);
 
@@ -169,6 +172,10 @@ void * capture_thread(void *arg)
 
         index = vpe_output_dqbuf(vpe);
         capt = vpe->disp_bufs[index];
+        
+        addr = omap_bo_map(capt->bo[0]);
+        printf("Info 1 : %d \n", *addr);
+
         if (disp_post_vid_buffer(vpe->disp, capt, 0, 0, vpe->dst.width, vpe->dst.height)) {
             ERROR("Post buffer failed");
             return NULL;
