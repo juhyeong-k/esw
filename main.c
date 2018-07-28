@@ -125,8 +125,12 @@ void * main_thread(void *arg)
     bool isFirst = true;
     int index;
     int i;
-    int ret = 0;
+    // Address value where the image is stored
     unsigned char *addr;
+    // Variables for performance measurement
+    uint32_t optime = 0;
+    struct timeval st;
+    struct timeval et;
 
     v4l2_reqbufs(v4l2, NUMBUF);
 
@@ -161,6 +165,7 @@ void * main_thread(void *arg)
     vpe->field = V4L2_FIELD_ANY;
     while(1)
     {
+        gettimeofday(&st, NULL);
         index = v4l2_dqbuf(v4l2, &vpe->field);
         vpe_input_qbuf(vpe, index);
 
@@ -177,13 +182,12 @@ void * main_thread(void *arg)
         //printf("Info : %d \n", *(    (unsigned char*)omap_bo_map(capt->bo[0])    ) );
 
         printf("Info : %d \t", *addr);
-
-        ret = pthread_create(&(data->threads[1]), NULL, secondary_thread, data);
-        if(ret) {
+        
+        if(pthread_create(&(data->threads[1]), NULL, secondary_thread, data)) {
             MSG("Failed creating Secondary thread");
         }
         pthread_detach(data->threads[1]);
-
+        
         if (disp_post_vid_buffer(vpe->disp, capt, 0, 0, vpe->dst.width, vpe->dst.height)) {
             ERROR("Post buffer failed");
             return NULL;
@@ -222,6 +226,9 @@ void * main_thread(void *arg)
         index = vpe_input_dqbuf(vpe);
         v4l2_qbuf(v4l2, vpe->input_buf_dmafd[index], index);
 
+        gettimeofday(&et, NULL);
+        optime = ((et.tv_sec - st.tv_sec)*1000)+ ((int)et.tv_usec/1000 - (int)st.tv_usec/1000);
+        printf("Operating time : %dms\n", optime);
     }
 
     MSG("Ok!");
