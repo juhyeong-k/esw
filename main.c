@@ -116,6 +116,12 @@ static void free_input_buffers(struct buffer **buffer, uint32_t n, bool bmultipl
   * @param  arg: pointer to parameter of thr_data
   * @retval none
   */
+void get_result(uint32_t optime, struct timeval st, struct timeval et )
+{
+    gettimeofday(&et, NULL);
+    optime = ((et.tv_sec - st.tv_sec)*1000) + ((int)et.tv_usec/1000 - (int)st.tv_usec/1000);
+    printf("Operating time : %d.%dms\n", optime, abs((int)et.tv_usec%1000 - (int)st.tv_usec%1000));
+}
 void * main_thread(void *arg)
 {
     struct thr_data *data = (struct thr_data *)arg;
@@ -131,7 +137,7 @@ void * main_thread(void *arg)
     uint32_t optime = 0;
     struct timeval st;
     struct timeval et;
-
+    
     v4l2_reqbufs(v4l2, NUMBUF);
 
     // init vpe input
@@ -164,8 +170,7 @@ void * main_thread(void *arg)
 
     vpe->field = V4L2_FIELD_ANY;
     while(1)
-    {
-        gettimeofday(&st, NULL);
+    {    
         index = v4l2_dqbuf(v4l2, &vpe->field);
         vpe_input_qbuf(vpe, index);
 
@@ -192,7 +197,13 @@ void * main_thread(void *arg)
             ERROR("Post buffer failed");
             return NULL;
         }
-
+        gettimeofday(&st, NULL);
+        unsigned char y_buf[VPE_OUTPUT_W*VPE_OUTPUT_H];
+        unsigned char uv_buf[VPE_OUTPUT_W*VPE_OUTPUT_H/2];
+        memcpy(y_buf, omap_bo_map(capt->bo[0]), VPE_OUTPUT_W*VPE_OUTPUT_H); // y data
+        memcpy(uv_buf, omap_bo_map(capt->bo[1]), VPE_OUTPUT_W*VPE_OUTPUT_H/2); // uv data
+        get_result(optime, st, et);
+        /*
         if(data->dump_state == DUMP_READY) {
             DumpMsg dumpmsg;
             unsigned char* pbuf[4];
@@ -221,14 +232,10 @@ void * main_thread(void *arg)
                 MSG("state:%d, msg send fail\n", dumpmsg.state_msg);
             }
         }
-
+        */
         vpe_output_qbuf(vpe, index);
         index = vpe_input_dqbuf(vpe);
         v4l2_qbuf(v4l2, vpe->input_buf_dmafd[index], index);
-
-        gettimeofday(&et, NULL);
-        optime = ((et.tv_sec - st.tv_sec)*1000)+ ((int)et.tv_usec/1000 - (int)st.tv_usec/1000);
-        printf("Operating time : %dms\n", optime);
     }
 
     MSG("Ok!");
