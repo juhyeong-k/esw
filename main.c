@@ -33,6 +33,9 @@
 #define DUMP_MSGQ_KEY           1020
 #define DUMP_MSGQ_MSG_TYPE      0x02
 
+void * main_thread(void *arg);
+void * secondary_thread(void *arg);
+
 typedef enum {
     DUMP_NONE,
     DUMP_CMD,
@@ -58,7 +61,7 @@ struct thr_data {
     int msgq_id;
     bool bfull_screen; // true : 480x272 disp 화면에 맞게 scale 그렇지 않을 경우 false.
     bool bstream_start; // camera stream start 여부
-    pthread_t threads[4];
+    pthread_t threads[2];
 };
 
 /**
@@ -115,16 +118,6 @@ static void free_input_buffers(struct buffer **buffer, uint32_t n, bool bmultipl
   */
 void * main_thread(void *arg)
 {
-    
-}
-
-/**
-  * @brief  Camera capture, capture image covert by VPE and display
-  * @param  arg: pointer to parameter of thr_data
-  * @retval none
-  */
-void * capture_thread(void *arg)
-{
     struct thr_data *data = (struct thr_data *)arg;
     struct v4l2 *v4l2 = data->v4l2;
     struct vpe *vpe = data->vpe;
@@ -132,6 +125,7 @@ void * capture_thread(void *arg)
     bool isFirst = true;
     int index;
     int i;
+    int ret = 0;
     unsigned char *addr;
 
     v4l2_reqbufs(v4l2, NUMBUF);
@@ -165,16 +159,16 @@ void * capture_thread(void *arg)
     vpe_stream_on(vpe->fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
 
     vpe->field = V4L2_FIELD_ANY;
-
-    while(1) {
+    while(1)
+    {
         index = v4l2_dqbuf(v4l2, &vpe->field);
         vpe_input_qbuf(vpe, index);
 
         if (isFirst) {
-            vpe_stream_on(vpe->fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE);
-            isFirst = false;
-            MSG("streaming started...");
-            data->bstream_start = true;
+        vpe_stream_on(vpe->fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE);
+        isFirst = false;
+        MSG("streaming started...");
+        data->bstream_start = true;
         }
 
         index = vpe_output_dqbuf(vpe);
@@ -182,9 +176,13 @@ void * capture_thread(void *arg)
         addr = omap_bo_map(capt->bo[0]);
         //printf("Info : %d \n", *(    (unsigned char*)omap_bo_map(capt->bo[0])    ) );
 
-        printf("Info 1 : %d \t", *(addr + 0) );
-        printf("Info 2 : %d \t", *(addr + 1) );
-        printf("Info 3 : %d \n", *(addr + 2) );
+        printf("Info : %d \t", *addr);
+
+        ret = pthread_create(&(data->threads[1]), NULL, secondary_thread, data);
+        if(ret) {
+            MSG("Failed creating Secondary thread");
+        }
+        pthread_detach(data->threads[1]);
 
         if (disp_post_vid_buffer(vpe->disp, capt, 0, 0, vpe->dst.width, vpe->dst.height)) {
             ERROR("Post buffer failed");
@@ -231,109 +229,17 @@ void * capture_thread(void *arg)
 }
 
 /**
-  * @brief  Capture image dump and save to file
+  * @brief  secondary_thread, assist the main thread.
   * @param  arg: pointer to parameter of thr_data
   * @retval none
   */
-void * capture_dump_thread(void *arg)
+void * secondary_thread(void *arg)
 {
-    struct thr_data *data = (struct thr_data *)arg;
-    FILE *fp;
-    char file[50];
-    struct timeval timestamp;
-    struct tm *today;
-    DumpMsg dumpmsg;
-
-    while(1) {
-        if(msgrcv(data->msgq_id, &dumpmsg, sizeof(DumpMsg)-sizeof(long), DUMP_MSGQ_MSG_TYPE, 0) >= 0) {
-            switch(dumpmsg.state_msg) {
-                case DUMP_CMD :
-                    gettimeofday(&timestamp, NULL);
-                    today = localtime(&timestamp.tv_sec);
-                    sprintf(file, "dump_%04d%02d%02d_%02d%02d%02d.%s", today->tm_year+1900, today->tm_mon+1, today->tm_mday, today->tm_hour, today->tm_min, today->tm_sec,VPE_OUTPUT_FORMAT);
-                    data->dump_state = DUMP_READY;
-                    MSG("file name:%s", file);
-                    break;
-
-                case DUMP_WRITE_TO_FILE :
-                    if((fp = fopen(file, "w+")) == NULL){
-                        ERROR("Fail to fopen");
-                    } else {
-                        fwrite(data->dump_img_data, VPE_OUTPUT_IMG_SIZE, 1, fp);
-                    }
-                    fclose(fp);
-                    data->dump_state = DUMP_DONE;
-                    break;
-
-                default :
-                    MSG("dump msg wrong (%d)", dumpmsg.state_msg);
-                    break;
-            }
-        }
-    }
-
-    return NULL;
-}
-
-/**
-  * @brief  handling an input command
-  * @param  arg: pointer to parameter of thr_data
-  * @retval none
-  */
-void * input_thread(void *arg)
-{
-    struct thr_data *data = (struct thr_data *)arg;
-    struct vpe *vpe = data->vpe;
-
-    char cmd_input[128];
-    char cmd_ready = true;
-
-    while(!data->bstream_start) {
-        usleep(100*1000);
-    }
-
-    while(1)
-    {
-        if(cmd_ready == true) {
-            /*standby to input command */
-            cmd_ready = StandbyInput(cmd_input);     //define in cmd.cpp
-        } else {
-            if(0 == strncmp(cmd_input,"full",5)) {
-                if(data->bfull_screen) {
-                    MSG("not use scale (no full screen)\n");
-                    data->bfull_screen = false;
-                } else {
-                    MSG("using scale (full screen)\n");
-                    data->bfull_screen = true;
-                }
-                vpe_output_fullscreen(vpe, data->bfull_screen);
-            } else if(0 == strncmp(cmd_input,"dump",4)) {
-                DumpMsg dumpmsg;
-                dumpmsg.type = DUMP_MSGQ_MSG_TYPE;
-                dumpmsg.state_msg = DUMP_CMD;
-                data->dump_state = DUMP_CMD;
-                MSG("image dump start");
-                if (-1 == msgsnd(data->msgq_id, &dumpmsg, sizeof(DumpMsg)-sizeof(long), 0)) {
-                    printf("dump cmd msg send fail\n");
-                }
-
-                while(data->dump_state != DUMP_DONE) {
-                    usleep(5*1000);
-                }
-                data->dump_state = DUMP_NONE;
-                MSG("image dump done");
-            } else {
-                printf("cmd_input:%s \n", cmd_input);
-            }
-            cmd_ready = true;
-        }
-    }
-
+    printf("secondary_thread is working\n");
     return NULL;
 }
 
 static struct thr_data* pexam_data = NULL;
-
 /**
   * @brief  handling an SIGINT(CTRL+C) signal
   * @param  sig: signal type
@@ -344,7 +250,6 @@ void signal_handler(int sig)
     if(sig == SIGINT) {
         pthread_cancel(pexam_data->threads[0]);
         pthread_cancel(pexam_data->threads[1]);
-        pthread_cancel(pexam_data->threads[2]);
         
         msgctl(pexam_data->msgq_id, IPC_RMID, 0);
         
@@ -437,24 +342,6 @@ int main(int argc, char **argv)
         MSG("Failed creating main thread");
     }
     pthread_detach(tdata.threads[0]);
-
-    ret = pthread_create(&tdata.threads[1], NULL, capture_thread, &tdata);
-    if(ret) {
-        MSG("Failed creating capture thread");
-    }
-    pthread_detach(tdata.threads[1]);
-
-    ret = pthread_create(&tdata.threads[2], NULL, capture_dump_thread, &tdata);
-    if(ret) {
-        MSG("Failed creating capture dump thread");
-    }
-    pthread_detach(tdata.threads[2]);
-
-    ret = pthread_create(&tdata.threads[3], NULL, input_thread, &tdata);
-    if(ret) {
-        MSG("Failed creating input thread");
-    }
-    pthread_detach(tdata.threads[3]);
 
     /* register signal handler for <CTRL>+C in order to clean up */
     if(signal(SIGINT, signal_handler) == SIG_ERR) {
