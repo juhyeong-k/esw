@@ -58,7 +58,7 @@ struct thr_data {
     int msgq_id;
     bool bfull_screen; // true : 480x272 disp 화면에 맞게 scale 그렇지 않을 경우 false.
     bool bstream_start; // camera stream start 여부
-    pthread_t threads[3];
+    pthread_t threads[4];
 };
 
 /**
@@ -108,6 +108,15 @@ static void free_input_buffers(struct buffer **buffer, uint32_t n, bool bmultipl
     }
     free(buffer);
 }
+/**
+  * @brief  Main_thread, capture image covert by VPE and call the required threads.
+  * @param  arg: pointer to parameter of thr_data
+  * @retval none
+  */
+void * main_thread(void *arg)
+{
+    
+}
 
 /**
   * @brief  Camera capture, capture image covert by VPE and display
@@ -123,8 +132,6 @@ void * capture_thread(void *arg)
     bool isFirst = true;
     int index;
     int i;
-    
-    // addr of image buffer
     unsigned char *addr;
 
     v4l2_reqbufs(v4l2, NUMBUF);
@@ -172,9 +179,12 @@ void * capture_thread(void *arg)
 
         index = vpe_output_dqbuf(vpe);
         capt = vpe->disp_bufs[index];
-        
         addr = omap_bo_map(capt->bo[0]);
-        printf("Info 1 : %d \n", *addr);
+        //printf("Info : %d \n", *(    (unsigned char*)omap_bo_map(capt->bo[0])    ) );
+
+        printf("Info 1 : %d \t", *(addr + 0) );
+        printf("Info 2 : %d \t", *(addr + 1) );
+        printf("Info 3 : %d \n", *(addr + 2) );
 
         if (disp_post_vid_buffer(vpe->disp, capt, 0, 0, vpe->dst.width, vpe->dst.height)) {
             ERROR("Post buffer failed");
@@ -282,11 +292,6 @@ void * input_thread(void *arg)
         usleep(100*1000);
     }
 
-    MSG("\n\nInput command:");
-    MSG("\t full  : full screen or not");
-    MSG("\t dump  : display image(%s, %dx%d) dump", VPE_OUTPUT_FORMAT,VPE_OUTPUT_W, VPE_OUTPUT_H);
-    MSG("\n");
-
     while(1)
     {
         if(cmd_ready == true) {
@@ -354,7 +359,7 @@ void signal_handler(int sig)
         vpe_close(pexam_data->vpe);
         v4l2_close(pexam_data->v4l2);
         
-        printf("-- 2_camera_vpe_dump_disp example End --\n");
+        printf("-- Project End --\n");
     }
 }
 
@@ -367,7 +372,7 @@ int main(int argc, char **argv)
     char* disp_argv[] = {"dummy", "-s", "4:480x272", "\0"};
     int ret = 0;
 
-    printf("-- 2_camera_vpe_dump_disp example Start --\n");
+    printf("-- Project Start --\n");
 
     tdata.dump_state = DUMP_NONE;
     memset(tdata.dump_img_data, 0, sizeof(tdata.dump_img_data));
@@ -427,23 +432,29 @@ int main(int argc, char **argv)
 
     pexam_data = &tdata;
 
-    ret = pthread_create(&tdata.threads[0], NULL, capture_thread, &tdata);
+    ret = pthread_create(&tdata.threads[0], NULL, main_thread, &tdata);
     if(ret) {
-        MSG("Failed creating capture thread");
+        MSG("Failed creating main thread");
     }
     pthread_detach(tdata.threads[0]);
 
-    ret = pthread_create(&tdata.threads[1], NULL, capture_dump_thread, &tdata);
+    ret = pthread_create(&tdata.threads[1], NULL, capture_thread, &tdata);
     if(ret) {
-        MSG("Failed creating capture dump thread");
+        MSG("Failed creating capture thread");
     }
     pthread_detach(tdata.threads[1]);
 
-    ret = pthread_create(&tdata.threads[2], NULL, input_thread, &tdata);
+    ret = pthread_create(&tdata.threads[2], NULL, capture_dump_thread, &tdata);
+    if(ret) {
+        MSG("Failed creating capture dump thread");
+    }
+    pthread_detach(tdata.threads[2]);
+
+    ret = pthread_create(&tdata.threads[3], NULL, input_thread, &tdata);
     if(ret) {
         MSG("Failed creating input thread");
     }
-    pthread_detach(tdata.threads[2]);
+    pthread_detach(tdata.threads[3]);
 
     /* register signal handler for <CTRL>+C in order to clean up */
     if(signal(SIGINT, signal_handler) == SIG_ERR) {
