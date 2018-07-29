@@ -14,6 +14,7 @@
 #include "vpe-common.h"
 #include "input_cmd.h"
 
+#include "car_lib.h"
 #include "project_config.h"
 
 #define DUMP_MSGQ_KEY           1020
@@ -184,9 +185,6 @@ void * main_thread(void *arg)
         //addr = omap_bo_map(capt->bo[0]);
         //printf("Info : %d \n", *(    (unsigned char*)omap_bo_map(capt->bo[0])    ) );
         //printf("Info : %d \t", *addr);
-        printf("Info B : %d \t", image_buf[0]);
-        printf("Info G : %d \t", image_buf[1]);
-        printf("Info R : %d \n", image_buf[2]);
 
         BGR24_to_HSV(image_buf);
         detect_Yellow_color(image_buf);
@@ -302,6 +300,11 @@ int main(int argc, char **argv)
     int disp_argc = 3;
     char* disp_argv[] = {"dummy", "-s", "4:480x272", "\0"};
     int ret = 0;
+
+    CarControlInit();
+    CarLight_Write(ALL_ON);
+    usleep(1000000);
+    CarLight_Write(ALL_OFF);
 
     printf("-- Project Start --\n");
 
@@ -433,10 +436,6 @@ void BGR24_to_HSV(uint8_t *image_buf)
         H = H / 2;
         image_buf[j] = H; image_buf[j+1] = S; image_buf[j+2] = V;
     }
-    printf("Info H : %d \t", image_buf[0]);
-    printf("Info S : %d \t", image_buf[1]);
-    printf("Info V : %d \n", image_buf[2]);
-    printf("V_BGR : %d\n", V_BGR);
 }
 /**
   * @breif  detect_Yellow_color

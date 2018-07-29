@@ -27,7 +27,7 @@
 /**
   * @Brief  Values for detect_Yellow_color()
   */
-#define maxHue    35
+#define maxHue    45
 #define minHue    25
 #define maxSat    250
 #define minSat    30
