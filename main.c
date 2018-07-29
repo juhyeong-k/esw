@@ -14,26 +14,7 @@
 #include "vpe-common.h"
 #include "input_cmd.h"
 
-#define CAPTURE_IMG_W       1280
-#define CAPTURE_IMG_H       720
-#define CAPTURE_IMG_SIZE    (CAPTURE_IMG_W*CAPTURE_IMG_H*2) // YUYU : 16bpp
-#define CAPTURE_IMG_FORMAT  "uyvy"
-
-#define VPE_OUTPUT_W            320
-#define VPE_OUTPUT_H            180
-
-// display output & dump  format: rgb24, w:320, h:180
-#define VPE_OUTPUT_IMG_SIZE    (VPE_OUTPUT_W*VPE_OUTPUT_H*3) // rgb24 : 24bpp
-#define VPE_OUTPUT_RESOLUTION  VPE_OUTPUT_W*VPE_OUTPUT_H
-#define VPE_OUTPUT_FORMAT       "bgr24"
-
-// display output & dump  format: NV12, w:320, h:180
-//#define VPE_OUTPUT_IMG_SIZE    (VPE_OUTPUT_W*VPE_OUTPUT_H*3/2) // NV12 : 12bpp
-//#define VPE_OUTPUT_FORMAT       "nv12"
-
-// display output & dump  format: yuyv, w:320, h:180
-//#define VPE_OUTPUT_IMG_SIZE    (VPE_OUTPUT_W*VPE_OUTPUT_H*2)
-//#define VPE_OUTPUT_FORMAT       "yuyv"
+#include "project_config.h"
 
 #define DUMP_MSGQ_KEY           1020
 #define DUMP_MSGQ_MSG_TYPE      0x02
@@ -48,6 +29,7 @@ uint8_t getMaxBGR_VBGR(uint8_t b, uint8_t g, uint8_t r, uint8_t *V_BGR);
 uint8_t getMinBGR(uint8_t b, uint8_t g, uint8_t r);
 
 void BGR24_to_HSV(uint8_t *image_buf);
+void detect_Yellow_color(uint8_t *image_buf);
 
 typedef enum {
     DUMP_NONE,
@@ -207,6 +189,8 @@ void * main_thread(void *arg)
         printf("Info R : %d \n", image_buf[2]);
 
         BGR24_to_HSV(image_buf);
+        detect_Yellow_color(image_buf);
+        memcpy(omap_bo_map(capt->bo[0]), image_buf, VPE_OUTPUT_IMG_SIZE);
 
         if(pthread_create(&(data->threads[1]), NULL, secondary_thread, data)) {
             MSG("Failed creating Secondary thread");
@@ -413,16 +397,15 @@ uint8_t getMinBGR(uint8_t b, uint8_t g, uint8_t r) {
     if (r < min) min = r;
     return min;
 }
-
 /**
   * @breif  BGR24 to HSV
+  *          Converts image_buffer of bgr24 format to hsv.
   */
 void BGR24_to_HSV(uint8_t *image_buf)
 {
     int i, j;
     uint8_t temp_buf[VPE_OUTPUT_IMG_SIZE];
     memcpy(temp_buf, image_buf, VPE_OUTPUT_IMG_SIZE);
-    uint8_t hsv_buf[VPE_OUTPUT_IMG_SIZE];
 
     uint8_t V_BGR;
     uint8_t B, G, R; int16_t H; uint8_t S; uint8_t V;
@@ -448,10 +431,28 @@ void BGR24_to_HSV(uint8_t *image_buf)
         }
         if(H < 0)    H = H + 360;
         H = H / 2;
-        hsv_buf[j] = H; hsv_buf[j+1] = S; hsv_buf[j+2] = V;
+        image_buf[j] = H; image_buf[j+1] = S; image_buf[j+2] = V;
     }
-    printf("Info H : %d \t", hsv_buf[0]);
-    printf("Info S : %d \t", hsv_buf[1]);
-    printf("Info V : %d \n", hsv_buf[2]);
+    printf("Info H : %d \t", image_buf[0]);
+    printf("Info S : %d \t", image_buf[1]);
+    printf("Info V : %d \n", image_buf[2]);
     printf("V_BGR : %d\n", V_BGR);
+}
+/**
+  * @breif  detect_Yellow_color
+  *          Detect yellow from image_buf and save it as bgr24 black and white image.
+  */
+void detect_Yellow_color(uint8_t *image_buf)
+{
+    int i, j;
+    uint8_t temp_buf[VPE_OUTPUT_IMG_SIZE];
+    memcpy(temp_buf, image_buf, VPE_OUTPUT_IMG_SIZE);
+    for(i = 0; i < VPE_OUTPUT_RESOLUTION; i++)
+    {
+        j = 3 * i;
+        if( ( minHue < temp_buf[j] && temp_buf[j] < maxHue ) && ( minSat < temp_buf[j+1] && temp_buf[j+1] < maxSat ) )
+            image_buf[j] = image_buf[j+1] = image_buf[j+2] = 255;
+        else
+            image_buf[j] = image_buf[j+1] = image_buf[j+2] = 0;
+    }
 }
