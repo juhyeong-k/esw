@@ -22,9 +22,14 @@
 #define VPE_OUTPUT_W            320
 #define VPE_OUTPUT_H            180
 
+// display output & dump  format: rgb24, w:320, h:180
+#define VPE_OUTPUT_IMG_SIZE    (VPE_OUTPUT_W*VPE_OUTPUT_H*3) // rgb24 : 24bpp
+#define VPE_OUTPUT_RESOLUTION  VPE_OUTPUT_W*VPE_OUTPUT_H
+#define VPE_OUTPUT_FORMAT       "bgr24"
+
 // display output & dump  format: NV12, w:320, h:180
-#define VPE_OUTPUT_IMG_SIZE    (VPE_OUTPUT_W*VPE_OUTPUT_H*3/2) // NV12 : 12bpp
-#define VPE_OUTPUT_FORMAT       "nv12"
+//#define VPE_OUTPUT_IMG_SIZE    (VPE_OUTPUT_W*VPE_OUTPUT_H*3/2) // NV12 : 12bpp
+//#define VPE_OUTPUT_FORMAT       "nv12"
 
 // display output & dump  format: yuyv, w:320, h:180
 //#define VPE_OUTPUT_IMG_SIZE    (VPE_OUTPUT_W*VPE_OUTPUT_H*2)
@@ -33,8 +38,16 @@
 #define DUMP_MSGQ_KEY           1020
 #define DUMP_MSGQ_MSG_TYPE      0x02
 
+/**
+  * @brief  Required threads, functions, and structures.\
+  */
 void * main_thread(void *arg);
 void * secondary_thread(void *arg);
+
+uint8_t getMaxBGR_VBGR(uint8_t b, uint8_t g, uint8_t r, uint8_t *V_BGR);
+uint8_t getMinBGR(uint8_t b, uint8_t g, uint8_t r);
+
+void BGR24_to_HSV(uint8_t *image_buf);
 
 typedef enum {
     DUMP_NONE,
@@ -132,7 +145,7 @@ void * main_thread(void *arg)
     int index;
     int i;
     // Address value where the image is stored
-    unsigned char *addr;
+    //unsigned char *addr;
     // Variables for performance measurement
     uint32_t optime = 0;
     struct timeval st;
@@ -170,7 +183,8 @@ void * main_thread(void *arg)
 
     vpe->field = V4L2_FIELD_ANY;
     while(1)
-    {    
+    {   
+        gettimeofday(&st, NULL);
         index = v4l2_dqbuf(v4l2, &vpe->field);
         vpe_input_qbuf(vpe, index);
 
@@ -183,11 +197,17 @@ void * main_thread(void *arg)
 
         index = vpe_output_dqbuf(vpe);
         capt = vpe->disp_bufs[index];
-        addr = omap_bo_map(capt->bo[0]);
+        uint8_t image_buf[VPE_OUTPUT_IMG_SIZE];
+        memcpy(image_buf, omap_bo_map(capt->bo[0]), VPE_OUTPUT_IMG_SIZE);
+        //addr = omap_bo_map(capt->bo[0]);
         //printf("Info : %d \n", *(    (unsigned char*)omap_bo_map(capt->bo[0])    ) );
+        //printf("Info : %d \t", *addr);
+        printf("Info B : %d \t", image_buf[0]);
+        printf("Info G : %d \t", image_buf[1]);
+        printf("Info R : %d \n", image_buf[2]);
 
-        printf("Info : %d \t", *addr);
-        
+        BGR24_to_HSV(image_buf);
+
         if(pthread_create(&(data->threads[1]), NULL, secondary_thread, data)) {
             MSG("Failed creating Secondary thread");
         }
@@ -197,12 +217,20 @@ void * main_thread(void *arg)
             ERROR("Post buffer failed");
             return NULL;
         }
-        gettimeofday(&st, NULL);
+        /**
+        * @breif    Transfer the image to another buffer
+        * @caution  rgb24 format
+        */
+
+        /**
+        * @breif    Transfer the image to another buffer
+        * @caution  nv12 format
         unsigned char y_buf[VPE_OUTPUT_W*VPE_OUTPUT_H];
         unsigned char uv_buf[VPE_OUTPUT_W*VPE_OUTPUT_H/2];
         memcpy(y_buf, omap_bo_map(capt->bo[0]), VPE_OUTPUT_W*VPE_OUTPUT_H); // y data
         memcpy(uv_buf, omap_bo_map(capt->bo[1]), VPE_OUTPUT_W*VPE_OUTPUT_H/2); // uv data
-        get_result(optime, st, et);
+        */
+
         /*
         if(data->dump_state == DUMP_READY) {
             DumpMsg dumpmsg;
@@ -236,6 +264,7 @@ void * main_thread(void *arg)
         vpe_output_qbuf(vpe, index);
         index = vpe_input_dqbuf(vpe);
         v4l2_qbuf(v4l2, vpe->input_buf_dmafd[index], index);
+        get_result(optime, st, et);
     }
 
     MSG("Ok!");
@@ -249,7 +278,6 @@ void * main_thread(void *arg)
   */
 void * secondary_thread(void *arg)
 {
-    printf("secondary_thread is working\n");
     return NULL;
 }
 
@@ -367,4 +395,63 @@ int main(int argc, char **argv)
     pause();
 
     return ret;
+}
+/**
+  * @breif  get Max(B,G,R), Min(B,G,R), V_BGR for BGR24 to HSV
+  */
+uint8_t getMaxBGR_VBGR(uint8_t b, uint8_t g, uint8_t r, uint8_t *V_BGR) {
+    // V_BGR : B = 0, G = 1, R = 2.
+    *V_BGR = 0;
+    uint8_t max = b;
+    if (g > max) { max = g; *V_BGR = 1; }
+    if (r > max) { max = r; *V_BGR = 2; }
+    return max;
+}
+uint8_t getMinBGR(uint8_t b, uint8_t g, uint8_t r) {
+    uint8_t min = b;
+    if (g < min) min = g;
+    if (r < min) min = r;
+    return min;
+}
+
+/**
+  * @breif  BGR24 to HSV
+  */
+void BGR24_to_HSV(uint8_t *image_buf)
+{
+    int i, j;
+    uint8_t temp_buf[VPE_OUTPUT_IMG_SIZE];
+    memcpy(temp_buf, image_buf, VPE_OUTPUT_IMG_SIZE);
+    uint8_t hsv_buf[VPE_OUTPUT_IMG_SIZE];
+
+    uint8_t V_BGR;
+    uint8_t B, G, R; int16_t H; uint8_t S; uint8_t V;
+    uint8_t Max, Min;
+
+    for(i = 0; i < VPE_OUTPUT_RESOLUTION; i++)
+    {
+        j = 3*i;
+        B = temp_buf[j];    G = temp_buf[j+1];    R = temp_buf[j+2];
+        Max = getMaxBGR_VBGR(B, G, R, &V_BGR);
+        Min = getMinBGR(B, G, R);// Obtaining V
+        V = Max;
+        // Obtaining S
+        if (V == 0)    S = 0;
+        else           S = 255 * (float)(V - Min) / V;
+        // Obtaining H
+        switch(V_BGR)
+        {
+            case 0 : H = 240 + (float)60 * (R - G) / (V - Min); break;    // V is Blue
+            case 1 : H = 120 + (float)60 * (B - R) / (V - Min); break;    // V is Green
+            case 2 : H =       (float)60 * (G - B) / (V - Min); break;    // V is Red
+            default : H = 0;                                      break;
+        }
+        if(H < 0)    H = H + 360;
+        H = H / 2;
+        hsv_buf[j] = H; hsv_buf[j+1] = S; hsv_buf[j+2] = V;
+    }
+    printf("Info H : %d \t", hsv_buf[0]);
+    printf("Info S : %d \t", hsv_buf[1]);
+    printf("Info V : %d \n", hsv_buf[2]);
+    printf("V_BGR : %d\n", V_BGR);
 }
