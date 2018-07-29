@@ -11,10 +11,11 @@
 #define VPE_OUTPUT_W            320
 #define VPE_OUTPUT_H            180
 
-// display output & dump  format: rgb24, w:320, h:180
-#define VPE_OUTPUT_IMG_SIZE    (VPE_OUTPUT_W*VPE_OUTPUT_H*3) // rgb24 : 24bpp
-#define VPE_OUTPUT_RESOLUTION  VPE_OUTPUT_W*VPE_OUTPUT_H
+// display output & dump  format: bgr24, w:320, h:180
+#define bgr24
+#define VPE_OUTPUT_IMG_SIZE    (VPE_OUTPUT_W*VPE_OUTPUT_H*3) // bgr24 : 24bpp
 #define VPE_OUTPUT_FORMAT       "bgr24"
+#define VPE_OUTPUT_RESOLUTION  VPE_OUTPUT_W*VPE_OUTPUT_H
 
 // display output & dump  format: NV12, w:320, h:180
 //#define VPE_OUTPUT_IMG_SIZE    (VPE_OUTPUT_W*VPE_OUTPUT_H*3/2) // NV12 : 12bpp
@@ -27,9 +28,9 @@
 /**
   * @Brief  Values for detect_Yellow_color()
   */
-#define maxHue    45
-#define minHue    25
-#define maxSat    250
-#define minSat    30
-#define maxVal    255
-#define minVal    50
+#define HUE_MAX    45
+#define HUE_MIN    25
+#define SAT_MAX    250
+#define SAT_MIN    30
+#define VAL_MAX    255
+#define VAL_MIN    50

@@ -28,6 +28,8 @@ void * secondary_thread(void *arg);
 
 uint8_t getMaxBGR_VBGR(uint8_t b, uint8_t g, uint8_t r, uint8_t *V_BGR);
 uint8_t getMinBGR(uint8_t b, uint8_t g, uint8_t r);
+void draw_horizontal_line(uint8_t *image_buf, uint16_t y);
+void draw_vertical_line(uint8_t *image_buf, uint16_t x);
 
 void BGR24_to_HSV(uint8_t *image_buf);
 void detect_Yellow_color(uint8_t *image_buf);
@@ -188,6 +190,10 @@ void * main_thread(void *arg)
 
         BGR24_to_HSV(image_buf);
         detect_Yellow_color(image_buf);
+
+        draw_horizontal_line(image_buf, 90);
+        draw_vertical_line(image_buf, 160);
+
         memcpy(omap_bo_map(capt->bo[0]), image_buf, VPE_OUTPUT_IMG_SIZE);
 
         if(pthread_create(&(data->threads[1]), NULL, secondary_thread, data)) {
@@ -303,7 +309,7 @@ int main(int argc, char **argv)
 
     CarControlInit();
     CarLight_Write(ALL_ON);
-    usleep(1000000);
+    usleep(300000);
     CarLight_Write(ALL_OFF);
 
     printf("-- Project Start --\n");
@@ -449,9 +455,35 @@ void detect_Yellow_color(uint8_t *image_buf)
     for(i = 0; i < VPE_OUTPUT_RESOLUTION; i++)
     {
         j = 3 * i;
-        if( ( minHue < temp_buf[j] && temp_buf[j] < maxHue ) && ( minSat < temp_buf[j+1] && temp_buf[j+1] < maxSat ) )
+        if( ( HUE_MIN < temp_buf[j] && temp_buf[j] < HUE_MAX ) && ( SAT_MIN < temp_buf[j+1] && temp_buf[j+1] < SAT_MAX ) )
             image_buf[j] = image_buf[j+1] = image_buf[j+2] = 255;
         else
             image_buf[j] = image_buf[j+1] = image_buf[j+2] = 0;
     }
+}
+void draw_horizontal_line(uint8_t *image_buf, uint16_t y)
+{
+    #ifdef bgr24
+        int i,j;
+        int index = y * VPE_OUTPUT_W * 3;
+        for(i = 0; i < VPE_OUTPUT_W; i++)
+        {
+            j = 3 * i;
+            image_buf[index + j]  = 255;
+            image_buf[index+1 + j] = image_buf[index+2 + j] = 0;
+        }
+    #endif
+}
+void draw_vertical_line(uint8_t *image_buf, uint16_t x)
+{
+    #ifdef bgr24
+        int i,j;
+        int index = x * 3;
+        for(i = 0; i < VPE_OUTPUT_H; i++)
+        {
+            j = index + 3 * VPE_OUTPUT_W * i;
+            image_buf[j]  = 255;
+            image_buf[j + 1] = image_buf[j + 2] = 0;
+        }
+    #endif
 }
