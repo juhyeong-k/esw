@@ -33,6 +33,7 @@ void draw_vertical_line(uint8_t *image_buf, uint16_t x);
 
 void BGR24_to_HSV(uint8_t *image_buf);
 void detect_Yellow_color(uint8_t *image_buf);
+uint16_t determine_direction(uint8_t *image_buf);
 
 typedef enum {
     DUMP_NONE,
@@ -57,8 +58,8 @@ struct thr_data {
     unsigned char dump_img_data[VPE_OUTPUT_IMG_SIZE]; // dump image size
 
     int msgq_id;
-    bool bfull_screen; // true : 480x272 disp È­¸é¿¡ ¸Â°Ô scale ±×·¸Áö ¾ÊÀ» °æ¿ì false.
-    bool bstream_start; // camera stream start ¿©ºÎ
+    bool bfull_screen; // true : 480x272 disp í™”ë©´ì— ë§žê²Œ scale ê·¸ë ‡ì§€ ì•Šì„ ê²½ìš° false.
+    bool bstream_start; // camera stream start ì—¬ë¶€
     pthread_t threads[2];
 };
 
@@ -167,6 +168,9 @@ void * main_thread(void *arg)
     vpe_stream_on(vpe->fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
 
     vpe->field = V4L2_FIELD_ANY;
+    PositionControlOnOff_Write(UNCONTROL);
+    SpeedControlOnOff_Write(CONTROL);
+    DesireSpeed_Write(50);
     while(1)
     {   
         gettimeofday(&st, NULL);
@@ -191,7 +195,9 @@ void * main_thread(void *arg)
         BGR24_to_HSV(image_buf);
         detect_Yellow_color(image_buf);
 
-        draw_horizontal_line(image_buf, 90);
+        SteeringServoControl_Write(determine_direction(image_buf));
+        draw_horizontal_line(image_buf, UPPER_LINE);
+        draw_horizontal_line(image_buf, LOWER_LINE);
         draw_vertical_line(image_buf, 160);
 
         memcpy(omap_bo_map(capt->bo[0]), image_buf, VPE_OUTPUT_IMG_SIZE);
@@ -223,7 +229,6 @@ void * main_thread(void *arg)
         if(data->dump_state == DUMP_READY) {
             DumpMsg dumpmsg;
             unsigned char* pbuf[4];
-
             if(get_framebuf(capt, pbuf) == 0) {
                 switch(capt->fourcc) {
                     case FOURCC('Y','U','Y','V'):
@@ -240,7 +245,6 @@ void * main_thread(void *arg)
             } else {
                 MSG("dump capture buf fail !");
             }
-
             dumpmsg.type = DUMP_MSGQ_MSG_TYPE;
             dumpmsg.state_msg = DUMP_WRITE_TO_FILE;
             data->dump_state = DUMP_WRITE_TO_FILE;
@@ -294,6 +298,8 @@ void signal_handler(int sig)
         vpe_close(pexam_data->vpe);
         v4l2_close(pexam_data->v4l2);
         
+        DesireSpeed_Write(0);
+        SteeringServoControl_Write(1500);
         printf("-- Project End --\n");
     }
 }
@@ -308,10 +314,9 @@ int main(int argc, char **argv)
     int ret = 0;
 
     CarControlInit();
-    CarLight_Write(ALL_ON);
-    usleep(300000);
     CarLight_Write(ALL_OFF);
-
+    CameraYServoControl_Write(CAMERA_Y_SERVO);
+    SteeringServoControl_Write(2000);
     printf("-- Project Start --\n");
 
     tdata.dump_state = DUMP_NONE;
@@ -485,5 +490,107 @@ void draw_vertical_line(uint8_t *image_buf, uint16_t x)
             image_buf[j]  = 255;
             image_buf[j + 1] = image_buf[j + 2] = 0;
         }
+    #endif
+}
+// DO NOT USE NUMBERS, USE DEFINE VALUE!!!
+uint16_t determine_direction(uint8_t *image_buf)
+{
+    #ifdef bgr24
+        float vector = 0;
+        uint8_t flag = 0;
+        uint16_t temp,i,j,k;
+        uint16_t right_high, right_low, left_high, left_low;
+        uint32_t index;
+
+        right_high = right_low = left_high = left_low = 0;
+
+        // detect direction from Right UPPER_LINE
+        index = UPPER_LINE * VPE_OUTPUT_W * 3 + VPE_OUTPUT_W * 3 / 2;
+        for(i = 0; i < VPE_OUTPUT_W / 2; i++)
+        {
+            j = 3 * i;
+            if( image_buf[index + j] )
+            {
+                temp = 0;
+                for(k = 1; k < 10; k++)
+                {
+                    if( image_buf[index + j + 3*k] )    temp++;
+                }
+                if(temp > 7)
+                {
+                    right_high = (( index + j ) % ( VPE_OUTPUT_W * 3 )) / 3;
+                    flag += 1;
+                    break;
+                }
+            }
+        }
+        // detect direction from Right LOWER_LINE
+        index = LOWER_LINE * VPE_OUTPUT_W * 3 + VPE_OUTPUT_W * 3 / 2;
+        for(i = 0; i < VPE_OUTPUT_W / 2; i++)
+        {
+            j = 3 * i;
+            if( image_buf[index + j] )
+            {
+                temp = 0;
+                for(k = 1; k < 10; k++)    if(image_buf[index + j + k])    temp++;
+                if(temp > 7) 
+                {
+                    right_low = (( index + j ) % ( VPE_OUTPUT_W * 3 )) / 3;
+                    flag += 2;
+                    break;
+                }
+            }
+        }
+        // detect direction from Left UPPER_LINE
+        index = UPPER_LINE * VPE_OUTPUT_W * 3 + VPE_OUTPUT_W * 3 / 2;
+        for(i = 0; i < VPE_OUTPUT_W / 2; i++)
+        {
+            j = 3 * i;
+            if( image_buf[index - j] )
+            {
+                temp = 0;
+                for(k = 1; k < 10; k++)    if(image_buf[index - j - k])    temp++;
+                if(temp > 7)
+                {
+                    left_high = (( index - j ) % (VPE_OUTPUT_W * 3)) / 3;
+                    flag += 4;
+                    break;
+                }
+            }
+        }
+        // detect direction from Left LOWER_LINE
+        index = LOWER_LINE * VPE_OUTPUT_W * 3 + VPE_OUTPUT_W * 3 / 2;
+        for(i = 0; i < VPE_OUTPUT_W / 2; i++)
+        {
+            j = 3 * i;
+            if( image_buf[index - j] )
+            {
+                temp = 0;
+                for(k = 1; k < 10; k++)    if(image_buf[index - j - k])    temp++;
+                if(temp > 7) 
+                {
+                    left_low = (( index - j ) % (VPE_OUTPUT_W * 3)) / 3;
+                    flag += 8;
+                    break;
+                }
+            }
+        }
+        if (flag == 15)    {
+            vector = (float)(right_high - right_low) / (LOWER_LINE - UPPER_LINE) + (float)(left_high - left_low) / (LOWER_LINE - UPPER_LINE);
+        }
+        else if ((flag & 1) && (flag & 2))     {
+            vector = (float)(right_high - right_low) / (LOWER_LINE - UPPER_LINE);
+        }
+        else if ((flag & 4) && (flag & 8))     {
+            vector = (float)(left_high - left_low) / (LOWER_LINE - UPPER_LINE);
+        }
+        else    {
+            printf("Didn't detected\n");
+        }
+        printf("vector : %f\n", vector);
+
+        if(vector > 1.11)         return 1000;
+        else if (vector < -1.11) return 2000;
+        else                       return (uint16_t)(1500 - 450 * vector);
     #endif
 }

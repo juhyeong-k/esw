@@ -3,6 +3,10 @@
  * @Brief  Configurations for main.c
  *
  */
+#define CAMERA_Y_SERVO     1700
+
+#define UPPER_LINE          120
+#define LOWER_LINE          150
 
 #define CAPTURE_IMG_W       1280
 #define CAPTURE_IMG_H       720
@@ -28,9 +32,9 @@
 /**
   * @Brief  Values for detect_Yellow_color()
   */
-#define HUE_MAX    45
+#define HUE_MAX    65
 #define HUE_MIN    25
 #define SAT_MAX    250
-#define SAT_MIN    30
+#define SAT_MIN    10
 #define VAL_MAX    255
 #define VAL_MIN    50
