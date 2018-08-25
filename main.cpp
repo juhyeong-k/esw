@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <syslog.h>
 
+extern "C" {
 #include "util.h"
 
 #include "display-kms.h"
@@ -15,6 +16,7 @@
 #include "input_cmd.h"
 
 #include "car_lib.h"
+}
 #include "project_config.h"
 
 #define DUMP_MSGQ_KEY           1020
@@ -73,7 +75,7 @@ static int allocate_input_buffers(struct thr_data *data)
     int i;
     struct vpe *vpe = data->vpe;
 
-    data->input_bufs = calloc(NUMBUF, sizeof(*data->input_bufs));
+    data->input_bufs = (buffer**)calloc(NUMBUF, sizeof(*data->input_bufs));
     for(i = 0; i < NUMBUF; i++) {
         data->input_bufs[i] = alloc_buffer(vpe->disp, vpe->src.fourcc, vpe->src.width, vpe->src.height, false);
     }
@@ -211,48 +213,7 @@ void * main_thread(void *arg)
             ERROR("Post buffer failed");
             return NULL;
         }
-        /**
-        * @breif    Transfer the image to another buffer
-        * @caution  rgb24 format
-        */
-
-        /**
-        * @breif    Transfer the image to another buffer
-        * @caution  nv12 format
-        unsigned char y_buf[VPE_OUTPUT_W*VPE_OUTPUT_H];
-        unsigned char uv_buf[VPE_OUTPUT_W*VPE_OUTPUT_H/2];
-        memcpy(y_buf, omap_bo_map(capt->bo[0]), VPE_OUTPUT_W*VPE_OUTPUT_H); // y data
-        memcpy(uv_buf, omap_bo_map(capt->bo[1]), VPE_OUTPUT_W*VPE_OUTPUT_H/2); // uv data
-        */
-
-        /*
-        if(data->dump_state == DUMP_READY) {
-            DumpMsg dumpmsg;
-            unsigned char* pbuf[4];
-            if(get_framebuf(capt, pbuf) == 0) {
-                switch(capt->fourcc) {
-                    case FOURCC('Y','U','Y','V'):
-                        memcpy(data->dump_img_data, pbuf[0], VPE_OUTPUT_IMG_SIZE);
-                        break;
-                    case FOURCC('N','V','1','2'):
-                        memcpy(data->dump_img_data, pbuf[0], VPE_OUTPUT_W*VPE_OUTPUT_H); // y data
-                        memcpy(data->dump_img_data+VPE_OUTPUT_W*VPE_OUTPUT_H, pbuf[1], VPE_OUTPUT_W*VPE_OUTPUT_H/2); // uv data
-                        break;
-                    default :
-                        MSG("DUMP.. not yet support format : %.4s\n", (char*)&capt->fourcc);
-                        break;
-                }
-            } else {
-                MSG("dump capture buf fail !");
-            }
-            dumpmsg.type = DUMP_MSGQ_MSG_TYPE;
-            dumpmsg.state_msg = DUMP_WRITE_TO_FILE;
-            data->dump_state = DUMP_WRITE_TO_FILE;
-            if (-1 == msgsnd(data->msgq_id, &dumpmsg, sizeof(DumpMsg)-sizeof(long), 0)) {
-                MSG("state:%d, msg send fail\n", dumpmsg.state_msg);
-            }
-        }
-        */
+        
         vpe_output_qbuf(vpe, index);
         index = vpe_input_dqbuf(vpe);
         v4l2_qbuf(v4l2, vpe->input_buf_dmafd[index], index);
