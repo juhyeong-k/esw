@@ -18,6 +18,7 @@ extern "C" {
 #include "car_lib.h"
 }
 #include "project_config.h"
+#include "image_processing.h"
 
 #define DUMP_MSGQ_KEY           1020
 #define DUMP_MSGQ_MSG_TYPE      0x02
@@ -28,12 +29,6 @@ extern "C" {
 void * main_thread(void *arg);
 void * secondary_thread(void *arg);
 
-uint8_t getMaxBGR_VBGR(uint8_t b, uint8_t g, uint8_t r, uint8_t *V_BGR);
-uint8_t getMinBGR(uint8_t b, uint8_t g, uint8_t r);
-void draw_horizontal_line(uint8_t *image_buf, uint16_t y);
-void draw_vertical_line(uint8_t *image_buf, uint16_t x);
-
-void BGR24_to_HSV(uint8_t *image_buf);
 void detect_Yellow_color(uint8_t *image_buf);
 uint16_t determine_direction(uint8_t *image_buf);
 
@@ -133,12 +128,16 @@ void * main_thread(void *arg)
     int index;
     int i;
     // Address value where the image is stored
-    //unsigned char *addr;
+    // unsigned char *addr;
     // Variables for performance measurement
     uint32_t optime = 0;
     struct timeval st;
     struct timeval et;
     
+    // Class declaration
+    BGR24_to_HSV hsvConverter;
+    Draw draw;
+
     v4l2_reqbufs(v4l2, NUMBUF);
 
     // init vpe input
@@ -194,13 +193,13 @@ void * main_thread(void *arg)
         //printf("Info : %d \n", *(    (unsigned char*)omap_bo_map(capt->bo[0])    ) );
         //printf("Info : %d \t", *addr);
 
-        BGR24_to_HSV(image_buf);
+        hsvConverter.bgr24_to_hsv(image_buf,image_buf);
         detect_Yellow_color(image_buf);
 
         SteeringServoControl_Write(determine_direction(image_buf));
-        draw_horizontal_line(image_buf, UPPER_LINE);
-        draw_horizontal_line(image_buf, LOWER_LINE);
-        draw_vertical_line(image_buf, 160);
+        draw.horizontal_line(image_buf, UPPER_LINE);
+        draw.horizontal_line(image_buf, LOWER_LINE);
+        draw.vertical_line(image_buf, 160);
 
         memcpy(omap_bo_map(capt->bo[0]), image_buf, VPE_OUTPUT_IMG_SIZE);
 
@@ -355,60 +354,7 @@ int main(int argc, char **argv)
 
     return ret;
 }
-/**
-  * @breif  get Max(B,G,R), Min(B,G,R), V_BGR for BGR24 to HSV
-  */
-uint8_t getMaxBGR_VBGR(uint8_t b, uint8_t g, uint8_t r, uint8_t *V_BGR) {
-    // V_BGR : B = 0, G = 1, R = 2.
-    *V_BGR = 0;
-    uint8_t max = b;
-    if (g > max) { max = g; *V_BGR = 1; }
-    if (r > max) { max = r; *V_BGR = 2; }
-    return max;
-}
-uint8_t getMinBGR(uint8_t b, uint8_t g, uint8_t r) {
-    uint8_t min = b;
-    if (g < min) min = g;
-    if (r < min) min = r;
-    return min;
-}
-/**
-  * @breif  BGR24 to HSV
-  *          Converts image_buffer of bgr24 format to hsv.
-  */
-void BGR24_to_HSV(uint8_t *image_buf)
-{
-    int i, j;
-    uint8_t temp_buf[VPE_OUTPUT_IMG_SIZE];
-    memcpy(temp_buf, image_buf, VPE_OUTPUT_IMG_SIZE);
 
-    uint8_t V_BGR;
-    uint8_t B, G, R; int16_t H; uint8_t S; uint8_t V;
-    uint8_t Max, Min;
-
-    for(i = 0; i < VPE_OUTPUT_RESOLUTION; i++)
-    {
-        j = 3*i;
-        B = temp_buf[j];    G = temp_buf[j+1];    R = temp_buf[j+2];
-        Max = getMaxBGR_VBGR(B, G, R, &V_BGR);
-        Min = getMinBGR(B, G, R);// Obtaining V
-        V = Max;
-        // Obtaining S
-        if (V == 0)    S = 0;
-        else           S = 255 * (float)(V - Min) / V;
-        // Obtaining H
-        switch(V_BGR)
-        {
-            case 0 : H = 240 + (float)60 * (R - G) / (V - Min); break;    // V is Blue
-            case 1 : H = 120 + (float)60 * (B - R) / (V - Min); break;    // V is Green
-            case 2 : H =       (float)60 * (G - B) / (V - Min); break;    // V is Red
-            default : H = 0;                                      break;
-        }
-        if(H < 0)    H = H + 360;
-        H = H / 2;
-        image_buf[j] = H; image_buf[j+1] = S; image_buf[j+2] = V;
-    }
-}
 /**
   * @breif  detect_Yellow_color
   *          Detect yellow from image_buf and save it as bgr24 black and white image.
@@ -421,38 +367,15 @@ void detect_Yellow_color(uint8_t *image_buf)
     for(i = 0; i < VPE_OUTPUT_RESOLUTION; i++)
     {
         j = 3 * i;
-        if( ( HUE_MIN < temp_buf[j] && temp_buf[j] < HUE_MAX ) && ( SAT_MIN < temp_buf[j+1] && temp_buf[j+1] < SAT_MAX ) )
+        if( ( yellow_HUE_MIN < temp_buf[j] && temp_buf[j] < yellow_HUE_MAX ) && 
+        	( yellow_SAT_MIN < temp_buf[j+1] && temp_buf[j+1] < yellow_SAT_MAX ) &&
+        	( yellow_VAL_MIN < temp_buf[j+2] && temp_buf[j+2] < yellow_VAL_MAX) )
             image_buf[j] = image_buf[j+1] = image_buf[j+2] = 255;
         else
             image_buf[j] = image_buf[j+1] = image_buf[j+2] = 0;
     }
 }
-void draw_horizontal_line(uint8_t *image_buf, uint16_t y)
-{
-    #ifdef bgr24
-        int i,j;
-        int index = y * VPE_OUTPUT_W * 3;
-        for(i = 0; i < VPE_OUTPUT_W; i++)
-        {
-            j = 3 * i;
-            image_buf[index + j]  = 255;
-            image_buf[index+1 + j] = image_buf[index+2 + j] = 0;
-        }
-    #endif
-}
-void draw_vertical_line(uint8_t *image_buf, uint16_t x)
-{
-    #ifdef bgr24
-        int i,j;
-        int index = x * 3;
-        for(i = 0; i < VPE_OUTPUT_H; i++)
-        {
-            j = index + 3 * VPE_OUTPUT_W * i;
-            image_buf[j]  = 255;
-            image_buf[j + 1] = image_buf[j + 2] = 0;
-        }
-    #endif
-}
+
 // DO NOT USE NUMBERS, USE DEFINE VALUE!!!
 uint16_t determine_direction(uint8_t *image_buf)
 {

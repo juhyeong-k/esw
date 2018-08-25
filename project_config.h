@@ -30,11 +30,12 @@
 //#define VPE_OUTPUT_FORMAT       "yuyv"
 
 /**
-  * @Brief  Values for detect_Yellow_color()
+  * @Brief
   */
-#define HUE_MAX    65
-#define HUE_MIN    25
-#define SAT_MAX    250
-#define SAT_MIN    10
-#define VAL_MAX    255
-#define VAL_MIN    50
+#define YELLOW 0
+#define yellow_HUE_MAX    65
+#define yellow_HUE_MIN    25
+#define yellow_SAT_MAX    250
+#define yellow_SAT_MIN    10
+#define yellow_VAL_MAX    255
+#define yellow_VAL_MIN    50
