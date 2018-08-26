@@ -1,8 +1,4 @@
-#include <stdint.h>
-#include <string.h>
-#include <iostream>
-#include <fstream>
-#include "project_config.h"
+#include "system_management.h"
 #include "image_processing.h"
 extern std::ofstream fileout;
 

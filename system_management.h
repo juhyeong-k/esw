@@ -3,7 +3,30 @@
  * @Brief  Configurations for main.c
  *
  */
-#define CAMERA_Y_SERVO     1700
+#include <stdint.h>
+#include <iostream>
+#include <fstream>
+#include <sys/types.h>
+#include <sys/sysinfo.h>
+/**
+  * @Brief
+  */
+class System_resource
+{
+	public:
+		System_resource();
+		uint64_t getvirtualMemUsed();
+		uint64_t gettotalVirtualMem();
+	private:
+		struct sysinfo memInfo;
+		long long totalVirtualMem;
+		long long virtualMemUsed;
+};
+/**
+  * @Brief
+  */
+#define CAMERA_X_SERVO     1500
+#define CAMERA_Y_SERVO     1500
 
 #define UPPER_LINE          120
 #define LOWER_LINE          150
@@ -35,10 +58,10 @@
 #define YELLOW 0
 #define yellow_HUE_MAX    65
 #define yellow_HUE_MIN    25
-#define yellow_SAT_MAX    250
+#define yellow_SAT_MAX    255
 #define yellow_SAT_MIN    10
 #define yellow_VAL_MAX    255
-#define yellow_VAL_MIN    50
+#define yellow_VAL_MIN    30
 
 /**
   * @Brief

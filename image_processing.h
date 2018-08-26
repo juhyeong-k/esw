@@ -1,6 +1,11 @@
 /**
   * @brief
   */
+#include <stdint.h>
+#include <string.h>
+#include <iostream>
+#include <fstream>
+
 class BGR24_to_HSV
 {
     public:

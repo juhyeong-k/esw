@@ -8,7 +8,6 @@
 #include <syslog.h>
 #include <iostream>
 #include <fstream>
-extern std::ofstream fileout;
 
 extern "C" {
 #include "util.h"
@@ -20,9 +19,12 @@ extern "C" {
 
 #include "car_lib.h"
 }
-#include "project_config.h"
+#include "system_management.h"
 #include "image_processing.h"
 #include "cv.h"
+
+extern std::ofstream fileout;
+extern System_resource system_resource;
 
 #define DUMP_MSGQ_KEY           1020
 #define DUMP_MSGQ_MSG_TYPE      0x02
@@ -160,6 +162,7 @@ void * main_thread(void *arg)
     DesireSpeed_Write(50);
     while(1)
     {   
+    	printf("memUsed : %llu\n", system_resource.getvirtualMemUsed());
         gettimeofday(&st, NULL);
         index = v4l2_dqbuf(v4l2, &vpe->field);
         vpe_input_qbuf(vpe, index);
@@ -173,18 +176,19 @@ void * main_thread(void *arg)
         index = vpe_output_dqbuf(vpe);
         capt = vpe->disp_bufs[index];
         uint8_t image_buf[VPE_OUTPUT_IMG_SIZE];
-        memcpy(image_buf, omap_bo_map(capt->bo[0]), VPE_OUTPUT_IMG_SIZE);
+        uint8_t display_buf[VPE_OUTPUT_IMG_SIZE];
+        memcpy(display_buf, omap_bo_map(capt->bo[0]), VPE_OUTPUT_IMG_SIZE);
 
-        hsvConverter.bgr24_to_hsv(image_buf,image_buf);
+        hsvConverter.bgr24_to_hsv(display_buf,image_buf);
         yellow.detectColor(image_buf,image_buf);
 
         SteeringServoControl_Write(navigator.getDirection(image_buf));
-        draw.horizontal_line(image_buf, UPPER_LINE);
-        draw.horizontal_line(image_buf, LOWER_LINE);
-        draw.vertical_line(image_buf, 160);
-        draw.dot(image_buf,80,45);
+        draw.horizontal_line(display_buf, UPPER_LINE);
+        draw.horizontal_line(display_buf, LOWER_LINE);
+        draw.vertical_line(display_buf, 160);
+        draw.dot(display_buf,80,45);
 
-        memcpy(omap_bo_map(capt->bo[0]), image_buf, VPE_OUTPUT_IMG_SIZE);
+        memcpy(omap_bo_map(capt->bo[0]), display_buf, VPE_OUTPUT_IMG_SIZE);
 
         if(pthread_create(&(data->threads[1]), NULL, secondary_thread, data)) {
             MSG("Failed creating Secondary thread");
@@ -258,8 +262,9 @@ int main(int argc, char **argv)
 
     CarControlInit();
     CarLight_Write(ALL_OFF);
+    CameraXServoControl_Write(CAMERA_X_SERVO);
     CameraYServoControl_Write(CAMERA_Y_SERVO);
-    SteeringServoControl_Write(2000);
+    SteeringServoControl_Write(1500);
     printf("-- Project Start --\n");
 
     // open vpe
