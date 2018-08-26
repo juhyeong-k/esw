@@ -6,6 +6,8 @@
 #include <sys/time.h>
 #include <errno.h>
 #include <syslog.h>
+#include <iostream>
+#include <fstream>
 
 extern "C" {
 #include "util.h"
@@ -31,6 +33,8 @@ void * secondary_thread(void *arg);
 
 void detect_Yellow_color(uint8_t *image_buf);
 uint16_t determine_direction(uint8_t *image_buf);
+
+std::ofstream fileout("err");
 
 typedef enum {
     DUMP_NONE,
@@ -184,7 +188,6 @@ void * main_thread(void *arg)
         MSG("streaming started...");
         data->bstream_start = true;
         }
-
         index = vpe_output_dqbuf(vpe);
         capt = vpe->disp_bufs[index];
         uint8_t image_buf[VPE_OUTPUT_IMG_SIZE];
@@ -257,6 +260,7 @@ void signal_handler(int sig)
         disp_close(pexam_data->vpe->disp);
         vpe_close(pexam_data->vpe);
         v4l2_close(pexam_data->v4l2);
+        fileout.close();
         
         DesireSpeed_Write(0);
         SteeringServoControl_Write(1500);
