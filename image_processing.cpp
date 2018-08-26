@@ -89,6 +89,21 @@ void Draw::vertical_line(uint8_t *des, uint16_t x)
         }
     #endif
 }
+void Draw::dot(uint8_t *des, uint16_t x, uint16_t y)
+{
+    #ifdef bgr24
+        int i,j;
+        uint32_t StartPosition = y * VPE_OUTPUT_W * 3 + x * 3 + 1;
+        for(i = 0; i < 3; i++) {
+            des[StartPosition - 3 + 3*i] = 255;
+        }
+        for(i = -1; i < 2; i++) {
+            j = StartPosition + 3*VPE_OUTPUT_W*i;
+            des[j] = 255;
+            des[j + 1] = des[j + 2] = 0;
+        }
+    #endif
+}
 /**
   * @breif  colorFilter class
   *
