@@ -21,6 +21,7 @@ class colorFilter
 		colorFilter(uint8_t colorName);
 		void detectColor(uint8_t *src, uint8_t *des);
 	private:
+		bool inRange(uint8_t h, uint8_t s, uint8_t v);
 		uint8_t HUE_MAX;
 		uint8_t HUE_MIN;
 		uint8_t SAT_MAX;

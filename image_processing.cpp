@@ -111,16 +111,26 @@ colorFilter::colorFilter(uint8_t colorName)
 void colorFilter::detectColor(uint8_t *src, uint8_t *des)
 {
     int i, j;
+    uint8_t h,s,v;
     uint8_t temp_buf[VPE_OUTPUT_IMG_SIZE];
     memcpy(temp_buf, src, VPE_OUTPUT_IMG_SIZE);
     for(i = 0; i < VPE_OUTPUT_RESOLUTION; i++)
     {
         j = 3 * i;
-        if( ( yellow_HUE_MIN < temp_buf[j] && temp_buf[j] < yellow_HUE_MAX ) && 
-            ( yellow_SAT_MIN < temp_buf[j+1] && temp_buf[j+1] < yellow_SAT_MAX ) &&
-            ( yellow_VAL_MIN < temp_buf[j+2] && temp_buf[j+2] < yellow_VAL_MAX) )
+        h = temp_buf[j];
+        s = temp_buf[j+1];
+        v = temp_buf[j+2];
+        if(inRange(h,s,v))
             des[j] = des[j+1] = des[j+2] = 255;
         else
             des[j] = des[j+1] = des[j+2] = 0;
     }
+}
+bool colorFilter::inRange(uint8_t h, uint8_t s, uint8_t v)
+{
+    if( ( HUE_MIN < h && h < HUE_MAX ) && 
+        ( SAT_MIN < s && s < SAT_MAX ) &&
+        ( VAL_MIN < v && v < VAL_MAX) )
+          return true;
+    else return false;
 }

@@ -26,8 +26,8 @@ all: $(TARGET)
 clean:
 	rm -f *.a *.o $(TARGET) *.lo
 
-$(TARGET): main.cpp v4l2.lo display-kms.lo util.lo vpe-common.lo input_cmd.lo car_lib.lo project_config.lo image_processing.lo
-	$(CXX) $(CXXFLAGS) -o $@ main.cpp v4l2.lo display-kms.lo util.lo vpe-common.lo input_cmd.lo car_lib.lo project_config.lo image_processing.lo $(LDFLAGS)
+$(TARGET): main.cpp v4l2.lo display-kms.lo util.lo vpe-common.lo input_cmd.lo car_lib.lo project_config.lo image_processing.lo cv.lo
+	$(CXX) $(CXXFLAGS) -o $@ main.cpp v4l2.lo display-kms.lo util.lo vpe-common.lo input_cmd.lo car_lib.lo project_config.lo image_processing.lo cv.lo $(LDFLAGS)
 
 v4l2.lo: v4l2.c v4l2.h
 	$(CC) -c $(CFLAGS) -o $@ v4l2.c
@@ -52,3 +52,6 @@ project_config.lo: project_config.cpp project_config.h
 
 image_processing.lo: image_processing.cpp image_processing.h project_config.lo
 	$(CXX) -c $(CXXFLAGS) -o $@ image_processing.cpp project_config.lo
+
+cv.lo: cv.cpp cv.h project_config.lo
+	$(CXX) -c $(CXXFLAGS) -o $@ cv.cpp project_config.lo

@@ -259,9 +259,6 @@ int main(int argc, char **argv)
     SteeringServoControl_Write(2000);
     printf("-- Project Start --\n");
 
-    tdata.dump_state = DUMP_NONE;
-    memset(tdata.dump_img_data, 0, sizeof(tdata.dump_img_data));
-
     // open vpe
     vpe = vpe_open();
     if(!vpe) {
