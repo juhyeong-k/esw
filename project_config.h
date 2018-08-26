@@ -39,3 +39,8 @@
 #define yellow_SAT_MIN    10
 #define yellow_VAL_MAX    255
 #define yellow_VAL_MIN    50
+
+/**
+  * @Brief
+  */
+#define lineDectectionTHRESHOLD 7

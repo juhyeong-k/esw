@@ -22,6 +22,7 @@ extern "C" {
 }
 #include "project_config.h"
 #include "image_processing.h"
+#include "cv.h"
 
 #define DUMP_MSGQ_KEY           1020
 #define DUMP_MSGQ_MSG_TYPE      0x02
@@ -137,6 +138,7 @@ void * main_thread(void *arg)
     BGR24_to_HSV hsvConverter;
     Draw draw;
     colorFilter yellow(YELLOW);
+    Navigator navigator(lineDectectionTHRESHOLD);
 
     v4l2_reqbufs(v4l2, NUMBUF);
     vpe_input_init(vpe);
@@ -176,7 +178,7 @@ void * main_thread(void *arg)
         hsvConverter.bgr24_to_hsv(image_buf,image_buf);
         yellow.detectColor(image_buf,image_buf);
 
-        SteeringServoControl_Write(determine_direction(image_buf));
+        SteeringServoControl_Write(navigator.getDirection(image_buf));
         draw.horizontal_line(image_buf, UPPER_LINE);
         draw.horizontal_line(image_buf, LOWER_LINE);
         draw.vertical_line(image_buf, 160);
@@ -330,107 +332,4 @@ int main(int argc, char **argv)
     pause();
 
     return ret;
-}
-
-// DO NOT USE NUMBERS, USE DEFINE VALUE!!!
-uint16_t determine_direction(uint8_t *image_buf)
-{
-    #ifdef bgr24
-        float vector = 0;
-        uint8_t flag = 0;
-        uint16_t temp,i,j,k;
-        uint16_t right_high, right_low, left_high, left_low;
-        uint32_t index;
-
-        right_high = right_low = left_high = left_low = 0;
-
-        // detect direction from Right UPPER_LINE
-        index = UPPER_LINE * VPE_OUTPUT_W * 3 + VPE_OUTPUT_W * 3 / 2;
-        for(i = 0; i < VPE_OUTPUT_W / 2; i++)
-        {
-            j = 3 * i;
-            if( image_buf[index + j] )
-            {
-                temp = 0;
-                for(k = 1; k < 10; k++)
-                {
-                    if( image_buf[index + j + 3*k] )    temp++;
-                }
-                if(temp > 7)
-                {
-                    right_high = (( index + j ) % ( VPE_OUTPUT_W * 3 )) / 3;
-                    flag += 1;
-                    break;
-                }
-            }
-        }
-        // detect direction from Right LOWER_LINE
-        index = LOWER_LINE * VPE_OUTPUT_W * 3 + VPE_OUTPUT_W * 3 / 2;
-        for(i = 0; i < VPE_OUTPUT_W / 2; i++)
-        {
-            j = 3 * i;
-            if( image_buf[index + j] )
-            {
-                temp = 0;
-                for(k = 1; k < 10; k++)    if(image_buf[index + j + k])    temp++;
-                if(temp > 7) 
-                {
-                    right_low = (( index + j ) % ( VPE_OUTPUT_W * 3 )) / 3;
-                    flag += 2;
-                    break;
-                }
-            }
-        }
-        // detect direction from Left UPPER_LINE
-        index = UPPER_LINE * VPE_OUTPUT_W * 3 + VPE_OUTPUT_W * 3 / 2;
-        for(i = 0; i < VPE_OUTPUT_W / 2; i++)
-        {
-            j = 3 * i;
-            if( image_buf[index - j] )
-            {
-                temp = 0;
-                for(k = 1; k < 10; k++)    if(image_buf[index - j - k])    temp++;
-                if(temp > 7)
-                {
-                    left_high = (( index - j ) % (VPE_OUTPUT_W * 3)) / 3;
-                    flag += 4;
-                    break;
-                }
-            }
-        }
-        // detect direction from Left LOWER_LINE
-        index = LOWER_LINE * VPE_OUTPUT_W * 3 + VPE_OUTPUT_W * 3 / 2;
-        for(i = 0; i < VPE_OUTPUT_W / 2; i++)
-        {
-            j = 3 * i;
-            if( image_buf[index - j] )
-            {
-                temp = 0;
-                for(k = 1; k < 10; k++)    if(image_buf[index - j - k])    temp++;
-                if(temp > 7) 
-                {
-                    left_low = (( index - j ) % (VPE_OUTPUT_W * 3)) / 3;
-                    flag += 8;
-                    break;
-                }
-            }
-        }
-        if (flag == 15)    {
-            vector = (float)(right_high - right_low) / (LOWER_LINE - UPPER_LINE) + (float)(left_high - left_low) / (LOWER_LINE - UPPER_LINE);
-        }
-        else if ((flag & 1) && (flag & 2))     {
-            vector = (float)(right_high - right_low) / (LOWER_LINE - UPPER_LINE);
-        }
-        else if ((flag & 4) && (flag & 8))     {
-            vector = (float)(left_high - left_low) / (LOWER_LINE - UPPER_LINE);
-        }
-        else    {
-            printf("Didn't detected\n");
-        }
-        printf("vector : %f\n", vector);
-
-        if(vector > 1.11)         return 1000;
-        else if (vector < -1.11) return 2000;
-        else                       return (uint16_t)(1500 - 450 * vector);
-    #endif
 }
