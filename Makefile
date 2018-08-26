@@ -26,8 +26,8 @@ all: $(TARGET)
 clean:
 	rm -f *.a *.o $(TARGET) *.lo
 
-$(TARGET): main.cpp v4l2.lo display-kms.lo util.lo vpe-common.lo input_cmd.lo car_lib.lo image_processing.lo project_config.h
-	$(CXX) $(CXXFLAGS) -o $@ main.cpp v4l2.lo display-kms.lo util.lo vpe-common.lo input_cmd.lo car_lib.lo image_processing.lo $(LDFLAGS)
+$(TARGET): main.cpp v4l2.lo display-kms.lo util.lo vpe-common.lo input_cmd.lo car_lib.lo project_config.lo image_processing.lo
+	$(CXX) $(CXXFLAGS) -o $@ main.cpp v4l2.lo display-kms.lo util.lo vpe-common.lo input_cmd.lo car_lib.lo project_config.lo image_processing.lo $(LDFLAGS)
 
 v4l2.lo: v4l2.c v4l2.h
 	$(CC) -c $(CFLAGS) -o $@ v4l2.c
@@ -47,5 +47,8 @@ input_cmd.lo: input_cmd.cpp input_cmd.h
 car_lib.lo: car_lib.c car_lib.h
 	$(CC) -c $(CFLAGS) -o $@ car_lib.c
 
-image_processing.lo: image_processing.cpp image_processing.h
-	$(CXX) -c $(CXXFLAGS) -o $@ image_processing.cpp
+project_config.lo: project_config.cpp project_config.h
+	$(CXX) -c $(CXXFLAGS) -o $@ project_config.cpp
+
+image_processing.lo: image_processing.cpp image_processing.h project_config.lo
+	$(CXX) -c $(CXXFLAGS) -o $@ image_processing.cpp project_config.lo

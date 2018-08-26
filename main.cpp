@@ -8,6 +8,7 @@
 #include <syslog.h>
 #include <iostream>
 #include <fstream>
+extern std::ofstream fileout;
 
 extern "C" {
 #include "util.h"
@@ -33,8 +34,6 @@ void * secondary_thread(void *arg);
 
 void detect_Yellow_color(uint8_t *image_buf);
 uint16_t determine_direction(uint8_t *image_buf);
-
-std::ofstream fileout("err");
 
 typedef enum {
     DUMP_NONE,
@@ -178,6 +177,7 @@ void * main_thread(void *arg)
     DesireSpeed_Write(50);
     while(1)
     {   
+    	fileout << "ss\n";
         gettimeofday(&st, NULL);
         index = v4l2_dqbuf(v4l2, &vpe->field);
         vpe_input_qbuf(vpe, index);

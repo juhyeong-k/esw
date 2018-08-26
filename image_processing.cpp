@@ -1,7 +1,10 @@
 #include <stdint.h>
 #include <string.h>
+#include <iostream>
+#include <fstream>
 #include "project_config.h"
 #include "image_processing.h"
+extern std::ofstream fileout;
 
 #define isBlue   0
 #define isGreen  1
@@ -33,7 +36,6 @@ void BGR24_to_HSV::bgr24_to_hsv(uint8_t *src, uint8_t *des)
     uint8_t V_BGR;
     uint8_t B, G, R; int16_t H; uint8_t S; uint8_t V;
     uint8_t Max, Min;
-
     for(i = 0; i < VPE_OUTPUT_RESOLUTION; i++)
     {
         j = 3*i;
