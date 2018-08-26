@@ -162,7 +162,7 @@ void * main_thread(void *arg)
     DesireSpeed_Write(50);
     while(1)
     {   
-    	printf("memUsed : %llu\n", system_resource.getvirtualMemUsed());
+    	printf("memUsed : %llu\n", system_resource.getPhysMemUsed());
         gettimeofday(&st, NULL);
         index = v4l2_dqbuf(v4l2, &vpe->field);
         vpe_input_qbuf(vpe, index);

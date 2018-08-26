@@ -15,12 +15,16 @@ class System_resource
 {
 	public:
 		System_resource();
-		uint64_t getvirtualMemUsed();
-		uint64_t gettotalVirtualMem();
+		uint64_t getVirtualMemUsed();
+		uint64_t getTotalVirtualMem();
+		uint64_t getTotalPhysMem();
+		uint64_t getPhysMemUsed();
 	private:
 		struct sysinfo memInfo;
 		long long totalVirtualMem;
 		long long virtualMemUsed;
+		long long totalPhysMem;
+		long long physMemUsed;
 };
 /**
   * @Brief
