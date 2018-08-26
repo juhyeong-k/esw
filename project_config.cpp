@@ -1,3 +1,3 @@
 #include <iostream>
 #include <fstream>
-std::ofstream fileout("err");
+std::ofstream fileout("log");

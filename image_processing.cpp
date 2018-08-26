@@ -105,6 +105,22 @@ colorFilter::colorFilter(uint8_t colorName)
             VAL_MAX = yellow_VAL_MAX;
             VAL_MIN = yellow_VAL_MIN;
             break;
-        default : break;
+        default : fileout << "colorName was not defined(image_processing.cpp)\n"; break;
+    }
+}
+void colorFilter::detectColor(uint8_t *src, uint8_t *des)
+{
+    int i, j;
+    uint8_t temp_buf[VPE_OUTPUT_IMG_SIZE];
+    memcpy(temp_buf, src, VPE_OUTPUT_IMG_SIZE);
+    for(i = 0; i < VPE_OUTPUT_RESOLUTION; i++)
+    {
+        j = 3 * i;
+        if( ( yellow_HUE_MIN < temp_buf[j] && temp_buf[j] < yellow_HUE_MAX ) && 
+            ( yellow_SAT_MIN < temp_buf[j+1] && temp_buf[j+1] < yellow_SAT_MAX ) &&
+            ( yellow_VAL_MIN < temp_buf[j+2] && temp_buf[j+2] < yellow_VAL_MAX) )
+            des[j] = des[j+1] = des[j+2] = 255;
+        else
+            des[j] = des[j+1] = des[j+2] = 0;
     }
 }

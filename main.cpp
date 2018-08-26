@@ -32,7 +32,6 @@ extern "C" {
 void * main_thread(void *arg);
 void * secondary_thread(void *arg);
 
-void detect_Yellow_color(uint8_t *image_buf);
 uint16_t determine_direction(uint8_t *image_buf);
 
 typedef enum {
@@ -130,54 +129,35 @@ void * main_thread(void *arg)
     bool isFirst = true;
     int index;
     int i;
-    // Address value where the image is stored
-    // unsigned char *addr;
     // Variables for performance measurement
     uint32_t optime = 0;
     struct timeval st;
     struct timeval et;
-    
     // Class declaration
     BGR24_to_HSV hsvConverter;
     Draw draw;
+    colorFilter yellow(YELLOW);
 
     v4l2_reqbufs(v4l2, NUMBUF);
-
-    // init vpe input
     vpe_input_init(vpe);
-
-    // allocate vpe input buffer
     allocate_input_buffers(data);
-
-    if(vpe->dst.coplanar)
-        vpe->disp->multiplanar = true;
-    else
-        vpe->disp->multiplanar = false;
+    if(vpe->dst.coplanar)    vpe->disp->multiplanar = true;
+    else                       vpe->disp->multiplanar = false;
     printf("disp multiplanar:%d \n", vpe->disp->multiplanar);
-
-    // init /allocate vpe output, vpe output buffer is used as a frame buffer for display
     vpe_output_init(vpe);
     vpe_output_fullscreen(vpe, data->bfull_screen);
-
-    for (i = 0; i < NUMBUF; i++) {
-        // caputre image is used as a vpe input buffer
-        v4l2_qbuf(v4l2,vpe->input_buf_dmafd[i], i);
-    }
-
-    for (i = 0; i < NUMBUF; i++) {
-        vpe_output_qbuf(vpe, i);
-    }
-
+    // caputre image is used as a vpe input buffer
+    for (i = 0; i < NUMBUF; i++)    v4l2_qbuf(v4l2,vpe->input_buf_dmafd[i], i);
+    for (i = 0; i < NUMBUF; i++)    vpe_output_qbuf(vpe, i);
     v4l2_streamon(v4l2);
     vpe_stream_on(vpe->fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
-
     vpe->field = V4L2_FIELD_ANY;
+
     PositionControlOnOff_Write(UNCONTROL);
     SpeedControlOnOff_Write(CONTROL);
     DesireSpeed_Write(50);
     while(1)
     {   
-    	fileout << "ss\n";
         gettimeofday(&st, NULL);
         index = v4l2_dqbuf(v4l2, &vpe->field);
         vpe_input_qbuf(vpe, index);
@@ -192,12 +172,9 @@ void * main_thread(void *arg)
         capt = vpe->disp_bufs[index];
         uint8_t image_buf[VPE_OUTPUT_IMG_SIZE];
         memcpy(image_buf, omap_bo_map(capt->bo[0]), VPE_OUTPUT_IMG_SIZE);
-        //addr = omap_bo_map(capt->bo[0]);
-        //printf("Info : %d \n", *(    (unsigned char*)omap_bo_map(capt->bo[0])    ) );
-        //printf("Info : %d \t", *addr);
 
         hsvConverter.bgr24_to_hsv(image_buf,image_buf);
-        detect_Yellow_color(image_buf);
+        yellow.detectColor(image_buf,image_buf);
 
         SteeringServoControl_Write(determine_direction(image_buf));
         draw.horizontal_line(image_buf, UPPER_LINE);
@@ -215,13 +192,11 @@ void * main_thread(void *arg)
             ERROR("Post buffer failed");
             return NULL;
         }
-        
         vpe_output_qbuf(vpe, index);
         index = vpe_input_dqbuf(vpe);
         v4l2_qbuf(v4l2, vpe->input_buf_dmafd[index], index);
         get_result(optime, st, et);
     }
-
     MSG("Ok!");
     return NULL;
 }
@@ -270,6 +245,7 @@ void signal_handler(int sig)
 
 int main(int argc, char **argv)
 {
+	fileout << "System start.\n\n";
     struct v4l2 *v4l2;
     struct vpe *vpe;
     struct thr_data tdata;
@@ -357,27 +333,6 @@ int main(int argc, char **argv)
     pause();
 
     return ret;
-}
-
-/**
-  * @breif  detect_Yellow_color
-  *          Detect yellow from image_buf and save it as bgr24 black and white image.
-  */
-void detect_Yellow_color(uint8_t *image_buf)
-{
-    int i, j;
-    uint8_t temp_buf[VPE_OUTPUT_IMG_SIZE];
-    memcpy(temp_buf, image_buf, VPE_OUTPUT_IMG_SIZE);
-    for(i = 0; i < VPE_OUTPUT_RESOLUTION; i++)
-    {
-        j = 3 * i;
-        if( ( yellow_HUE_MIN < temp_buf[j] && temp_buf[j] < yellow_HUE_MAX ) && 
-        	( yellow_SAT_MIN < temp_buf[j+1] && temp_buf[j+1] < yellow_SAT_MAX ) &&
-        	( yellow_VAL_MIN < temp_buf[j+2] && temp_buf[j+2] < yellow_VAL_MAX) )
-            image_buf[j] = image_buf[j+1] = image_buf[j+2] = 255;
-        else
-            image_buf[j] = image_buf[j+1] = image_buf[j+2] = 0;
-    }
 }
 
 // DO NOT USE NUMBERS, USE DEFINE VALUE!!!
