@@ -8,20 +8,18 @@
 #include <syslog.h>
 #include <iostream>
 #include <fstream>
-
 extern "C" {
-#include "util.h"
-
-#include "display-kms.h"
-#include "v4l2.h"
-#include "vpe-common.h"
-#include "input_cmd.h"
-
-#include "car_lib.h"
+	#include "util.h"
+	#include "display-kms.h"
+	#include "v4l2.h"
+	#include "vpe-common.h"
+	#include "input_cmd.h"
+	#include "car_lib.h"
 }
 #include "system_management.h"
 #include "image_processing.h"
 #include "cv.h"
+#include "calibration.h"
 
 extern std::ofstream fileout;
 extern System_resource system_resource;
@@ -266,7 +264,7 @@ int main(int argc, char **argv)
     CameraYServoControl_Write(CAMERA_Y_SERVO);
     SteeringServoControl_Write(1500);
     printf("-- Project Start --\n");
-
+    
     // open vpe
     vpe = vpe_open();
     if(!vpe) {

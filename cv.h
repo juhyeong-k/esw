@@ -31,25 +31,3 @@ class Navigator
         bool isRightDetected();
         bool isLeftDetected();
 };
-////////////////////////////////////////////////////////////////////////////////
-/*
-{
-    if (flag == 15)    {
-        vector = (float)(right_high - right_low) / (LOWER_LINE - UPPER_LINE) + (float)(left_high - left_low) / (LOWER_LINE - UPPER_LINE);
-    }
-    else if ((flag & 1) && (flag & 2))     {
-        vector = (float)(right_high - right_low) / (LOWER_LINE - UPPER_LINE);
-    }
-    else if ((flag & 4) && (flag & 8))     {
-        vector = (float)(left_high - left_low) / (LOWER_LINE - UPPER_LINE);
-    }
-    else    {
-        printf("Didn't detected\n");
-    }
-    printf("vector : %f\n", vector);
-
-    if(vector > 1.11)         return 1000;
-    else if (vector < -1.11) return 2000;
-    else                       return (uint16_t)(1500 - 450 * vector);
-}
-*/
