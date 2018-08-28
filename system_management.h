@@ -67,6 +67,14 @@ class System_resource
 #define yellow_VAL_MAX    255
 #define yellow_VAL_MIN    30
 
+#define WHITE 1
+#define white_HUE_MAX    255
+#define white_HUE_MIN    0
+#define white_SAT_MAX    255
+#define white_SAT_MIN    0
+#define white_VAL_MAX    50
+#define white_VAL_MIN    0
+
 /**
   * @Brief
   */
