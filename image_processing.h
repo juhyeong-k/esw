@@ -20,6 +20,7 @@ class Draw
 		void horizontal_line(uint8_t *des, uint16_t y);
 		void vertical_line(uint8_t *des, uint16_t x);
 		void dot(uint8_t *des, uint16_t x, uint16_t y);
+		void bigdot(uint8_t *des, uint16_t x, uint16_t y);
 };
 class colorFilter
 {

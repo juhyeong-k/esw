@@ -139,6 +139,7 @@ void * main_thread(void *arg)
     Draw draw;
     colorFilter yellow(YELLOW);
     Navigator navigator(lineDectectionTHRESHOLD);
+    Calibrator calibrate;
 
     v4l2_reqbufs(v4l2, NUMBUF);
     vpe_input_init(vpe);
@@ -157,10 +158,8 @@ void * main_thread(void *arg)
 
     PositionControlOnOff_Write(UNCONTROL);
     SpeedControlOnOff_Write(CONTROL);
-    DesireSpeed_Write(50);
     while(1)
     {   
-    	printf("memUsed : %llu\n", system_resource.getPhysMemUsed());
         gettimeofday(&st, NULL);
         index = v4l2_dqbuf(v4l2, &vpe->field);
         vpe_input_qbuf(vpe, index);
@@ -180,11 +179,12 @@ void * main_thread(void *arg)
         hsvConverter.bgr24_to_hsv(display_buf,image_buf);
         yellow.detectColor(image_buf,image_buf);
 
-        SteeringServoControl_Write(navigator.getDirection(image_buf));
+        //SteeringServoControl_Write(navigator.getDirection(image_buf));
         draw.horizontal_line(display_buf, UPPER_LINE);
         draw.horizontal_line(display_buf, LOWER_LINE);
         draw.vertical_line(display_buf, 160);
-        draw.dot(display_buf,80,45);
+        draw.bigdot(display_buf,80,45);
+        draw.dot(display_buf,40,45);
 
         memcpy(omap_bo_map(capt->bo[0]), display_buf, VPE_OUTPUT_IMG_SIZE);
 
@@ -197,6 +197,9 @@ void * main_thread(void *arg)
             ERROR("Post buffer failed");
             return NULL;
         }
+
+    	calibrate.isReady("vertical",image_buf);
+
         vpe_output_qbuf(vpe, index);
         index = vpe_input_dqbuf(vpe);
         v4l2_qbuf(v4l2, vpe->input_buf_dmafd[index], index);

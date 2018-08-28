@@ -30,7 +30,7 @@ class System_resource
   * @Brief
   */
 #define CAMERA_X_SERVO     1500
-#define CAMERA_Y_SERVO     1500
+#define CAMERA_Y_SERVO     1600
 
 #define UPPER_LINE          120
 #define LOWER_LINE          150
