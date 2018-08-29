@@ -11,24 +11,6 @@
 /**
   * @Brief
   */
-class System_resource
-{
-	public:
-		System_resource();
-		uint64_t getVirtualMemUsed();
-		uint64_t getTotalVirtualMem();
-		uint64_t getTotalPhysMem();
-		uint64_t getPhysMemUsed();
-	private:
-		struct sysinfo memInfo;
-		long long totalVirtualMem;
-		long long virtualMemUsed;
-		long long totalPhysMem;
-		long long physMemUsed;
-};
-/**
-  * @Brief
-  */
 #define CAMERA_X_SERVO     1500
 #define CAMERA_Y_SERVO     1500
 
@@ -71,3 +53,34 @@ class System_resource
   * @Brief
   */
 #define lineDectectionTHRESHOLD 7
+/**
+  * @Brief
+  */
+class System_resource
+{
+	public:
+		System_resource();
+		uint64_t getVirtualMemUsed();
+		uint64_t getTotalVirtualMem();
+		uint64_t getTotalPhysMem();
+		uint64_t getPhysMemUsed();
+	private:
+		struct sysinfo memInfo;
+		long long totalVirtualMem;
+		long long virtualMemUsed;
+		long long totalPhysMem;
+		long long physMemUsed;
+};
+/**
+  * @Brief
+  */
+class Driver
+{
+    public:
+    	void view();
+    	void get_Distance();
+    	void start_get_Speed();
+    	void get_Speed();
+    private:
+    	int front, back, r_front, r_back, l_front, l_back;
+};

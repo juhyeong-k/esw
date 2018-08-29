@@ -1,7 +1,10 @@
 #include "system_management.h"
+#include "car_lib.h"
 
 std::ofstream fileout("log");
-
+/**
+  * @Brief
+  */
 System_resource::System_resource()
 {
 	sysinfo(&memInfo);
@@ -34,3 +37,29 @@ uint64_t System_resource::getPhysMemUsed()
 	return physMemUsed;
 }
 System_resource system_resource;
+/**
+  * @Brief
+  */
+void Driver::view()
+{
+    start_get_Speed();
+    get_Distance();
+    get_Speed();
+}
+void Driver::get_Distance()
+{
+	front = DistanceSensor(1);
+	r_front = DistanceSensor(2);
+	r_back = DistanceSensor(3);
+	back = DistanceSensor(4);
+    l_back = DistanceSensor(5);
+    l_front = DistanceSensor(6);
+}
+void Driver::start_get_Speed()
+{
+    
+}
+void Driver::get_Speed()
+{
+
+}
