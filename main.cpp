@@ -157,10 +157,9 @@ void * main_thread(void *arg)
 
     PositionControlOnOff_Write(UNCONTROL);
     SpeedControlOnOff_Write(CONTROL);
-    DesireSpeed_Write(50);
+    //DesireSpeed_Write(10);
     while(1)
     {   
-    	printf("memUsed : %llu\n", system_resource.getPhysMemUsed());
         gettimeofday(&st, NULL);
         index = v4l2_dqbuf(v4l2, &vpe->field);
         vpe_input_qbuf(vpe, index);
@@ -180,7 +179,7 @@ void * main_thread(void *arg)
         hsvConverter.bgr24_to_hsv(display_buf,image_buf);
         yellow.detectColor(image_buf,image_buf);
 
-        SteeringServoControl_Write(navigator.getDirection(image_buf));
+        //SteeringServoControl_Write(navigator.getDirection(image_buf));
         draw.horizontal_line(display_buf, UPPER_LINE);
         draw.horizontal_line(display_buf, LOWER_LINE);
         draw.vertical_line(display_buf, 160);
@@ -188,11 +187,6 @@ void * main_thread(void *arg)
 
         memcpy(omap_bo_map(capt->bo[0]), display_buf, VPE_OUTPUT_IMG_SIZE);
 
-        if(pthread_create(&(data->threads[1]), NULL, secondary_thread, data)) {
-            MSG("Failed creating Secondary thread");
-        }
-        pthread_detach(data->threads[1]);
-        
         if (disp_post_vid_buffer(vpe->disp, capt, 0, 0, vpe->dst.width, vpe->dst.height)) {
             ERROR("Post buffer failed");
             return NULL;
@@ -213,6 +207,11 @@ void * main_thread(void *arg)
   */
 void * secondary_thread(void *arg)
 {
+	Driver driver;
+	while(1)
+	{
+        driver.view();
+	}
     return NULL;
 }
 
@@ -325,6 +324,12 @@ int main(int argc, char **argv)
         MSG("Failed creating main thread");
     }
     pthread_detach(tdata.threads[0]);
+
+    ret = pthread_create(&tdata.threads[1], NULL, secondary_thread, &tdata);
+    if(ret) {
+        MSG("Failed creating Secondary thread");
+    }
+    pthread_detach(tdata.threads[1]);
 
     /* register signal handler for <CTRL>+C in order to clean up */
     if(signal(SIGINT, signal_handler) == SIG_ERR) {

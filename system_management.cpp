@@ -42,9 +42,14 @@ System_resource system_resource;
   */
 void Driver::view()
 {
+	gettimeofday(&st,NULL);
     start_get_Speed();
     get_Distance();
     get_Speed();
+    gettimeofday(&et,NULL);
+    optime = (double)(et.tv_sec)+(double)(et.tv_usec)/1000000.0
+             -(double)(st.tv_sec)-(double)(st.tv_usec)/1000000.0;
+    printf("optime :: %lf sec\n", optime);
 }
 void Driver::get_Distance()
 {

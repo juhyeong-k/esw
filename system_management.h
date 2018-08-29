@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <iostream>
 #include <fstream>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/sysinfo.h>
 /**
@@ -83,4 +84,6 @@ class Driver
     	void get_Speed();
     private:
     	int front, back, r_front, r_back, l_front, l_back;
+    	struct timeval st, et;
+    	double optime;
 };
