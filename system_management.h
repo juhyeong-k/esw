@@ -39,8 +39,8 @@ class System_resource
 #define CAPTURE_IMG_H       720
 #define CAPTURE_IMG_SIZE    (CAPTURE_IMG_W*CAPTURE_IMG_H*2) // YUYU : 16bpp
 #define CAPTURE_IMG_FORMAT  "uyvy"
-#define VPE_OUTPUT_W            320
-#define VPE_OUTPUT_H            180
+#define VPE_OUTPUT_W            1280
+#define VPE_OUTPUT_H            720
 
 // display output & dump  format: bgr24, w:320, h:180
 #define bgr24
@@ -72,8 +72,8 @@ class System_resource
 #define white_HUE_MIN    0
 #define white_SAT_MAX    255
 #define white_SAT_MIN    0
-#define white_VAL_MAX    50
-#define white_VAL_MIN    0
+#define white_VAL_MAX    255
+#define white_VAL_MIN    150
 
 /**
   * @Brief

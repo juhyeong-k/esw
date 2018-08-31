@@ -176,9 +176,9 @@ void * main_thread(void *arg)
         uint8_t image_buf[VPE_OUTPUT_IMG_SIZE];
         uint8_t display_buf[VPE_OUTPUT_IMG_SIZE];
         memcpy(display_buf, omap_bo_map(capt->bo[0]), VPE_OUTPUT_IMG_SIZE);
-
+        
         hsvConverter.bgr24_to_hsv(display_buf,image_buf);
-        yellow.detectColor(image_buf,image_buf);
+        //yellow.detectColor(image_buf,image_buf);
         white.detectColor(display_buf,image_buf);
 
         //SteeringServoControl_Write(navigator.getDirection(image_buf));
@@ -188,7 +188,7 @@ void * main_thread(void *arg)
         draw.bigdot(display_buf,80,45);
         draw.dot(display_buf,40,45);
 
-        memcpy(omap_bo_map(capt->bo[0]), display_buf, VPE_OUTPUT_IMG_SIZE);
+        memcpy(omap_bo_map(capt->bo[0]), image_buf, VPE_OUTPUT_IMG_SIZE);
 
         if(pthread_create(&(data->threads[1]), NULL, secondary_thread, data)) {
             MSG("Failed creating Secondary thread");
