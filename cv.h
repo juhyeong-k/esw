@@ -6,7 +6,7 @@ class Navigator
 {
 	public:
 		Navigator(uint8_t THRESHOLD);
-		uint16_t getDirection(uint8_t *src);
+		uint16_t getDirection(uint8_t (*src)[VPE_OUTPUT_W*3]);
 	private:
         uint8_t detected_flag;
         uint8_t threshold;
@@ -18,10 +18,10 @@ class Navigator
 
         void calculateDirection();
 
-        void getUpperRightPosition(uint8_t *src);
-        void getLowerRightPosition(uint8_t *src);
-        void getUpperLeftPosition (uint8_t *src);
-        void getLowerLeftPosition (uint8_t *src);
+        void getUpperRightPosition(uint8_t (*src)[VPE_OUTPUT_W*3]);
+        void getLowerRightPosition(uint8_t (*src)[VPE_OUTPUT_W*3]);
+        void getUpperLeftPosition (uint8_t (*src)[VPE_OUTPUT_W*3]);
+        void getLowerLeftPosition (uint8_t (*src)[VPE_OUTPUT_W*3]);
 
         void UpperRightDetected();
         void LowerRightDetected();

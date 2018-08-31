@@ -23,7 +23,7 @@ uint8_t BGR24_to_HSV::getMinBGR(uint8_t b, uint8_t g, uint8_t r) {
     if (r < min) min = r;
     return min;
 }
-void BGR24_to_HSV::bgr24_to_hsv(uint8_t *src, uint8_t *des)
+void BGR24_to_HSV::bgr24_to_hsv(uint8_t (*src)[VPE_OUTPUT_W*3], uint8_t (*des)[VPE_OUTPUT_W*3])
 {
     int i, j;
     uint8_t temp_buf[VPE_OUTPUT_IMG_SIZE];
@@ -52,14 +52,15 @@ void BGR24_to_HSV::bgr24_to_hsv(uint8_t *src, uint8_t *des)
         }
         if(H < 0)    H = H + 360;
         H = H / 2;
-        des[j] = H; des[j+1] = S; des[j+2] = V;
+        printf("j : %d\n", j);
+        **(des+j) = H; **(des+j+1) = S; **(des+j+2) = V;
     }
 }
 /**
   * @breif  Draw class
   *
   */
-void Draw::horizontal_line(uint8_t *des, uint16_t y)
+void Draw::horizontal_line(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t y)
 {
     #ifdef bgr24
         int i,j;
@@ -67,12 +68,12 @@ void Draw::horizontal_line(uint8_t *des, uint16_t y)
         for(i = 0; i < VPE_OUTPUT_W; i++)
         {
             j = 3 * i;
-            des[index + j]  = 255;
-            des[index+1 + j] = des[index+2 + j] = 0;
+            **(des + index + j) = 255;
+            **(des + index + j + 1) =**(des + index + j + 2) = 0;
         }
     #endif
 }
-void Draw::vertical_line(uint8_t *des, uint16_t x)
+void Draw::vertical_line(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x)
 {
     #ifdef bgr24
         int i,j;
@@ -80,23 +81,23 @@ void Draw::vertical_line(uint8_t *des, uint16_t x)
         for(i = 0; i < VPE_OUTPUT_H; i++)
         {
             j = index + 3 * VPE_OUTPUT_W * i;
-            des[j]  = 255;
-            des[j + 1] = des[j + 2] = 0;
+            **(des+j)  = 255;
+            **(des+j+1) = **(des+j+2) = 0;
         }
     #endif
 }
-void Draw::dot(uint8_t *des, uint16_t x, uint16_t y)
+void Draw::dot(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t y)
 {
     #ifdef bgr24
         int i,j;
         uint32_t StartPosition = y * VPE_OUTPUT_W * 3 + x * 3 + 1;
         for(i = 0; i < 3; i++) {
-            des[StartPosition - 3 + 3*i] = 255;
+            **(des + StartPosition - 3 + 3*i) = 255;
         }
         for(i = -1; i < 2; i++) {
             j = StartPosition + 3*VPE_OUTPUT_W*i;
-            des[j] = 255;
-            des[j + 1] = des[j + 2] = 0;
+            **(des+j) = 255;
+            **(des + j + 1) = **(des + j + 2) = 0;
         }
     #endif
 }
@@ -119,7 +120,7 @@ colorFilter::colorFilter(uint8_t colorName)
         default : fileout << "colorName was not defined(image_processing.cpp)\n"; break;
     }
 }
-void colorFilter::detectColor(uint8_t *src, uint8_t *des)
+void colorFilter::detectColor(uint8_t (*src)[VPE_OUTPUT_W*3], uint8_t (*des)[VPE_OUTPUT_W*3])
 {
     int i, j;
     uint8_t h,s,v;
@@ -132,9 +133,9 @@ void colorFilter::detectColor(uint8_t *src, uint8_t *des)
         s = temp_buf[j+1];
         v = temp_buf[j+2];
         if(inRange(h,s,v))
-            des[j] = des[j+1] = des[j+2] = 255;
+            **(des+j) = **(des+j+1) = **(des+j+2) = 255;
         else
-            des[j] = des[j+1] = des[j+2] = 0;
+            **(des+j) = **(des+j+1) = **(des+j+2) = 0;
     }
 }
 bool colorFilter::inRange(uint8_t h, uint8_t s, uint8_t v)

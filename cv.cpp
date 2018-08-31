@@ -13,7 +13,7 @@ Navigator::Navigator(uint8_t THRESHOLD)
 	UpperStartPosition = UPPER_LINE * VPE_OUTPUT_W * 3 + VPE_OUTPUT_W * 3 / 2;
 	LowerStartPosition = LOWER_LINE * VPE_OUTPUT_W * 3 + VPE_OUTPUT_W * 3 / 2;
 }
-uint16_t Navigator::getDirection(uint8_t *src)
+uint16_t Navigator::getDirection(uint8_t (*src)[VPE_OUTPUT_W*3])
 {
     getUpperRightPosition(src);
     getLowerRightPosition(src);
@@ -26,17 +26,17 @@ uint16_t Navigator::getDirection(uint8_t *src)
     printf("direction : %d\n", direction);
 	return direction;
 }
-void Navigator::getUpperRightPosition(uint8_t *src)
+void Navigator::getUpperRightPosition(uint8_t (*src)[VPE_OUTPUT_W*3])
 {
 	// detect direction from Right UPPER_LINE
 	temp = 0;
     for(i = 0; i < VPE_OUTPUT_W / 2; i++)
     {
         j = 3 * i;
-        if( src[UpperStartPosition + j] )
+        if( **(src + UpperStartPosition + j) )
         {
             for(k = 1; k < 10; k++) {
-                if( src[UpperStartPosition + j + 3*k] )    temp++;
+                if( **(src + UpperStartPosition + j + 3*k) )    temp++;
             }
             if(temp > threshold) {
                 right_up = (( UpperStartPosition + j ) % ( VPE_OUTPUT_W * 3 )) / 3;
@@ -46,17 +46,17 @@ void Navigator::getUpperRightPosition(uint8_t *src)
         }
     }
 }
-void Navigator::getLowerRightPosition(uint8_t *src)
+void Navigator::getLowerRightPosition(uint8_t (*src)[VPE_OUTPUT_W*3])
 {
 	// detect direction from Right LOWER_LINE
 	temp = 0;
 	for(i = 0; i < VPE_OUTPUT_W / 2; i++)
     {
         j = 3 * i;
-        if( src[LowerStartPosition + j] )
+        if( **(src + LowerStartPosition + j) )
         {
             for(k = 1; k < 10; k++) {
-            	if(src[LowerStartPosition + j + 3*k])    temp++;
+            	if( **(src + LowerStartPosition + j + 3*k) )    temp++;
             }
             if(temp > threshold) {
                 right_low = (( LowerStartPosition + j ) % ( VPE_OUTPUT_W * 3 )) / 3;
@@ -66,17 +66,17 @@ void Navigator::getLowerRightPosition(uint8_t *src)
         }
     }
 }
-void Navigator::getUpperLeftPosition(uint8_t *src)
+void Navigator::getUpperLeftPosition(uint8_t (*src)[VPE_OUTPUT_W*3])
 {
 	// detect direction from Left UPPER_LINE
 	temp = 0;
 	for(i = 0; i < VPE_OUTPUT_W / 2; i++)
 	{
 	    j = 3 * i;
-	    if( src[UpperStartPosition - j] )
+	    if( **(src + UpperStartPosition - j) )
 	    {
 	        for(k = 1; k < 10; k++) {
-	        	if(src[UpperStartPosition - j - 3*k])    temp++;
+	        	if( **(src + UpperStartPosition - j - 3*k) )    temp++;
 	        }
 	        if(temp > threshold)
 	        {
@@ -87,16 +87,16 @@ void Navigator::getUpperLeftPosition(uint8_t *src)
 	    }
 	}
 }
-void Navigator::getLowerLeftPosition(uint8_t *src)
+void Navigator::getLowerLeftPosition(uint8_t (*src)[VPE_OUTPUT_W*3])
 {
 	temp = 0;
 	for(i = 0; i < VPE_OUTPUT_W / 2; i++)
     {
         j = 3 * i;
-        if( src[LowerStartPosition - j] )
+        if( **(src + LowerStartPosition - j) )
         {
             for(k = 1; k < 10; k++) {
-            	if(src[LowerStartPosition - j - 3*k])    temp++;
+            	if( **(src + LowerStartPosition - j - 3*k) )    temp++;
             }
             if(temp > threshold) 
             {
