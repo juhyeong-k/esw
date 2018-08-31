@@ -65,16 +65,7 @@ void Draw::horizontal_line(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t y, uint16_t 
 {
     #ifdef bgr24
         int i,x;
-        /*
-        int index = y * VPE_OUTPUT_W * 3;
-        for(i = 0; i < VPE_OUTPUT_W; i++)
-        {
-            j = 3 * i;
-            **(des + index + j) = 255;
-            **(des + index + j + 1) =**(des + index + j + 2) = 0;
-        }*/
-        ///////////////////////
-        for(i = x_start; i < x_end - x_start; i++)
+        for(i = x_start; i < x_end; i++)
         {
             x = 3 * i;
             des[y][x] = 255;
@@ -82,16 +73,15 @@ void Draw::horizontal_line(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t y, uint16_t 
         }
     #endif
 }
-void Draw::vertical_line(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x)
+void Draw::vertical_line(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t y_start, uint16_t y_end)
 {
     #ifdef bgr24
         int i,j;
-        int index = x * 3;
-        for(i = 0; i < VPE_OUTPUT_H; i++)
+        j = 3 * x;
+        for(i = y_start; i < y_end; i++)
         {
-            j = index + 3 * VPE_OUTPUT_W * i;
-            **(des+j)  = 255;
-            **(des+j+1) = **(des+j+2) = 0;
+            des[i][j] = 255;
+            des[i][j+1] = des[i][j+2] = 0;
         }
     #endif
 }

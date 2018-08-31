@@ -18,7 +18,7 @@ class Draw
 {
 	public:
 		void horizontal_line(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t y, uint16_t x_start, uint16_t x_end);
-		void vertical_line(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x);
+		void vertical_line(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t y_start, uint16_t y_end);
 		void dot(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t y);
 };
 class colorFilter
