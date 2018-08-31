@@ -183,7 +183,7 @@ void * main_thread(void *arg)
         draw.horizontal_line(display_buf, UPPER_LINE, 0, 320);
         draw.horizontal_line(display_buf, LOWER_LINE, 0, 320);
         draw.vertical_line(display_buf, 160, 0, 180);
-        //draw.dot(display_buf,80,45);
+        draw.dot(display_buf,80,45);
 
         memcpy(omap_bo_map(capt->bo[0]), display_buf, VPE_OUTPUT_IMG_SIZE);
 

@@ -88,6 +88,7 @@ void Draw::vertical_line(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t y_
 void Draw::dot(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t y)
 {
     #ifdef bgr24
+    /*
         int i,j;
         uint32_t StartPosition = y * VPE_OUTPUT_W * 3 + x * 3 + 1;
         for(i = 0; i < 3; i++) {
@@ -97,7 +98,10 @@ void Draw::dot(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t y)
             j = StartPosition + 3*VPE_OUTPUT_W*i;
             **(des+j) = 255;
             **(des + j + 1) = **(des + j + 2) = 0;
-        }
+        }*/
+        ///////////////
+        des[y][3*x+1] = 255;
+        des[y][3*x] = des[y][3*x+2] = 0;
     #endif
 }
 /**
