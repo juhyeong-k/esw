@@ -25,7 +25,7 @@ uint8_t BGR24_to_HSV::getMinBGR(uint8_t b, uint8_t g, uint8_t r) {
 }
 void BGR24_to_HSV::bgr24_to_hsv(uint8_t (*src)[VPE_OUTPUT_W*3], uint8_t (*des)[VPE_OUTPUT_W*3])
 {
-    int i, j, k;
+    int i, j;
     uint8_t temp_buf[VPE_OUTPUT_H][VPE_OUTPUT_W*3];
     memcpy(temp_buf, src, VPE_OUTPUT_IMG_SIZE);
 
@@ -34,9 +34,8 @@ void BGR24_to_HSV::bgr24_to_hsv(uint8_t (*src)[VPE_OUTPUT_W*3], uint8_t (*des)[V
     uint8_t Max, Min;
     for(i = 0; i < VPE_OUTPUT_H; i++)
     {
-        for(j = 0; j < VPE_OUTPUT_W; j++)
+        for(j = 0; j < VPE_OUTPUT_W * 3; j += 3)
         {
-            k = j*3;
             B = temp_buf[i][j];    G = temp_buf[i][j+1];    R = temp_buf[i][j+2];
             Max = getMaxBGR_VBGR(B, G, R, &V_BGR);
             Min = getMinBGR(B, G, R);// Obtaining V
@@ -126,18 +125,20 @@ void colorFilter::detectColor(uint8_t (*src)[VPE_OUTPUT_W*3], uint8_t (*des)[VPE
 {
     int i, j;
     uint8_t h,s,v;
-    uint8_t temp_buf[VPE_OUTPUT_IMG_SIZE];
+    uint8_t temp_buf[VPE_OUTPUT_H][VPE_OUTPUT_W * 3];
     memcpy(temp_buf, src, VPE_OUTPUT_IMG_SIZE);
-    for(i = 0; i < VPE_OUTPUT_RESOLUTION; i++)
+    for(i = 0; i < VPE_OUTPUT_H; i++)
     {
-        j = 3 * i;
-        h = temp_buf[j];
-        s = temp_buf[j+1];
-        v = temp_buf[j+2];
-        if(inRange(h,s,v))
-            **(des+j) = **(des+j+1) = **(des+j+2) = 255;
-        else
-            **(des+j) = **(des+j+1) = **(des+j+2) = 0;
+        for(j = 0; j < VPE_OUTPUT_W * 3; j += 3)
+        {
+            h = temp_buf[i][j];
+            s = temp_buf[i][j+1];
+            v = temp_buf[i][j+2];
+            if(inRange(h,s,v))
+                des[i][j] = des[i][j+1] = des[i][j+2] = 255;
+            else
+                des[i][j] = des[i][j+1] = des[i][j+2] = 0;
+        }
     }
 }
 bool colorFilter::inRange(uint8_t h, uint8_t s, uint8_t v)
