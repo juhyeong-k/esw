@@ -61,16 +61,24 @@ void BGR24_to_HSV::bgr24_to_hsv(uint8_t (*src)[VPE_OUTPUT_W*3], uint8_t (*des)[V
   * @breif  Draw class
   *
   */
-void Draw::horizontal_line(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t y)
+void Draw::horizontal_line(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t y, uint16_t x_start, uint16_t x_end)
 {
     #ifdef bgr24
-        int i,j;
+        int i,x;
+        /*
         int index = y * VPE_OUTPUT_W * 3;
         for(i = 0; i < VPE_OUTPUT_W; i++)
         {
             j = 3 * i;
             **(des + index + j) = 255;
             **(des + index + j + 1) =**(des + index + j + 2) = 0;
+        }*/
+        ///////////////////////
+        for(i = x_start; i < x_end - x_start; i++)
+        {
+            x = 3 * i;
+            des[y][x] = 255;
+            des[y][x+1] = des[y][x+2] = 0;
         }
     #endif
 }

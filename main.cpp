@@ -180,12 +180,12 @@ void * main_thread(void *arg)
         yellow.detectColor(image_buf,image_buf);
 
         //SteeringServoControl_Write(navigator.getDirection(image_buf));
-        //draw.horizontal_line(display_buf, UPPER_LINE);
+        draw.horizontal_line(display_buf, UPPER_LINE, 0, 320);
         //draw.horizontal_line(display_buf, LOWER_LINE);
         //draw.vertical_line(display_buf, 160);
         //draw.dot(display_buf,80,45);
 
-        memcpy(omap_bo_map(capt->bo[0]), image_buf, VPE_OUTPUT_IMG_SIZE);
+        memcpy(omap_bo_map(capt->bo[0]), display_buf, VPE_OUTPUT_IMG_SIZE);
 
         if(pthread_create(&(data->threads[1]), NULL, secondary_thread, data)) {
             MSG("Failed creating Secondary thread");
