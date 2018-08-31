@@ -11,10 +11,8 @@ class Navigator
         uint8_t detected_flag;
         uint8_t threshold;
         uint16_t direction;
-        uint16_t temp,i,j,k;
+        int32_t temp,i,j,k;
         uint16_t right_up, right_low, left_up, left_low;
-        uint32_t UpperStartPosition;
-        uint32_t LowerStartPosition;
 
         void calculateDirection();
 
@@ -30,4 +28,7 @@ class Navigator
 
         bool isRightDetected();
         bool isLeftDetected();
+
+        void drawDot(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t y);
+        void drawBigdot(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t y);
 };
