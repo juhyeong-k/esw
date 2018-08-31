@@ -25,35 +25,37 @@ uint8_t BGR24_to_HSV::getMinBGR(uint8_t b, uint8_t g, uint8_t r) {
 }
 void BGR24_to_HSV::bgr24_to_hsv(uint8_t (*src)[VPE_OUTPUT_W*3], uint8_t (*des)[VPE_OUTPUT_W*3])
 {
-    int i, j;
-    uint8_t temp_buf[VPE_OUTPUT_IMG_SIZE];
+    int i, j, k;
+    uint8_t temp_buf[VPE_OUTPUT_H][VPE_OUTPUT_W*3];
     memcpy(temp_buf, src, VPE_OUTPUT_IMG_SIZE);
 
     uint8_t V_BGR;
     uint8_t B, G, R; int16_t H; uint8_t S; uint8_t V;
     uint8_t Max, Min;
-    for(i = 0; i < VPE_OUTPUT_RESOLUTION; i++)
+    for(i = 0; i < VPE_OUTPUT_H; i++)
     {
-        j = 3*i;
-        B = temp_buf[j];    G = temp_buf[j+1];    R = temp_buf[j+2];
-        Max = getMaxBGR_VBGR(B, G, R, &V_BGR);
-        Min = getMinBGR(B, G, R);// Obtaining V
-        V = Max;
-        // Obtaining S
-        if (V == 0)    S = 0;
-        else           S = 255 * (float)(V - Min) / V;
-        // Obtaining H
-        switch(V_BGR)
+        for(j = 0; j < VPE_OUTPUT_W; j++)
         {
-            case isBlue  : H = 240 + (float)60 * (R - G) / (V - Min); break;    // V is Blue
-            case isGreen : H = 120 + (float)60 * (B - R) / (V - Min); break;    // V is Green
-            case isRed   : H =       (float)60 * (G - B) / (V - Min); break;    // V is Red
-            default : H = 0;                                      break;
+            k = j*3;
+            B = temp_buf[i][j];    G = temp_buf[i][j+1];    R = temp_buf[i][j+2];
+            Max = getMaxBGR_VBGR(B, G, R, &V_BGR);
+            Min = getMinBGR(B, G, R);// Obtaining V
+            V = Max;
+            // Obtaining S
+            if (V == 0)    S = 0;
+            else           S = 255 * (float)(V - Min) / V;
+            // Obtaining H
+            switch(V_BGR)
+            {
+                case isBlue  : H = 240 + (float)60 * (R - G) / (V - Min); break;    // V is Blue
+                case isGreen : H = 120 + (float)60 * (B - R) / (V - Min); break;    // V is Green
+                case isRed   : H =       (float)60 * (G - B) / (V - Min); break;    // V is Red
+                default : H = 0;                                      break;
+            }
+            if(H < 0)    H = H + 360;
+            H = H / 2;
+            des[i][j] = H; des[i][j+1] = S; des[i][j+2] = V;
         }
-        if(H < 0)    H = H + 360;
-        H = H / 2;
-        printf("j : %d\n", j);
-        **(des+j) = H; **(des+j+1) = S; **(des+j+2) = V;
     }
 }
 /**
