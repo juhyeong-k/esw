@@ -45,7 +45,7 @@ bool selectObject = false;
 int trackObject = 0;
 bool showHist = true;
 Point origin;
-Rect selection(120,80,120,80);
+Rect selection(150,90,60,60);
 int vmin = 10, vmax = 256, smin = 30;
 
 /**
@@ -243,7 +243,7 @@ void * main_thread(void *arg)
         }
         if( backprojMode )
             cvtColor( backproj, image, COLOR_GRAY2BGR );
-        //ellipse( image, trackBox, Scalar(0,0,255), 3, 1 );
+        rectangle(image, comp.rect, Scalar(0,0,255));
         if( selectObject && selection.width > 0 && selection.height > 0 )
         {
             Mat roi(image, selection);
