@@ -249,6 +249,7 @@ void * main_thread(void *arg)
 	        if( backprojMode )
 	            cvtColor( backproj, image, COLOR_GRAY2BGR );
 	        rectangle(image, comp.rect, Scalar(0,0,255));
+	        printf("cordinate : %d\r\n", comp.rect.x + comp.rect.width/2);
         }
         if( selectObject && selection.width > 0 && selection.height > 0 )
         {
@@ -258,7 +259,9 @@ void * main_thread(void *arg)
         /** END
          *
          */
-
+        //SteeringServoControl_Write();
+        int direction = (float)160/(comp.rect.x + comp.rect.width/2) * 1500;
+        printf("Direction : %d", direction);
         uint8_t image_buf[VPE_OUTPUT_H][VPE_OUTPUT_W*3];
         uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W*3];
         memcpy(display_buf, omap_bo_map(capt->bo[0]), VPE_OUTPUT_IMG_SIZE);
