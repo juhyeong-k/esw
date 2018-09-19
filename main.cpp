@@ -32,6 +32,7 @@ extern "C" {
 
 extern std::ofstream fileout;
 extern System_resource system_resource;
+using namespace cv;
 
 #define DUMP_MSGQ_KEY           1020
 #define DUMP_MSGQ_MSG_TYPE      0x02
@@ -139,7 +140,6 @@ void * main_thread(void *arg)
     bool isFirst = true;
     int index;
     int i;
-    cv::Mat a;
     // Variables for performance measurement
     uint32_t optime = 0;
     struct timeval st;
@@ -168,6 +168,9 @@ void * main_thread(void *arg)
     PositionControlOnOff_Write(UNCONTROL);
     SpeedControlOnOff_Write(CONTROL);
     DesireSpeed_Write(50);
+
+    Mat src;
+
     while(1)
     {   
         gettimeofday(&st, NULL);
@@ -182,9 +185,30 @@ void * main_thread(void *arg)
         }
         index = vpe_output_dqbuf(vpe);
         capt = vpe->disp_bufs[index];
+        Mat srcRGB(VPE_OUTPUT_H, VPE_OUTPUT_W, CV_8UC3, capt);
+
+
+
+
+
+
         uint8_t image_buf[VPE_OUTPUT_H][VPE_OUTPUT_W*3];
         uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W*3];
         memcpy(display_buf, omap_bo_map(capt->bo[0]), VPE_OUTPUT_IMG_SIZE);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         hsvConverter.bgr24_to_hsv(display_buf,image_buf);
         yellow.detectColor(image_buf,image_buf);
