@@ -16,9 +16,9 @@ INC += -I$(ROOTFS)/usr/include/gbm
 LIBDIR := $(ROOTFS)/usr/lib
 
 CFLAGS := -O1 -g -Wall -fPIC -mfloat-abi=hard -mfpu=neon -Wl,-rpath,$(ROOTFS)/lib -Wl,-rpath,$(ROOTFS)/usr/lib $(INC)
-CXXFLAGS = -Wall -ansi -g -fPIC -mfloat-abi=hard -mfpu=neon $(INC) -I$(ROOTFS)/include/c++/4.7.3/
+CXXFLAGS = -Wall -ansi -g -fPIC -mfloat-abi=hard -mfpu=neon -Wl,-rpath,$(ROOTFS)/lib -Wl,-rpath,$(ROOTFS)/usr/lib $(INC) -I$(ROOTFS)/include/c++/4.7.3/
 
-LDFLAGS = -lm -lpthread -L$(LIBDIR) -lrt -ldrm -lmtdev -ldrm_omap -lstdc++
+LDFLAGS = -lm -lpthread -L$(LIBDIR) -lrt -ldrm -lmtdev -ldrm_omap -lstdc++ -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_objdetect
 TARGET = project
 
 all: $(TARGET)
@@ -26,8 +26,8 @@ all: $(TARGET)
 clean:
 	rm -f *.a *.o $(TARGET) *.lo
 
-$(TARGET): main.cpp v4l2.lo display-kms.lo util.lo vpe-common.lo input_cmd.lo car_lib.lo system_management.lo image_processing.lo cv.lo calibration.lo
-	$(CXX) $(CXXFLAGS) -o $@ main.cpp v4l2.lo display-kms.lo util.lo vpe-common.lo input_cmd.lo car_lib.lo system_management.lo image_processing.lo cv.lo calibration.lo $(LDFLAGS)
+$(TARGET): main.cpp v4l2.lo display-kms.lo util.lo vpe-common.lo input_cmd.lo car_lib.lo system_management.lo image_processing.lo cv.lo calibration.lo drawing.lo exam_cv.lo
+	$(CXX) $(CXXFLAGS) -o $@ main.cpp v4l2.lo display-kms.lo util.lo vpe-common.lo input_cmd.lo car_lib.lo system_management.lo image_processing.lo cv.lo calibration.lo drawing.lo exam_cv.lo $(LDFLAGS)
 
 v4l2.lo: v4l2.c v4l2.h
 	$(CC) -c $(CFLAGS) -o $@ v4l2.c
@@ -52,6 +52,12 @@ system_management.lo: system_management.cpp system_management.h
 
 image_processing.lo: image_processing.cpp image_processing.h system_management.lo
 	$(CXX) -c $(CXXFLAGS) -o $@ image_processing.cpp system_management.lo
+
+drawing.lo: drawing.c drawing.h font_8x8.h
+	$(CC) -c $(CFLAGS) -o $@ drawing.c
+
+exam_cv.lo: exam_cv.cpp exam_cv.h
+	$(CXX) -c $(CXXFLAGS) -o $@ exam_cv.cpp
 
 cv.lo: cv.cpp cv.h system_management.lo
 	$(CXX) -c $(CXXFLAGS) -o $@ cv.cpp system_management.lo

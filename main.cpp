@@ -8,6 +8,14 @@
 #include <syslog.h>
 #include <iostream>
 #include <fstream>
+
+#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+//#include <opencv2/gpu/device/utility.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/objdetect/objdetect.hpp>
+
 extern "C" {
 	#include "util.h"
 	#include "display-kms.h"
@@ -15,6 +23,7 @@ extern "C" {
 	#include "vpe-common.h"
 	#include "input_cmd.h"
 	#include "car_lib.h"
+    #include "exam_cv.h"
 }
 #include "system_management.h"
 #include "image_processing.h"
@@ -130,6 +139,7 @@ void * main_thread(void *arg)
     bool isFirst = true;
     int index;
     int i;
+    cv::Mat a;
     // Variables for performance measurement
     uint32_t optime = 0;
     struct timeval st;
