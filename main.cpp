@@ -43,6 +43,7 @@ using namespace cv;
 using namespace std;
 
 Mat image;
+CvConnectedComp comp;
 bool backprojMode = false;
 bool selectObject = false;
 int trackObject = 0;
@@ -133,7 +134,8 @@ int main( int argc, const char** argv )
                 // Perform CAMShift
                 calcBackProject(&hue, 1, 0, hist, backproj, &phranges);
                 backproj &= mask;
-                RotatedRect trackBox = cvCamShift(backproj, trackWindow, TermCriteria( TermCriteria::EPS | TermCriteria::COUNT, 10, 1 ));
+                IplImage tmp=backproj;
+                int trackBox = cvCamShift(&tmp, trackWindow, TermCriteria( TermCriteria::EPS | TermCriteria::COUNT, 10, 1 ), &comp, NULL);
                 if( trackWindow.area() <= 1 )
                 {
                     int cols = backproj.cols, rows = backproj.rows, r = (MIN(cols, rows) + 5)/6;
@@ -143,7 +145,7 @@ int main( int argc, const char** argv )
                 }
                 if( backprojMode )
                     cvtColor( backproj, image, COLOR_GRAY2BGR );
-                ellipse( image, trackBox, Scalar(0,0,255), 3, 1 );
+                //ellipse( image, trackBox, Scalar(0,0,255), 3, 1 );
             }
         }
         else if( trackObject < 0 )
