@@ -16,7 +16,7 @@ INC += -I$(ROOTFS)/usr/include/gbm
 LIBDIR := $(ROOTFS)/usr/lib
 
 CFLAGS := -O1 -g -Wall -fPIC -mfloat-abi=hard -mfpu=neon -Wl,-rpath,$(ROOTFS)/lib -Wl,-rpath,$(ROOTFS)/usr/lib $(INC)
-CXXFLAGS = -Wall -ansi -g -fPIC -mfloat-abi=hard -mfpu=neon $(INC) -I$(ROOTFS)/include/c++/4.7.3/
+CXXFLAGS = -Wall -ansi -g -fPIC -mfloat-abi=hard -mfpu=neon -std=c++11 $(INC) -I$(ROOTFS)/include/c++/4.7.3/
 
 LDFLAGS = -lm -lpthread -L$(LIBDIR) -lrt -ldrm -lmtdev -ldrm_omap -lstdc++
 TARGET = project
@@ -50,11 +50,11 @@ car_lib.lo: car_lib.c car_lib.h
 system_management.lo: system_management.cpp system_management.h
 	$(CXX) -c $(CXXFLAGS) -o $@ system_management.cpp
 
-image_processing.lo: image_processing.cpp image_processing.h system_management.lo
-	$(CXX) -c $(CXXFLAGS) -o $@ image_processing.cpp system_management.lo
+image_processing.lo: image_processing.cpp image_processing.h system_management.h
+	$(CXX) -c $(CXXFLAGS) -o $@ image_processing.cpp
 
-cv.lo: cv.cpp cv.h system_management.lo
-	$(CXX) -c $(CXXFLAGS) -o $@ cv.cpp system_management.lo
+cv.lo: cv.cpp cv.h system_management.h
+	$(CXX) -c $(CXXFLAGS) -o $@ cv.cpp
 
-calibration.lo: calibration.cpp calibration.h system_management.lo
-	$(CXX) -c $(CXXFLAGS) -o $@ calibration.cpp system_management.lo
+calibration.lo: calibration.cpp calibration.h system_management.h
+	$(CXX) -c $(CXXFLAGS) -o $@ calibration.cpp

@@ -33,9 +33,10 @@ class Navigator
         bool isRightDetected();
         bool isLeftDetected();
         */
-        void drawDot(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t y);
-        void drawBigdot(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t y);
         /* for drawPath */
+        uint16_t temp,i,j,k;
+        uint8_t threshold;
+
         struct Point {
             uint16_t x;
             uint16_t y;
@@ -44,7 +45,10 @@ class Navigator
         uint16_t shiftAmount;
         double sideSlope;
 
-        uint16_t getRoadCenter(uint8_t (*src)[VPE_OUTPUT_W*3], uint16_t y);
-        Point getRightPosition(uint8_t (*src)[VPE_OUTPUT_W*3]);
-        Point getLeftPosition(uint8_t (*src)[VPE_OUTPUT_W*3]);
+        Point getRoadCenter(uint8_t (*src)[VPE_OUTPUT_W*3], uint16_t y);
+        Point getRightPosition(uint8_t (*src)[VPE_OUTPUT_W*3], uint16_t y);
+        Point getLeftPosition(uint8_t (*src)[VPE_OUTPUT_W*3], uint16_t y);
+
+        void drawDot(uint8_t (*des)[VPE_OUTPUT_W*3], Point point);
+        void drawBigdot(uint8_t (*des)[VPE_OUTPUT_W*3], Point point);
 };
