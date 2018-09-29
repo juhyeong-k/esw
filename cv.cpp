@@ -13,7 +13,7 @@ Navigator::Navigator(uint8_t THRESHOLD)
     */
     threshold = THRESHOLD;
     /* for drawPath */
-    lastRoadCenter.x = VPE_OUTPUT_W/2;
+    lastRoadCenter.x = (VPE_OUTPUT_W/2)*3;
     lastRoadCenter.y = VPE_OUTPUT_H;
 }
 /* for drawPath */
@@ -22,31 +22,46 @@ void Navigator::drawPath(uint8_t (*src)[VPE_OUTPUT_W*3], uint8_t (*des)[VPE_OUTP
     uint16_t y;
     Point roadCenter;
     for(y=0; y < VPE_OUTPUT_H; y++) {
-        //roadCenter = getRoadCenter(src, y);
+        roadCenter = getRoadCenter(src, y);
+        drawDot(des, roadCenter);
         drawDot(des, getRightPosition(src, y));
+        drawDot(des, getLeftPosition(src, y));
     }
 }
 Navigator::Point Navigator::getRoadCenter(uint8_t (*src)[VPE_OUTPUT_W*3], uint16_t y)
 {
-    uint16_t xCenter, yCenter;
+    detected_flag = 0;
 
-    Point roadCenter;
+    Point roadCenter = lastRoadCenter;
     Point right_point = getRightPosition(src,y);
     Point left_point = getLeftPosition(src,y);
-
-    xCenter = (right_point.x + left_point.x)/2;
-    yCenter = (right_point.y + left_point.y)/2;
-    roadCenter = {xCenter, yCenter};
-    sideSlope = (roadCenter.y - lastRoadCenter.y)/(roadCenter.x - lastRoadCenter.x);
+    
+    if(isRightDetected() & isLeftDetected()) {
+        roadCenter.x = (right_point.x + left_point.x)/2;
+        roadCenter.y = (right_point.y + left_point.y)/2;
+        sideSlope = (float)(roadCenter.y - lastRoadCenter.y)/(roadCenter.x - lastRoadCenter.x);
+        lastRoadCenter = roadCenter;
+    }
+    else if( isRightDetected() ) {
+        roadCenter.x = right_point.x / 2;
+        roadCenter.y = right_point.y;
+        sideSlope = (float)(roadCenter.y - lastRoadCenter.y)/(roadCenter.x - lastRoadCenter.x);
+        lastRoadCenter = roadCenter;
+    }
+    else if( isLeftDetected() ) {
+        roadCenter.x = left_point.x + (VPE_OUTPUT_W - left_point.x)/ 2;
+        roadCenter.y = left_point.y;
+        sideSlope = (float)(roadCenter.y - lastRoadCenter.y)/(roadCenter.x - lastRoadCenter.x);
+        lastRoadCenter = roadCenter;
+    }
     return roadCenter;
 }
 Navigator::Point Navigator::getRightPosition(uint8_t (*src)[VPE_OUTPUT_W*3], uint16_t y)
 {
     // detect direction from Right
     temp = 0;
-    Point point;
-    for(i = VPE_OUTPUT_W / 2; i < VPE_OUTPUT_W; i++)
-    {
+    Point point = {0,};
+    for(i = VPE_OUTPUT_W / 2; i < VPE_OUTPUT_W; i++) {
         j = 3*i;
         if( src[y][j] )
         {
@@ -54,6 +69,7 @@ Navigator::Point Navigator::getRightPosition(uint8_t (*src)[VPE_OUTPUT_W*3], uin
                 if( src[y][j+3*k] )    temp++;
             }
             if(temp > threshold) {
+                RightDetected();
                 point = {i, y};
                 return point;
             }
@@ -62,7 +78,33 @@ Navigator::Point Navigator::getRightPosition(uint8_t (*src)[VPE_OUTPUT_W*3], uin
 }
 Navigator::Point Navigator::getLeftPosition(uint8_t (*src)[VPE_OUTPUT_W*3], uint16_t y)
 {
-    
+    // detect direction from Left
+    temp = 0;
+    Point point = {0,};
+    for(i = VPE_OUTPUT_W / 2; i > 0; i--) {
+        j = 3*i;
+        if( src[y][j] )
+        {
+            for(k=1; k<11; k++) {
+                if( src[y][j-3*k] )    temp++;
+            }
+            if(temp > threshold) {
+                LeftDetected();
+                point = {i, y};
+                return point;
+            }
+        }
+    }
+}
+void Navigator::RightDetected() { detected_flag += 1; }
+void Navigator::LeftDetected() { detected_flag += 2; }
+bool Navigator::isRightDetected() {
+    if(detected_flag & 1) return true;
+    else                    return false;
+}
+bool Navigator::isLeftDetected() {
+    if(detected_flag & 2) return true;
+    else                    return false;
 }
 void Navigator::drawDot(uint8_t (*des)[VPE_OUTPUT_W*3], Point point)
 {
@@ -70,8 +112,8 @@ void Navigator::drawDot(uint8_t (*des)[VPE_OUTPUT_W*3], Point point)
     x = point.x;
     y = point.y;
     #ifdef bgr24
-        des[y][3*x+1] = 255;
-        des[y][3*x] = des[y][3*x+2] = 0;
+        des[y][3*x+2] = 255;
+        des[y][3*x] = des[y][3*x+1] = 0;
     #endif
 }
 void Navigator::drawBigdot(uint8_t (*des)[VPE_OUTPUT_W*3], Point point)

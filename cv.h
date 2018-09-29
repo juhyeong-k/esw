@@ -35,7 +35,7 @@ class Navigator
         */
         /* for drawPath */
         uint16_t temp,i,j,k;
-        uint8_t threshold;
+        uint8_t threshold, detected_flag;
 
         struct Point {
             uint16_t x;
@@ -48,6 +48,11 @@ class Navigator
         Point getRoadCenter(uint8_t (*src)[VPE_OUTPUT_W*3], uint16_t y);
         Point getRightPosition(uint8_t (*src)[VPE_OUTPUT_W*3], uint16_t y);
         Point getLeftPosition(uint8_t (*src)[VPE_OUTPUT_W*3], uint16_t y);
+
+        void RightDetected();
+        void LeftDetected();
+        bool isRightDetected();
+        bool isLeftDetected();
 
         void drawDot(uint8_t (*des)[VPE_OUTPUT_W*3], Point point);
         void drawBigdot(uint8_t (*des)[VPE_OUTPUT_W*3], Point point);
