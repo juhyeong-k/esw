@@ -7,17 +7,61 @@
 #include "cv.h"
 Navigator::Navigator(uint8_t THRESHOLD)
 {
+    /*
 	threshold = THRESHOLD;
     direction = 1500;
 	detected_flag = 0;
+    */
+    /* for drawPath */
+    lastRoadCenter.x = VPE_OUTPUT_W/2;
+    lastRoadCenter.y = VPE_OUTPUT_H;
 }
-void drawPath(uint8_t (*src)[VPE_OUTPUT_W*3], uint8_t (*des)[VPE_OUTPUT_W*3])
+/* for drawPath */
+void Navigator::drawPath(uint8_t (*src)[VPE_OUTPUT_W*3], uint8_t (*des)[VPE_OUTPUT_W*3])
 {
-    uint16_t i;
+    uint16_t i,x,y;
     for(i=0; i < VPE_OUTPUT_H; i++) {
-
+        x = getRoadCenter(src, y);
+        y = VPE_OUTPUT_H-i;
+        drawDot(des, x, y);
     }
 }
+uint16_t Navigator::getRoadCenter(uint8_t (*src)[VPE_OUTPUT_W*3], uint16_t y)
+{
+    Point right_point = {0,0};
+    Point left_point = {0,0};
+    right_point = getRightPosition(src);
+    left_point = getLeftPosition(src);
+
+}
+Navigator::Point Navigator::getRightPosition(uint8_t (*src)[VPE_OUTPUT_W*3])
+{
+
+}
+Navigator::Point Navigator::getLeftPosition(uint8_t (*src)[VPE_OUTPUT_W*3])
+{
+    
+}
+void Navigator::drawDot(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t y)
+{
+    #ifdef bgr24
+        des[y][3*x+1] = 255;
+        des[y][3*x] = des[y][3*x+2] = 0;
+    #endif
+}
+void Navigator::drawBigdot(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t y)
+{
+    int32_t i,j;
+    #ifdef bgr24
+        for(i=-1; i<2; i++) {
+            for(j=-1; j<2; j++) {
+                des[y+j][3*(x+i)+1] = 255;
+                des[y+j][3*(x+i)] = des[y+j][3*(x+i)+2] = 0;
+            }
+        }
+    #endif
+}
+/*
 uint16_t Navigator::getDirection(uint8_t (*src)[VPE_OUTPUT_W*3])
 {
     getUpperRightPosition(src);
@@ -141,21 +185,4 @@ void Navigator::calculateDirection()
     else if (vector < -1.11) direction = 2000;
     else                       direction = (uint16_t)(1500 - 450 * vector);
 }
-void Navigator::drawDot(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t y)
-{
-    #ifdef bgr24
-        des[y][3*x+1] = 255;
-        des[y][3*x] = des[y][3*x+2] = 0;
-    #endif
-}
-void Navigator::drawBigdot(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t y)
-{
-    #ifdef bgr24
-        for(i=-1; i<2; i++) {
-            for(j=-1; j<2; j++) {
-                des[y+j][3*(x+i)+1] = 255;
-                des[y+j][3*(x+i)] = des[y+j][3*(x+i)+2] = 0;
-            }
-        }
-    #endif
-}
+*/

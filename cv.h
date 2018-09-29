@@ -6,9 +6,12 @@ class Navigator
 {
 	public:
 		Navigator(uint8_t THRESHOLD);
-		uint16_t getDirection(uint8_t (*src)[VPE_OUTPUT_W*3]);
+		//uint16_t getDirection(uint8_t (*src)[VPE_OUTPUT_W*3]);
+
+        /* for drawPath */
         void drawPath(uint8_t (*src)[VPE_OUTPUT_W*3], uint8_t (*des)[VPE_OUTPUT_W*3]);
 	private:
+        /*
         uint8_t detected_flag;
         uint8_t threshold;
         uint16_t direction;
@@ -29,7 +32,19 @@ class Navigator
 
         bool isRightDetected();
         bool isLeftDetected();
-
+        */
         void drawDot(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t y);
         void drawBigdot(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t y);
+        /* for drawPath */
+        struct Point {
+            uint16_t x;
+            uint16_t y;
+        };
+        Point lastRoadCenter;
+        uint16_t shiftAmount;
+        double sideSlope;
+
+        uint16_t getRoadCenter(uint8_t (*src)[VPE_OUTPUT_W*3], uint16_t y);
+        Point getRightPosition(uint8_t (*src)[VPE_OUTPUT_W*3]);
+        Point getLeftPosition(uint8_t (*src)[VPE_OUTPUT_W*3]);
 };
