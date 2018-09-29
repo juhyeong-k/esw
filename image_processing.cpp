@@ -108,6 +108,14 @@ colorFilter::colorFilter(uint8_t colorName)
             VAL_MAX = yellow_VAL_MAX;
             VAL_MIN = yellow_VAL_MIN;
             break;
+        case RED :
+            HUE_MAX = red_HUE_MAX;
+            HUE_MIN = red_HUE_MIN;
+            SAT_MAX = red_SAT_MAX;
+            SAT_MIN = red_SAT_MIN;
+            VAL_MAX = red_VAL_MAX;
+            VAL_MIN = red_VAL_MIN;
+            break;
         default : fileout << "colorName was not defined(image_processing.cpp)\n"; break;
     }
 }

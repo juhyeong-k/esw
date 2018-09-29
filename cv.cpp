@@ -11,6 +11,13 @@ Navigator::Navigator(uint8_t THRESHOLD)
     direction = 1500;
 	detected_flag = 0;
 }
+void drawPath(uint8_t (*src)[VPE_OUTPUT_W*3], uint8_t (*des)[VPE_OUTPUT_W*3])
+{
+    uint16_t i;
+    for(i=0; i < VPE_OUTPUT_H; i++) {
+
+    }
+}
 uint16_t Navigator::getDirection(uint8_t (*src)[VPE_OUTPUT_W*3])
 {
     getUpperRightPosition(src);
