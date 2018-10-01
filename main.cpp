@@ -140,6 +140,7 @@ void * main_thread(void *arg)
     Draw draw;
     colorFilter yellow(YELLOW);
     Navigator navigator(lineDectectionTHRESHOLD);
+    Driver driver;
 
     v4l2_reqbufs(v4l2, NUMBUF);
     vpe_input_init(vpe);
@@ -158,6 +159,7 @@ void * main_thread(void *arg)
 
     PositionControlOnOff_Write(UNCONTROL);
     SpeedControlOnOff_Write(CONTROL);
+    driver.waitStartSignal();
     DesireSpeed_Write(50);
     while(1)
     {   
