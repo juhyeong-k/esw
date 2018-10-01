@@ -167,7 +167,7 @@ void * main_thread(void *arg)
     PositionControlOnOff_Write(UNCONTROL);
     SpeedControlOnOff_Write(CONTROL);
     //driver.waitStartSignal();
-    DesireSpeed_Write(50);
+    DesireSpeed_Write(0);
     while(1)
     {   
         gettimeofday(&st, NULL);
@@ -195,7 +195,8 @@ void * main_thread(void *arg)
         red.detectColor(image_buf, redImage);
         yellow.detectColor(image_buf, yellowImage);
         green.detectColor(image_buf, greenImage);
-
+        
+        /*
         if( navigator.isTrafficLightsGreen(greenImage, yellowImage, redImage) == 2 ) {
         	isWaitingGreen = true;
             DesireSpeed_Write(0);
@@ -209,15 +210,15 @@ void * main_thread(void *arg)
         else {
             DesireSpeed_Write(50);
         }
-
+        */
         //SteeringServoControl_Write(navigator.getDirection(image_buf));
-        navigator.drawPath(yellowImage, display_buf);
+        navigator.drawPath(yellowImage, yellowImage);
 
         draw.horizontal_line(image_buf, UPPER_LINE, 0, 320);
         draw.horizontal_line(image_buf, LOWER_LINE, 0, 320);
         draw.vertical_line(image_buf, 160, 0, 180);
 
-        memcpy(omap_bo_map(capt->bo[0]), greenImage, VPE_OUTPUT_IMG_SIZE);
+        memcpy(omap_bo_map(capt->bo[0]), yellowImage, VPE_OUTPUT_IMG_SIZE);
 
         if(pthread_create(&(data->threads[1]), NULL, secondary_thread, data)) {
             MSG("Failed creating Secondary thread");
