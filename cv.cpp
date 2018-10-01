@@ -152,3 +152,10 @@ void Navigator::drawBigdot(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t 
         }
     #endif
 }
+/**
+  * @ Traffic Lights
+  */
+bool Navigator::checkTrafficLights(uint8_t (*src)[VPE_OUTPUT_H][VPE_OUTPUT_W*3])
+{
+    
+}

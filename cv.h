@@ -7,6 +7,7 @@ class Navigator
 	public:
 		Navigator(uint8_t THRESHOLD);
 		uint16_t getDirection(uint8_t (*src)[VPE_OUTPUT_W*3]);
+        bool checkTrafficLights(uint8_t (*src)[VPE_OUTPUT_H][VPE_OUTPUT_W*3]);
 	private:
         uint8_t detected_flag;
         uint8_t threshold;
