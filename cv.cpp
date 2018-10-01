@@ -276,7 +276,7 @@ void Navigator::drawBigdot(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t 
 /**
   * @ Traffic Lights
   */
-bool Navigator::isTrafficLightsGreen(uint8_t (green)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (yellow)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (red)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+uint8_t Navigator::isTrafficLightsGreen(uint8_t (green)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (yellow)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (red)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     uint16_t i,j,temp;
     temp = 0;
@@ -285,7 +285,7 @@ bool Navigator::isTrafficLightsGreen(uint8_t (green)[VPE_OUTPUT_H][VPE_OUTPUT_W]
             if( green[i][j][0] ) temp++;
         }
     }
-    if(temp > colorDetectTHRESHOLD)    return true;
+    if(temp > colorDetectTHRESHOLD)    return 1;
 
     temp = 0;
     for(i=0; i<VPE_OUTPUT_H/2; i++) {
@@ -293,7 +293,7 @@ bool Navigator::isTrafficLightsGreen(uint8_t (green)[VPE_OUTPUT_H][VPE_OUTPUT_W]
             if( yellow[i][j][0] ) temp++;
         }
     }
-    if(temp > colorDetectTHRESHOLD)    return false;
+    if(temp > colorDetectTHRESHOLD)    return 2;
 
     temp = 0;
     for(i=0; i<VPE_OUTPUT_H/2; i++) {
@@ -301,7 +301,7 @@ bool Navigator::isTrafficLightsGreen(uint8_t (green)[VPE_OUTPUT_H][VPE_OUTPUT_W]
             if( red[i][j][0] ) temp++;
         }
     }
-    if(temp > colorDetectTHRESHOLD)    return false;
+    if(temp > colorDetectTHRESHOLD)    return 2;
 
-    return true;
+    return 3;
 }

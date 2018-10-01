@@ -31,7 +31,7 @@ extern System_resource system_resource;
 /**
   * @brief  Required threads, functions, and structures.\
   */
-bool waitGreenLights;
+bool isWaitingGreen;
 
 void * main_thread(void *arg);
 void * secondary_thread(void *arg);
@@ -141,7 +141,7 @@ void * main_thread(void *arg)
     BGR24_to_HSV hsvConverter;
     Draw draw;
 
-    waitGreenLights = false;
+    isWaitingGreen = false;
     colorFilter red(RED);
     colorFilter green(GREEN);
     colorFilter yellow(YELLOW);
@@ -196,10 +196,19 @@ void * main_thread(void *arg)
         yellow.detectColor(image_buf, yellowImage);
         green.detectColor(image_buf, greenImage);
 
-        if(navigator.isTrafficLightsGreen(greenImage, yellowImage, redImage))
+        if( navigator.isTrafficLightsGreen(greenImage, yellowImage, redImage) == 2 ) {
+        	isWaitingGreen = true;
+            DesireSpeed_Write(0);
+        }
+        if(isWaitingGreen) {
+            if( navigator.isTrafficLightsGreen(greenImage, yellowImage, redImage) == 1 ) {
+            	isWaitingGreen = false; 
+                DesireSpeed_Write(50);
+            }
+        }
+        else {
             DesireSpeed_Write(50);
-        else
-        	DesireSpeed_Write(0);
+        }
 
         //SteeringServoControl_Write(navigator.getDirection(image_buf));
         navigator.drawPath(yellowImage, display_buf);
