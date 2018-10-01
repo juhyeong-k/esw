@@ -10,7 +10,7 @@ void Driver::waitStartSignal()
     }
     CarLight_Write(ALL_ON);
     Alarm_Write(ON);
-    sleep(3);
+    usleep(500000);
     CarLight_Write(ALL_OFF);
     Alarm_Write(OFF);
 }
