@@ -139,6 +139,7 @@ void * main_thread(void *arg)
     BGR24_to_HSV hsvConverter;
     Draw draw;
     colorFilter yellow(YELLOW);
+    colorFilter red(RED);
     Navigator navigator(lineDectectionTHRESHOLD);
     Driver driver;
 
@@ -182,7 +183,9 @@ void * main_thread(void *arg)
         hsvConverter.bgr24_to_hsv(display_buf,image_buf);
         yellow.detectColor(image_buf,image_buf);
 
-        SteeringServoControl_Write(navigator.getDirection(image_buf));
+        //SteeringServoControl_Write(navigator.getDirection(image_buf));
+        navigator.drawPath(image_buf, image_buf);
+
         draw.horizontal_line(image_buf, UPPER_LINE, 0, 320);
         draw.horizontal_line(image_buf, LOWER_LINE, 0, 320);
         draw.vertical_line(image_buf, 160, 0, 180);

@@ -30,7 +30,7 @@ class System_resource
   * @Brief
   */
 #define CAMERA_X_SERVO     1500
-#define CAMERA_Y_SERVO     1600
+#define CAMERA_Y_SERVO     1650
 
 #define UPPER_LINE          120
 #define LOWER_LINE          150
@@ -60,12 +60,20 @@ class System_resource
   * @Brief
   */
 #define YELLOW 0
-#define yellow_HUE_MAX    65
-#define yellow_HUE_MIN    25
+#define yellow_HUE_MAX    90
+#define yellow_HUE_MIN    15
 #define yellow_SAT_MAX    255
-#define yellow_SAT_MIN    10
+#define yellow_SAT_MIN    50
 #define yellow_VAL_MAX    255
 #define yellow_VAL_MIN    30
+
+#define RED 1
+#define red_HUE_MAX    35
+#define red_HUE_MIN    0
+#define red_SAT_MAX    255
+#define red_SAT_MIN    50
+#define red_VAL_MAX    255
+#define red_VAL_MIN    10
 
 /**
   * @Brief

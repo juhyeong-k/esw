@@ -16,7 +16,7 @@ INC += -I$(ROOTFS)/usr/include/gbm
 LIBDIR := $(ROOTFS)/usr/lib
 
 CFLAGS := -O1 -g -Wall -fPIC -mfloat-abi=hard -mfpu=neon -Wl,-rpath,$(ROOTFS)/lib -Wl,-rpath,$(ROOTFS)/usr/lib $(INC)
-CXXFLAGS = -Wall -ansi -g -fPIC -mfloat-abi=hard -mfpu=neon $(INC) -I$(ROOTFS)/include/c++/4.7.3/
+CXXFLAGS = -Wall -ansi -g -fPIC -mfloat-abi=hard -mfpu=neon -std=c++11 $(INC) -I$(ROOTFS)/include/c++/4.7.3/
 
 LDFLAGS = -lm -lpthread -L$(LIBDIR) -lrt -ldrm -lmtdev -ldrm_omap -lstdc++
 TARGET = project
