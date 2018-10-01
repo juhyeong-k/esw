@@ -17,6 +17,7 @@ extern "C" {
 	#include "car_lib.h"
 }
 #include "system_management.h"
+#include "car_control.h"
 #include "image_processing.h"
 #include "cv.h"
 #include "calibration.h"

@@ -26,8 +26,8 @@ all: $(TARGET)
 clean:
 	rm -f *.a *.o $(TARGET) *.lo
 
-$(TARGET): main.cpp v4l2.lo display-kms.lo util.lo vpe-common.lo input_cmd.lo car_lib.lo system_management.lo image_processing.lo cv.lo calibration.lo
-	$(CXX) $(CXXFLAGS) -o $@ main.cpp v4l2.lo display-kms.lo util.lo vpe-common.lo input_cmd.lo car_lib.lo system_management.lo image_processing.lo cv.lo calibration.lo $(LDFLAGS)
+$(TARGET): main.cpp v4l2.lo display-kms.lo util.lo vpe-common.lo input_cmd.lo car_lib.lo system_management.lo image_processing.lo cv.lo calibration.lo car_control.lo
+	$(CXX) $(CXXFLAGS) -o $@ main.cpp v4l2.lo display-kms.lo util.lo vpe-common.lo input_cmd.lo car_lib.lo system_management.lo image_processing.lo cv.lo calibration.lo car_control.lo $(LDFLAGS)
 
 v4l2.lo: v4l2.c v4l2.h
 	$(CC) -c $(CFLAGS) -o $@ v4l2.c
@@ -47,14 +47,17 @@ input_cmd.lo: input_cmd.cpp input_cmd.h
 car_lib.lo: car_lib.c car_lib.h
 	$(CC) -c $(CFLAGS) -o $@ car_lib.c
 
+car_control.lo: car_control.cpp car_control.h
+	$(CXX) -c $(CXXFLAGS) -o $@ car_control.cpp
+
 system_management.lo: system_management.cpp system_management.h
 	$(CXX) -c $(CXXFLAGS) -o $@ system_management.cpp
 
-image_processing.lo: image_processing.cpp image_processing.h system_management.lo
-	$(CXX) -c $(CXXFLAGS) -o $@ image_processing.cpp system_management.lo
+image_processing.lo: image_processing.cpp image_processing.h
+	$(CXX) -c $(CXXFLAGS) -o $@ image_processing.cpp
 
-cv.lo: cv.cpp cv.h system_management.lo
-	$(CXX) -c $(CXXFLAGS) -o $@ cv.cpp system_management.lo
+cv.lo: cv.cpp cv.h
+	$(CXX) -c $(CXXFLAGS) -o $@ cv.cpp
 
-calibration.lo: calibration.cpp calibration.h system_management.lo
-	$(CXX) -c $(CXXFLAGS) -o $@ calibration.cpp system_management.lo
+calibration.lo: calibration.cpp calibration.h
+	$(CXX) -c $(CXXFLAGS) -o $@ calibration.cpp
