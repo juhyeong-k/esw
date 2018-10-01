@@ -61,21 +61,32 @@ class System_resource
   */
 #define YELLOW 0
 #define yellow_HUE_MAX    90
-#define yellow_HUE_MIN    15
+#define yellow_HUE_MIN    25
 #define yellow_SAT_MAX    255
 #define yellow_SAT_MIN    50
 #define yellow_VAL_MAX    255
 #define yellow_VAL_MIN    30
 
 #define RED 1
-#define red_HUE_MAX    35
-#define red_HUE_MIN    0
+#define red_HUE_MAX    180
+#define red_HUE_MIN    140
 #define red_SAT_MAX    255
 #define red_SAT_MIN    50
 #define red_VAL_MAX    255
-#define red_VAL_MIN    10
+#define red_VAL_MIN    30
+
+
+#define GREEN 2
+#define green_HUE_MAX    140
+#define green_HUE_MIN    100
+#define green_SAT_MAX    255
+#define green_SAT_MIN    50
+#define green_VAL_MAX    255
+#define green_VAL_MIN    30
+
 
 /**
   * @Brief
   */
-#define lineDectectionTHRESHOLD 7
+#define lineDectectTHRESHOLD 7
+#define colorDetectTHRESHOLD 100

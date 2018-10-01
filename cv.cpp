@@ -5,13 +5,12 @@
 #include <stdio.h>
 #include "system_management.h"
 #include "cv.h"
-Navigator::Navigator(uint8_t THRESHOLD)
+Navigator::Navigator()
 {
     /*
     direction = 1500;
 	detected_flag = 0;
     */
-    threshold = THRESHOLD;
     /* for drawPath */
     lastRoadCenter.x = (VPE_OUTPUT_W/2)*3;
     lastRoadCenter.y = VPE_OUTPUT_H;
@@ -68,7 +67,7 @@ Navigator::Point Navigator::getRightPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUT
             for(j=1; j<11; j++) {
                 if( src[y][i+j][0] )    temp++;
             }
-            if(temp > threshold) {
+            if(temp > lineDectectTHRESHOLD) {
                 RightDetected();
                 point = {i, y};
                 return point;
@@ -88,7 +87,7 @@ Navigator::Point Navigator::getLeftPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTP
             for(j=1; j<11; j++) {
                 if( src[y][i-j][0] )    temp++;
             }
-            if(temp > threshold) {
+            if(temp > lineDectectTHRESHOLD) {
                 LeftDetected();
                 point = {i, y};
                 return point;
@@ -277,12 +276,14 @@ void Navigator::drawBigdot(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t 
 /**
   * @ Traffic Lights
   */
-bool Navigator::checkTrafficLights(uint8_t (*src)[VPE_OUTPUT_H][VPE_OUTPUT_W*3])
+bool Navigator::checkTrafficLights(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
-    uint16_t i,j;
-    for(i=0; i<VPE_OUTPUT_H; i++) {
-        for(j=0; j<VPE_OUTPUT_W*3; j++) {
-
+    uint16_t i,j,temp;
+    temp = 0;
+    for(i=0; i<VPE_OUTPUT_H/2; i++) {
+        for(j=0; j<VPE_OUTPUT_W; j++) {
+            if( src[i][j][0] ) temp++;
         }
     }
+    if(temp > 50)    ;
 }

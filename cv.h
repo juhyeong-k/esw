@@ -5,9 +5,9 @@
 class Navigator
 {
 	public:
-		Navigator(uint8_t THRESHOLD);
+		Navigator();
 		//uint16_t getDirection(uint8_t (*src)[VPE_OUTPUT_W*3]);
-        bool checkTrafficLights(uint8_t (*src)[VPE_OUTPUT_H][VPE_OUTPUT_W*3]);
+        bool checkTrafficLights(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
 
         /* for drawPath */
         void drawPath(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);

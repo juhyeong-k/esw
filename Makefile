@@ -47,17 +47,17 @@ input_cmd.lo: input_cmd.cpp input_cmd.h
 car_lib.lo: car_lib.c car_lib.h
 	$(CC) -c $(CFLAGS) -o $@ car_lib.c
 
-car_control.lo: car_control.cpp car_control.h
+car_control.lo: car_control.cpp car_control.h system_management.h
 	$(CXX) -c $(CXXFLAGS) -o $@ car_control.cpp
 
 system_management.lo: system_management.cpp system_management.h
 	$(CXX) -c $(CXXFLAGS) -o $@ system_management.cpp
 
-image_processing.lo: image_processing.cpp image_processing.h
+image_processing.lo: image_processing.cpp image_processing.h system_management.h
 	$(CXX) -c $(CXXFLAGS) -o $@ image_processing.cpp
 
 cv.lo: cv.cpp cv.h
 	$(CXX) -c $(CXXFLAGS) -o $@ cv.cpp
 
-calibration.lo: calibration.cpp calibration.h
+calibration.lo: calibration.cpp calibration.h system_management.h
 	$(CXX) -c $(CXXFLAGS) -o $@ calibration.cpp
