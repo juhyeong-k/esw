@@ -53,11 +53,11 @@ car_control.lo: car_control.cpp car_control.h system_management.h
 system_management.lo: system_management.cpp system_management.h
 	$(CXX) -c $(CXXFLAGS) -o $@ system_management.cpp
 
-image_processing.lo: image_processing.cpp image_processing.h system_management.h
-	$(CXX) -c $(CXXFLAGS) -o $@ image_processing.cpp
+image_processing.lo: image_processing.cpp image_processing.h system_management.lo
+	$(CXX) -c $(CXXFLAGS) -o $@ image_processing.cpp system_management.lo
 
-cv.lo: cv.cpp cv.h
-	$(CXX) -c $(CXXFLAGS) -o $@ cv.cpp
+cv.lo: cv.cpp cv.h system_management.lo
+	$(CXX) -c $(CXXFLAGS) -o $@ cv.cpp system_management.lo
 
-calibration.lo: calibration.cpp calibration.h system_management.h
-	$(CXX) -c $(CXXFLAGS) -o $@ calibration.cpp
+calibration.lo: calibration.cpp calibration.h system_management.lo
+	$(CXX) -c $(CXXFLAGS) -o $@ calibration.cpp system_management.lo

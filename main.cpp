@@ -31,6 +31,8 @@ extern System_resource system_resource;
 /**
   * @brief  Required threads, functions, and structures.\
   */
+bool waitGreenLights;
+
 void * main_thread(void *arg);
 void * secondary_thread(void *arg);
 
@@ -139,6 +141,7 @@ void * main_thread(void *arg)
     BGR24_to_HSV hsvConverter;
     Draw draw;
 
+    waitGreenLights = false;
     colorFilter red(RED);
     colorFilter green(GREEN);
     colorFilter yellow(YELLOW);
@@ -163,7 +166,7 @@ void * main_thread(void *arg)
 
     PositionControlOnOff_Write(UNCONTROL);
     SpeedControlOnOff_Write(CONTROL);
-    driver.waitStartSignal();
+    //driver.waitStartSignal();
     DesireSpeed_Write(50);
     while(1)
     {   
@@ -183,24 +186,29 @@ void * main_thread(void *arg)
         uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
 
         uint8_t redImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
-        //uint8_t greenImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
-        //uint8_t yellowImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
+        uint8_t greenImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
+        uint8_t yellowImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
 
         memcpy(display_buf, omap_bo_map(capt->bo[0]), VPE_OUTPUT_IMG_SIZE);
 
         hsvConverter.bgr24_to_hsv(display_buf,image_buf);
         red.detectColor(image_buf, redImage);
-        //yellow.detectColor(image_buf, yellowImage);
-        //green.detectColor(image_buf, greenImage);
+        yellow.detectColor(image_buf, yellowImage);
+        green.detectColor(image_buf, greenImage);
+
+        if(navigator.isTrafficLightsGreen(greenImage, yellowImage, redImage))
+            DesireSpeed_Write(50);
+        else
+        	DesireSpeed_Write(0);
 
         //SteeringServoControl_Write(navigator.getDirection(image_buf));
-        navigator.drawPath(image_buf, image_buf);
+        navigator.drawPath(yellowImage, display_buf);
 
         draw.horizontal_line(image_buf, UPPER_LINE, 0, 320);
         draw.horizontal_line(image_buf, LOWER_LINE, 0, 320);
         draw.vertical_line(image_buf, 160, 0, 180);
 
-        memcpy(omap_bo_map(capt->bo[0]), redImage, VPE_OUTPUT_IMG_SIZE);
+        memcpy(omap_bo_map(capt->bo[0]), greenImage, VPE_OUTPUT_IMG_SIZE);
 
         if(pthread_create(&(data->threads[1]), NULL, secondary_thread, data)) {
             MSG("Failed creating Secondary thread");
