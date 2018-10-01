@@ -255,7 +255,6 @@ void Navigator::calculateDirection()
     else if (vector < -1.11) direction = 2000;
     else                       direction = (uint16_t)(1500 - 450 * vector);
 }
-<<<<<<< HEAD
 void Navigator::drawDot(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t y)
 {
     #ifdef bgr24
@@ -274,6 +273,7 @@ void Navigator::drawBigdot(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t 
         }
     #endif
 }
+*/
 /**
   * @ Traffic Lights
   */
@@ -281,6 +281,3 @@ bool Navigator::checkTrafficLights(uint8_t (*src)[VPE_OUTPUT_H][VPE_OUTPUT_W*3])
 {
     
 }
-=======
-*/
->>>>>>> calibration2
