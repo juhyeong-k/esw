@@ -10,7 +10,7 @@ class Navigator
         bool checkTrafficLights(uint8_t (*src)[VPE_OUTPUT_H][VPE_OUTPUT_W*3]);
 
         /* for drawPath */
-        void drawPath(uint8_t (*src)[VPE_OUTPUT_W*3], uint8_t (*des)[VPE_OUTPUT_W*3]);
+        void drawPath(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
 	private:
         /*
         uint8_t detected_flag;
@@ -35,7 +35,6 @@ class Navigator
         bool isLeftDetected();
         */
         /* for drawPath */
-        uint16_t temp,i,j,k;
         uint8_t threshold, detected_flag;
 
         struct Point {
@@ -46,15 +45,15 @@ class Navigator
         uint16_t shiftAmount;
         double sideSlope;
 
-        Point getRoadCenter(uint8_t (*src)[VPE_OUTPUT_W*3], uint16_t y);
-        Point getRightPosition(uint8_t (*src)[VPE_OUTPUT_W*3], uint16_t y);
-        Point getLeftPosition(uint8_t (*src)[VPE_OUTPUT_W*3], uint16_t y);
+        Point getRoadCenter(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
+        Point getRightPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
+        Point getLeftPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
 
         void RightDetected();
         void LeftDetected();
         bool isRightDetected();
         bool isLeftDetected();
 
-        void drawDot(uint8_t (*des)[VPE_OUTPUT_W*3], Point point);
-        void drawBigdot(uint8_t (*des)[VPE_OUTPUT_W*3], Point point);
+        void drawDot(uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], Point point);
+        void drawBigdot(uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], Point point);
 };

@@ -176,8 +176,8 @@ void * main_thread(void *arg)
         }
         index = vpe_output_dqbuf(vpe);
         capt = vpe->disp_bufs[index];
-        uint8_t image_buf[VPE_OUTPUT_H][VPE_OUTPUT_W*3];
-        uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W*3];
+        uint8_t image_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
+        uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
         memcpy(display_buf, omap_bo_map(capt->bo[0]), VPE_OUTPUT_IMG_SIZE);
 
         hsvConverter.bgr24_to_hsv(display_buf,image_buf);

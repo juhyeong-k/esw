@@ -23,10 +23,10 @@ uint8_t BGR24_to_HSV::getMinBGR(uint8_t b, uint8_t g, uint8_t r) {
     if (r < min) min = r;
     return min;
 }
-void BGR24_to_HSV::bgr24_to_hsv(uint8_t (*src)[VPE_OUTPUT_W*3], uint8_t (*des)[VPE_OUTPUT_W*3])
+void BGR24_to_HSV::bgr24_to_hsv(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     int i, j;
-    uint8_t temp_buf[VPE_OUTPUT_H][VPE_OUTPUT_W*3];
+    uint8_t temp_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
     memcpy(temp_buf, src, VPE_OUTPUT_IMG_SIZE);
 
     uint8_t V_BGR;
@@ -34,9 +34,9 @@ void BGR24_to_HSV::bgr24_to_hsv(uint8_t (*src)[VPE_OUTPUT_W*3], uint8_t (*des)[V
     uint8_t Max, Min;
     for(i = 0; i < VPE_OUTPUT_H; i++)
     {
-        for(j = 0; j < VPE_OUTPUT_W * 3; j += 3)
+        for(j = 0; j < VPE_OUTPUT_W; j ++)
         {
-            B = temp_buf[i][j];    G = temp_buf[i][j+1];    R = temp_buf[i][j+2];
+            B = temp_buf[i][j][0];    G = temp_buf[i][j][1];    R = temp_buf[i][j][2];
             Max = getMaxBGR_VBGR(B, G, R, &V_BGR);
             Min = getMinBGR(B, G, R);// Obtaining V
             V = Max;
@@ -53,7 +53,7 @@ void BGR24_to_HSV::bgr24_to_hsv(uint8_t (*src)[VPE_OUTPUT_W*3], uint8_t (*des)[V
             }
             if(H < 0)    H = H + 360;
             H = H / 2;
-            des[i][j] = H; des[i][j+1] = S; des[i][j+2] = V;
+            des[i][j][0] = H; des[i][j][1] = S; des[i][j][2] = V;
         }
     }
 }
@@ -61,35 +61,33 @@ void BGR24_to_HSV::bgr24_to_hsv(uint8_t (*src)[VPE_OUTPUT_W*3], uint8_t (*des)[V
   * @breif  Draw class
   *
   */
-void Draw::horizontal_line(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t y, uint16_t x_start, uint16_t x_end)
+void Draw::horizontal_line(uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y, uint16_t x_start, uint16_t x_end)
 {
     #ifdef bgr24
-        int i,x;
+        int i;
         for(i = x_start; i < x_end; i++)
         {
-            x = 3 * i;
-            des[y][x] = 255;
-            des[y][x+1] = des[y][x+2] = 0;
+            des[y][i][0] = 255;
+            des[y][i][1] = des[y][i][2] = 0;
         }
     #endif
 }
-void Draw::vertical_line(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t y_start, uint16_t y_end)
+void Draw::vertical_line(uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t x, uint16_t y_start, uint16_t y_end)
 {
     #ifdef bgr24
-        int i,j;
-        j = 3 * x;
+        int i;
         for(i = y_start; i < y_end; i++)
         {
-            des[i][j] = 255;
-            des[i][j+1] = des[i][j+2] = 0;
+            des[i][x][0] = 255;
+            des[i][x][1] = des[i][x][2] = 0;
         }
     #endif
 }
-void Draw::dot(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t y)
+void Draw::dot(uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t x, uint16_t y)
 {
     #ifdef bgr24
-        des[y][3*x+1] = 255;
-        des[y][3*x] = des[y][3*x+2] = 0;
+        des[y][x][1] = 255;
+        des[y][x][0] = des[y][x][2] = 0;
     #endif
 }
 /**
@@ -119,23 +117,23 @@ colorFilter::colorFilter(uint8_t colorName)
         default : fileout << "colorName was not defined(image_processing.cpp)\n"; break;
     }
 }
-void colorFilter::detectColor(uint8_t (*src)[VPE_OUTPUT_W*3], uint8_t (*des)[VPE_OUTPUT_W*3])
+void colorFilter::detectColor(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     int i, j;
     uint8_t h,s,v;
-    uint8_t temp_buf[VPE_OUTPUT_H][VPE_OUTPUT_W * 3];
+    uint8_t temp_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
     memcpy(temp_buf, src, VPE_OUTPUT_IMG_SIZE);
     for(i = 0; i < VPE_OUTPUT_H; i++)
     {
-        for(j = 0; j < VPE_OUTPUT_W * 3; j += 3)
+        for(j = 0; j < VPE_OUTPUT_W; j++)
         {
-            h = temp_buf[i][j];
-            s = temp_buf[i][j+1];
-            v = temp_buf[i][j+2];
+            h = temp_buf[i][j][0];
+            s = temp_buf[i][j][1];
+            v = temp_buf[i][j][2];
             if(inRange(h,s,v))
-                des[i][j] = des[i][j+1] = des[i][j+2] = 255;
+                des[i][j][0] = des[i][j][1] = des[i][j][2] = 255;
             else
-                des[i][j] = des[i][j+1] = des[i][j+2] = 0;
+                des[i][j][0] = des[i][j][1] = des[i][j][2] = 0;
         }
     }
 }
