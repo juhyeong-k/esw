@@ -184,33 +184,13 @@ void * main_thread(void *arg)
         capt = vpe->disp_bufs[index];
         uint8_t image_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
         uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
-
-        uint8_t redImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
-        uint8_t greenImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
         uint8_t yellowImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
 
         memcpy(display_buf, omap_bo_map(capt->bo[0]), VPE_OUTPUT_IMG_SIZE);
 
         hsvConverter.bgr24_to_hsv(display_buf,image_buf);
-        red.detectColor(image_buf, redImage);
         yellow.detectColor(image_buf, yellowImage);
-        green.detectColor(image_buf, greenImage);
         
-        /*
-        if( navigator.isTrafficLightsGreen(greenImage, yellowImage, redImage) == 2 ) {
-        	isWaitingGreen = true;
-            DesireSpeed_Write(0);
-        }
-        if(isWaitingGreen) {
-            if( navigator.isTrafficLightsGreen(greenImage, yellowImage, redImage) == 1 ) {
-            	isWaitingGreen = false; 
-                DesireSpeed_Write(50);
-            }
-        }
-        else {
-            DesireSpeed_Write(50);
-        }
-        */
         //SteeringServoControl_Write(navigator.getDirection(image_buf));
         navigator.drawPath(yellowImage, yellowImage);
 

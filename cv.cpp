@@ -20,7 +20,7 @@ void Navigator::drawPath(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (
 {
     uint16_t y;
     Point roadCenter;
-    for(y=0; y < VPE_OUTPUT_H; y++) {
+    for(y=VPE_OUTPUT_H-1; y > 0; y--) {
         roadCenter = getRoadCenter(src, y);
         drawDot(des, roadCenter);
         drawDot(des, getRightPosition(src, y));
@@ -61,7 +61,7 @@ Navigator::Point Navigator::getRightPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUT
     // detect direction from Right
     temp = 0;
     Point point = {0,};
-    for(i = VPE_OUTPUT_W / 2; i < VPE_OUTPUT_W; i++) {
+    for(i = lastRoadCenter.x; i < VPE_OUTPUT_W; i++) {
         if( src[y][i][0] )
         {
             for(j=1; j<11; j++) {
@@ -81,7 +81,7 @@ Navigator::Point Navigator::getLeftPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTP
     // detect direction from Left
     temp = 0;
     Point point = {0,};
-    for(i = VPE_OUTPUT_W / 2; i > 0; i--) {
+    for(i = lastRoadCenter.x; i > 0; i--) {
         if( src[y][i][0] )
         {
             for(j=1; j<11; j++) {
