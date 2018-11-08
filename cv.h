@@ -43,7 +43,7 @@ class Navigator
             uint16_t y;
         };
         Point lastRoadCenter;
-        Point lastPoint;
+        Point startingPoint;
         Point lastDirection;
         uint16_t shiftAmount;
         double sideSlope;
