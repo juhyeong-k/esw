@@ -12,7 +12,7 @@ Navigator::Navigator()
 	detected_flag = 0;
     */
     /* for drawPath */
-    lastRoadCenter.x = (VPE_OUTPUT_W/2)*3;
+    lastRoadCenter.x = VPE_OUTPUT_W/2;
     lastRoadCenter.y = VPE_OUTPUT_H;
     startingPoint = {(VPE_OUTPUT_W/2), VPE_OUTPUT_H};
 }
@@ -28,7 +28,7 @@ void Navigator::drawPath(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (
         drawDot(des, getLeftPosition(src, y));
         if(roadCenter.y && roadCenter.x) {
             startingPoint = roadCenter;
-            //break;
+            break;
         }
     }
     for(y; y > 0; y--) {
@@ -38,7 +38,6 @@ void Navigator::drawPath(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (
         drawDot(des, getLeftPosition(src, y));
     }
     lastRoadCenter = startingPoint;
-    //printf("x : %d / y : %d\n", startingPoint.x, startingPoint.y);
 }
 Navigator::Point Navigator::getRoadCenter(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y)
 {
