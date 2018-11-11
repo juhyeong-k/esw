@@ -193,7 +193,6 @@ void * main_thread(void *arg)
         
         //SteeringServoControl_Write(navigator.getDirection(image_buf));
         navigator.drawPath(yellowImage, yellowImage);
-
         draw.horizontal_line(image_buf, UPPER_LINE, 0, 320);
         draw.horizontal_line(image_buf, LOWER_LINE, 0, 320);
         draw.vertical_line(image_buf, 160, 0, 180);
