@@ -20,52 +20,53 @@ Navigator::Navigator()
 void Navigator::drawPath(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     uint16_t y;
-    Point roadCenter{0,};
+    Point currentRoadCenter{0,};
     for(y=VPE_OUTPUT_H-1; y > 0; y--) {
-        roadCenter = getRoadCenter(src, y);
-        drawDot(des, roadCenter);
+        currentRoadCenter = getRoadCenter(src, y);
+        drawDot(des, currentRoadCenter);
         drawDot(des, getRightPosition(src, y));
         drawDot(des, getLeftPosition(src, y));
-        if(roadCenter.y && roadCenter.x) {
-            startingPoint = roadCenter;
+        if(currentRoadCenter.y && currentRoadCenter.x) {
+            startingPoint = currentRoadCenter;
             break;
         }
     }
     for(y; y > 0; y--) {
-        roadCenter = getRoadCenter(src, y);
-        drawDot(des, roadCenter);
+        currentRoadCenter = getRoadCenter(src, y);
+        drawDot(des, currentRoadCenter);
         drawDot(des, getRightPosition(src, y));
         drawDot(des, getLeftPosition(src, y));
     }
+    printf("%f",roadSlope);
     lastRoadCenter = startingPoint;
 }
 Navigator::Point Navigator::getRoadCenter(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y)
 {
     detected_flag = 0;
 
-    Point roadCenter = lastRoadCenter;
+    Point currentRoadCenter = lastRoadCenter;
     Point right_point = getRightPosition(src,y);
     Point left_point = getLeftPosition(src,y);
     
     if(isRightDetected() & isLeftDetected()) {
-        roadCenter.x = (right_point.x + left_point.x)/2;
-        roadCenter.y = (right_point.y + left_point.y)/2;
-        sideSlope = (float)(roadCenter.y - lastRoadCenter.y)/(roadCenter.x - lastRoadCenter.x);
-        lastRoadCenter = roadCenter;
+        currentRoadCenter.x = (right_point.x + left_point.x)/2;
+        currentRoadCenter.y = (right_point.y + left_point.y)/2;
+        roadSlope = (float)(currentRoadCenter.y - lastRoadCenter.y)/(currentRoadCenter.x - lastRoadCenter.x);
+        lastRoadCenter = currentRoadCenter;
     }
     else if( isRightDetected() ) {
-        roadCenter.x = right_point.x / 2;
-        roadCenter.y = right_point.y;
-        sideSlope = (float)(roadCenter.y - lastRoadCenter.y)/(roadCenter.x - lastRoadCenter.x);
-        lastRoadCenter = roadCenter;
+        currentRoadCenter.x = right_point.x / 2;
+        currentRoadCenter.y = right_point.y;
+        roadSlope = (float)(currentRoadCenter.y - lastRoadCenter.y)/(currentRoadCenter.x - lastRoadCenter.x);
+        lastRoadCenter = currentRoadCenter;
     }
     else if( isLeftDetected() ) {
-        roadCenter.x = left_point.x + (VPE_OUTPUT_W - left_point.x)/ 2;
-        roadCenter.y = left_point.y;
-        sideSlope = (float)(roadCenter.y - lastRoadCenter.y)/(roadCenter.x - lastRoadCenter.x);
-        lastRoadCenter = roadCenter;
+        currentRoadCenter.x = left_point.x + (VPE_OUTPUT_W - left_point.x)/ 2;
+        currentRoadCenter.y = left_point.y;
+        roadSlope = (float)(currentRoadCenter.y - lastRoadCenter.y)/(currentRoadCenter.x - lastRoadCenter.x);
+        lastRoadCenter = currentRoadCenter;
     }
-    return roadCenter;
+    return currentRoadCenter;
 }
 Navigator::Point Navigator::getRightPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y)
 {
@@ -106,6 +107,10 @@ Navigator::Point Navigator::getLeftPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTP
             }
         }
     }
+}
+double Navigator::getRoadSlope(Point currentRoadCenter, Point lastRoadCenter)
+{
+    
 }
 void Navigator::RightDetected() { detected_flag += 1; }
 void Navigator::LeftDetected() { detected_flag += 2; }

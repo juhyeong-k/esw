@@ -46,7 +46,9 @@ class Navigator
         Point startingPoint;
         Point lastDirection;
         uint16_t shiftAmount;
-        double sideSlope;
+
+        double roadSlope;
+        double getRoadSlope(Point currentRoadCenter, Point lastRoadCenter);
 
         Point getRoadCenter(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
         Point getRightPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
