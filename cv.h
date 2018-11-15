@@ -42,7 +42,12 @@ class Navigator
             uint16_t x;
             uint16_t y;
         };
-        Point lastRoadCenter;
+        struct visionInfo {
+            Point roadCenter;
+        };
+        visionInfo last;
+        visionInfo current;
+
         Point startingPoint;
         Point lastDirection;
         uint16_t shiftAmount;
