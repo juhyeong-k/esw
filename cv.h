@@ -37,21 +37,23 @@ class Navigator
         */
         /* for drawPath */
         uint8_t threshold, detected_flag;
-
+        /* Structures */
         struct Point {
             uint16_t x;
             uint16_t y;
+            bool detected;
         };
-        struct visionInfo {
+        struct VisionInfo {
             Point roadCenter;
         };
-        visionInfo last;
-        visionInfo current;
-
+        VisionInfo last;
+        VisionInfo current;
+        /* for loop control */
+        void CheckRoadEndDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
+        uint8_t isRoadEndDetected;
         Point startingPoint;
-        Point lastDirection;
-        uint16_t shiftAmount;
 
+        /*  */
         double roadSlope;
         double getRoadSlope(Point currentRoadCenter, Point lastRoadCenter);
 

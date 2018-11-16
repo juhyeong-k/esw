@@ -17,6 +17,7 @@ Navigator::Navigator()
 void Navigator::drawPath(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     uint16_t y;
+    isRoadEndDetected = 0;
     for(y=VPE_OUTPUT_H-1; y > 0; y--) {
         current.roadCenter = getRoadCenter(src, y);
         drawDot(des, current.roadCenter);
@@ -32,6 +33,8 @@ void Navigator::drawPath(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (
         drawDot(des, current.roadCenter);
         drawDot(des, getRightPosition(src, y));
         drawDot(des, getLeftPosition(src, y));
+        //CheckRoadEndDetected();
+        if(isRoadEndDetected > ROAD_END_DETCTED_THRESHOLD) break;
     }
     last.roadCenter = startingPoint;
 }
@@ -148,6 +151,10 @@ void Navigator::drawBigdot(uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], Point p
             }
         }
     #endif
+}
+void Navigator::CheckRoadEndDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y)
+{
+
 }
 /*
 uint16_t Navigator::getDirection(uint8_t (*src)[VPE_OUTPUT_W*3])

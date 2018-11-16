@@ -32,8 +32,9 @@ class System_resource
 #define CAMERA_X_SERVO     1500
 #define CAMERA_Y_SERVO     1650
 
-#define UPPER_LINE          120
-#define LOWER_LINE          150
+#define FRONT_LINE			79
+#define UPPER_LINE			149
+#define LOWER_LINE			179
 
 #define CAPTURE_IMG_W       1280
 #define CAPTURE_IMG_H       720
@@ -90,3 +91,6 @@ class System_resource
   */
 #define lineDectectTHRESHOLD 7
 #define colorDetectTHRESHOLD 700
+
+/* CV.cpp */
+#define ROAD_END_DETCTED_THRESHOLD 3
