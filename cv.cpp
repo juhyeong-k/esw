@@ -17,53 +17,59 @@ Navigator::Navigator()
 void Navigator::drawPath(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     uint16_t y;
-    isRoadEndDetected = 0;
+    Point roadCenter = {0,};
     for(y=VPE_OUTPUT_H-1; y > 0; y--) {
-        current.roadCenter = getRoadCenter(src, y);
-        drawDot(des, current.roadCenter);
-        drawDot(des, getRightPosition(src, y));
-        drawDot(des, getLeftPosition(src, y));
-        if(current.roadCenter.y && current.roadCenter.x) {
-            startingPoint = current.roadCenter;
+        roadCenter = getRoadCenter(src, y);
+        if(roadCenter.detected) {
+            drawDot(des, roadCenter);
+            drawDot(des, getRightPosition(src, y));
+            drawDot(des, getLeftPosition(src, y));
+        }
+        if(roadCenter.y && roadCenter.x) {
+            startingPoint = roadCenter;
             break;
         }
     }
     for(y; y > 0; y--) {
-        current.roadCenter = getRoadCenter(src, y);
-        drawDot(des, current.roadCenter);
-        drawDot(des, getRightPosition(src, y));
-        drawDot(des, getLeftPosition(src, y));
-        //CheckRoadEndDetected();
-        if(isRoadEndDetected > ROAD_END_DETCTED_THRESHOLD) break;
+        roadCenter = getRoadCenter(src, y);
+        if(roadCenter.detected) {
+            drawDot(des, roadCenter);
+            drawDot(des, getRightPosition(src, y));
+            drawDot(des, getLeftPosition(src, y));
+        }
+        if(isRoadEndDetected(src, y)) break;
     }
     last.roadCenter = startingPoint;
 }
 Navigator::Point Navigator::getRoadCenter(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y)
 {
-    current.roadCenter = {0,};
+    Point roadCenter = {0,};
     Point right_point = getRightPosition(src,y);
     Point left_point = getLeftPosition(src,y);
     
     if(right_point.detected & left_point.detected) {
-        current.roadCenter.x = (right_point.x + left_point.x)/2;
-        current.roadCenter.y = (right_point.y + left_point.y)/2;
-        roadSlope = getRoadSlope(current.roadCenter, last.roadCenter);
-        last.roadCenter = current.roadCenter;
+        roadCenter.x = (right_point.x + left_point.x)/2;
+        roadCenter.y = (right_point.y + left_point.y)/2;
+        roadCenter.detected = true;
+        roadSlope = getRoadSlope(roadCenter, last.roadCenter);
+        last.roadCenter = roadCenter;
     }
     else if( right_point.detected ) {
-        current.roadCenter.x = right_point.x / 2;
-        current.roadCenter.y = right_point.y;
-        roadSlope = getRoadSlope(current.roadCenter, last.roadCenter);
-        last.roadCenter = current.roadCenter;
+        roadCenter.x = right_point.x / 2;
+        roadCenter.y = right_point.y;
+        roadCenter.detected = true;
+        roadSlope = getRoadSlope(roadCenter, last.roadCenter);
+        last.roadCenter = roadCenter;
     }
     else if( left_point.detected ) {
-        current.roadCenter.x = left_point.x + (VPE_OUTPUT_W - left_point.x)/ 2;
-        current.roadCenter.y = left_point.y;
-        roadSlope = getRoadSlope(current.roadCenter, last.roadCenter);
-        last.roadCenter = current.roadCenter;
+        roadCenter.x = left_point.x + (VPE_OUTPUT_W - left_point.x)/ 2;
+        roadCenter.y = left_point.y;
+        roadCenter.detected = true;
+        roadSlope = getRoadSlope(roadCenter, last.roadCenter);
+        last.roadCenter = roadCenter;
     }
-    printf("roadSlope : %f\n", roadSlope);
-    return current.roadCenter;
+    else roadCenter.detected = false;
+    return roadCenter;
 }
 Navigator::Point Navigator::getRightPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y)
 {
@@ -140,9 +146,16 @@ void Navigator::drawBigdot(uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], Point p
         }
     #endif
 }
-void Navigator::CheckRoadEndDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y)
+bool Navigator::isRoadEndDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y)
 {
-
+    Point right_point = getRightPosition(src,y);
+    Point left_point = getLeftPosition(src,y);
+    if(right_point.detected & left_point.detected) {
+        if(right_point.x == left_point.x+4) {
+            return true;
+        }
+    }
+    return false;
 }
 /*
 uint16_t Navigator::getDirection(uint8_t (*src)[VPE_OUTPUT_W*3])

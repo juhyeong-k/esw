@@ -49,8 +49,8 @@ class Navigator
         VisionInfo last;
         VisionInfo current;
         /* for loop control */
-        void CheckRoadEndDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
-        uint8_t isRoadEndDetected;
+        // before using isRoadEndDetected() function, confirm the last.roadCenter has been updated.
+        bool isRoadEndDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
         Point startingPoint;
 
         /*  */
