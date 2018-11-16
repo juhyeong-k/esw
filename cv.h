@@ -36,7 +36,7 @@ class Navigator
         bool isLeftDetected();
         */
         /* for drawPath */
-        uint8_t threshold, detected_flag;
+        uint8_t threshold;
         /* Structures */
         struct Point {
             uint16_t x;

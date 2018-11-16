@@ -40,25 +40,23 @@ void Navigator::drawPath(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (
 }
 Navigator::Point Navigator::getRoadCenter(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y)
 {
-    detected_flag = 0;
-
-    current.roadCenter = {0,0};
+    current.roadCenter = {0,};
     Point right_point = getRightPosition(src,y);
     Point left_point = getLeftPosition(src,y);
     
-    if(isRightDetected() & isLeftDetected()) {
+    if(right_point.detected & left_point.detected) {
         current.roadCenter.x = (right_point.x + left_point.x)/2;
         current.roadCenter.y = (right_point.y + left_point.y)/2;
         roadSlope = getRoadSlope(current.roadCenter, last.roadCenter);
         last.roadCenter = current.roadCenter;
     }
-    else if( isRightDetected() ) {
+    else if( right_point.detected ) {
         current.roadCenter.x = right_point.x / 2;
         current.roadCenter.y = right_point.y;
         roadSlope = getRoadSlope(current.roadCenter, last.roadCenter);
         last.roadCenter = current.roadCenter;
     }
-    else if( isLeftDetected() ) {
+    else if( left_point.detected ) {
         current.roadCenter.x = left_point.x + (VPE_OUTPUT_W - left_point.x)/ 2;
         current.roadCenter.y = left_point.y;
         roadSlope = getRoadSlope(current.roadCenter, last.roadCenter);
@@ -80,12 +78,12 @@ Navigator::Point Navigator::getRightPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUT
                 if( src[y][i+j][0] )    temp++;
             }
             if(temp > lineDectectTHRESHOLD) {
-                RightDetected();
-                point = {i, y};
+                point = {i, y, true};
                 return point;
             }
         }
     }
+    return point;
 }
 Navigator::Point Navigator::getLeftPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y)
 {
@@ -100,12 +98,12 @@ Navigator::Point Navigator::getLeftPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTP
                 if( src[y][i-j][0] )    temp++;
             }
             if(temp > lineDectectTHRESHOLD) {
-                LeftDetected();
-                point = {i, y};
+                point = {i, y, true};
                 return point;
             }
         }
     }
+    return point;
 }
 double Navigator::getRoadSlope(Point currentRoadCenter, Point lastRoadCenter)
 {
@@ -116,16 +114,6 @@ double Navigator::getRoadSlope(Point currentRoadCenter, Point lastRoadCenter)
     else if( x_Variation == 0 ) return 180;
     else if( y_Variation == 0 ) return 0;
     else return (double)y_Variation / x_Variation;
-}
-void Navigator::RightDetected() { detected_flag += 1; }
-void Navigator::LeftDetected() { detected_flag += 2; }
-bool Navigator::isRightDetected() {
-    if(detected_flag & 1) return true;
-    else                    return false;
-}
-bool Navigator::isLeftDetected() {
-    if(detected_flag & 2) return true;
-    else                    return false;
 }
 void Navigator::drawDot(uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], Point point)
 {
