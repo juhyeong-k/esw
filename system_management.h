@@ -32,9 +32,10 @@ class System_resource
 #define CAMERA_X_SERVO     1500
 #define CAMERA_Y_SERVO     1650
 
-#define FRONT_LINE			79
-#define UPPER_LINE			149
-#define LOWER_LINE			179
+#define FRONT_UP			79
+#define FRONT_DOWN		79
+#define SIDE_UP			149
+#define SIDE_DOWN			179
 
 #define CAPTURE_IMG_W       1280
 #define CAPTURE_IMG_H       720

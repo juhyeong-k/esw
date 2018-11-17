@@ -42,6 +42,9 @@ class Navigator
             uint16_t x;
             uint16_t y;
             bool detected;
+            bool isCenterPoint;
+            bool isRightPoint;
+            bool isLeftPoint;
         };
         struct VisionInfo {
             Point roadCenter;

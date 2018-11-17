@@ -193,9 +193,10 @@ void * main_thread(void *arg)
         
         //SteeringServoControl_Write(navigator.getDirection(image_buf));
         navigator.drawPath(yellowImage, yellowImage);
-        draw.horizontal_line(yellowImage, FRONT_LINE, 0, 320);
-        draw.horizontal_line(yellowImage, UPPER_LINE, 0, 320);
-        draw.horizontal_line(yellowImage, LOWER_LINE, 0, 320);
+        draw.horizontal_line(yellowImage, FRONT_UP, 0, 320);
+        draw.horizontal_line(yellowImage, FRONT_DOWN, 0, 320);
+        draw.horizontal_line(yellowImage, SIDE_UP, 0, 320);
+        draw.horizontal_line(yellowImage, SIDE_DOWN, 0, 320);
         draw.vertical_line(yellowImage, 160, 0, 180);
 
         memcpy(omap_bo_map(capt->bo[0]), yellowImage, VPE_OUTPUT_IMG_SIZE);
