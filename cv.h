@@ -2,6 +2,7 @@
   * @brief
   */
 #include <stdint.h>
+
 class Navigator
 {
 	public:
@@ -46,21 +47,22 @@ class Navigator
             bool isRightPoint;
             bool isLeftPoint;
         };
-        struct VisionInfo {
-            Point roadCenter;
-        };
-        VisionInfo last;
-        VisionInfo current;
+        Point lastPoint;
         /* for loop control */
         // before using isRoadEndDetected() function, confirm the last.roadCenter has been updated.
         bool isRoadEndDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
+        void rememberStartingPoint(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         Point startingPoint;
 
         /*  */
         double roadSlope;
-        double getRoadSlope(Point currentRoadCenter, Point lastRoadCenter);
+        double getRoadDiff(Point current, Point last);
+        bool isPathRight(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        bool isPathLeft(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        bool isPathStraight(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
 
         Point getRoadCenter(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
+        Point getRoadPoint(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
         Point getRightPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
         Point getLeftPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
 

@@ -268,7 +268,7 @@ int main(int argc, char **argv)
     struct vpe *vpe;
     struct thr_data tdata;
     int disp_argc = 3;
-    char* disp_argv[] = {"dummy", "-s", "4:480x272", "\0"};
+    char* disp_argv[] = {(char*)"dummy", (char*)"-s", (char*)"4:480x272", (char*)"\0"};
     int ret = 0;
 
     CarControlInit();

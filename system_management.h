@@ -33,7 +33,7 @@ class System_resource
 #define CAMERA_Y_SERVO     1650
 
 #define FRONT_UP			79
-#define FRONT_DOWN		79
+#define FRONT_DOWN		148
 #define SIDE_UP			149
 #define SIDE_DOWN			179
 
