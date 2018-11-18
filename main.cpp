@@ -192,7 +192,7 @@ void * main_thread(void *arg)
         yellow.detectColor(image_buf, yellowImage);
         
         //SteeringServoControl_Write(navigator.getDirection(image_buf));
-        navigator.drawPath(yellowImage, yellowImage);
+        navigator.cvTest(yellowImage, yellowImage);
         draw.horizontal_line(yellowImage, FRONT_UP, 0, 320);
         draw.horizontal_line(yellowImage, FRONT_DOWN, 0, 320);
         draw.horizontal_line(yellowImage, SIDE_UP, 0, 320);

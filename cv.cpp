@@ -13,9 +13,22 @@ Navigator::Navigator()
     roadSlope = 180;
     startingPoint = {(VPE_OUTPUT_W/2), VPE_OUTPUT_H};
 }
-void Navigator::rememberStartingPoint(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+void Navigator::cvTest(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
-    
+    startingPoint = getStartingPoint(src);
+    drawPath(src, des);
+    lastPoint = startingPoint;
+}
+Navigator::Point Navigator::getStartingPoint(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint8_t y;
+    Point roadCenter;
+    for(y=VPE_OUTPUT_H-1; y > 0; y--) {
+        roadCenter = getRoadCenter(src, y);
+        if(roadCenter.detected) {
+            return roadCenter;
+        }
+    }
 }
 /* for drawPath */
 void Navigator::drawPath(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
@@ -28,22 +41,9 @@ void Navigator::drawPath(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (
             drawDot(des, roadCenter);
             drawDot(des, getRightPosition(src, y));
             drawDot(des, getLeftPosition(src, y));
-        }
-        if(roadCenter.y && roadCenter.x) {
-            startingPoint = roadCenter;
-            break;
+            if(isRoadEndDetected(src, y)) break;
         }
     }
-    for(y; y > 0; y--) {
-        roadCenter = getRoadCenter(src, y);
-        if(roadCenter.detected) {
-            drawDot(des, roadCenter);
-            drawDot(des, getRightPosition(src, y));
-            drawDot(des, getLeftPosition(src, y));
-        }
-        if(isRoadEndDetected(src, y)) break;
-    }
-    lastPoint = startingPoint;
 }
 Navigator::Point Navigator::getRoadCenter(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y)
 {
