@@ -50,7 +50,6 @@ Navigator::Point Navigator::getRoadCenter(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT
     Point roadPoint = {0,};
     Point right_point = getRightPosition(src,y);
     Point left_point = getLeftPosition(src,y);
-    
     if(right_point.detected & left_point.detected) {
         roadPoint.x = (right_point.x + left_point.x)/2;
         roadPoint.y = (right_point.y + left_point.y)/2;
@@ -184,11 +183,17 @@ bool Navigator::isRoadEndDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], 
 {
     Point right_point = getRightPosition(src,y);
     Point left_point = getLeftPosition(src,y);
+    printf("right %d %d left %d %d\n\r", right_point.x, right_point.y, left_point.x, left_point.y);
     if(right_point.detected & left_point.detected) {
-        if(right_point.x == left_point.x+4) {
-            return true;
-        }
+        if( (right_point.x - left_point.x) < 6 ) return true;
     }
+    else if(right_point.detected) {
+        if( right_point.x < 15 ) return true;
+    }
+    else if(left_point.detected) {
+        if( left_point.x > 305 ) return true;
+    }
+    printf("No break\n\r");
     return false;
 }
 
