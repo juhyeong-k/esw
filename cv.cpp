@@ -211,9 +211,19 @@ uint16_t Navigator::getDirection(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
         roadCenter = getRoadCenter(src, y);
         roadPoint = getRoadPoint(src, y);
         if(roadPoint.detected) {
+            i++;
+            lastRoadPoint = roadPoint;
+            lastPoint = roadCenter;
+            break;
+        }
+        j++;
+    }
+    for(y--; y > SIDE_UP; y--) {
+        roadCenter = getRoadCenter(src, y);
+        roadPoint = getRoadPoint(src, y);
+        if(roadPoint.detected) {
             totalRoadDiff += getRoadDiff(roadPoint, lastRoadPoint);
             i++;
-            printf("lastRoadPoint %d\n\r", lastRoadPoint.x);
             lastRoadPoint = roadPoint;
             lastPoint = roadCenter;
             if(isRoadEndDetected(src, y)) break;
@@ -229,11 +239,6 @@ uint16_t Navigator::getDirection(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     else if(slope > 1.11)      direction = 2000;
     else if (slope < -1.11)   direction = 1000;
     else                        direction = (uint16_t)(1500 - 450 * slope);
-    /*
-    printf("i %d\n\r", i);
-    printf("slope %f\n\r", slope);
-    printf("direction %d\n\r", direction);
-    */
     return direction;
 }
 /*
