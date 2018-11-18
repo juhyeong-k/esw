@@ -14,6 +14,7 @@ class Navigator
         void cvTest(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         /* for drawPath */
         void drawPath(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        uint16_t getDirection(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
 	private:
         /*
         uint8_t detected_flag;
@@ -48,30 +49,28 @@ class Navigator
             bool isRightPoint;
             bool isLeftPoint;
         };
+
+        /* Valuables */
         Point lastPoint;
-        /* for loop control */
-        // before using isRoadEndDetected() function, confirm the last.roadCenter has been updated.
-        bool isRoadEndDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
-        Point getStartingPoint(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         Point startingPoint;
 
-        /*  */
-        double roadSlope;
-        double getRoadDiff(Point current, Point last);
-        bool isPathRight(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
-        bool isPathLeft(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
-        bool isPathStraight(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
-
+        /* Get information */
+        Point getStartingPoint(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]); // for loop control
+        float getRoadDiff(Point current, Point last);
         Point getRoadCenter(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
         Point getRoadPoint(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
         Point getRightPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
         Point getLeftPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
 
-        void RightDetected();
-        void LeftDetected();
-        bool isRightDetected();
-        bool isLeftDetected();
+        /* Status Check */
+        // before using isRoadEndDetected() function, confirm the last.roadCenter has been updated.
+        bool isRoadEndDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
 
+        bool isPathRight(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        bool isPathLeft(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        bool isPathStraight(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+
+        /* Draw functions */
         void drawDot(uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], Point point);
         void drawBigdot(uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], Point point);
 };

@@ -10,14 +10,12 @@ Navigator::Navigator()
     /* for drawPath */
     lastPoint.x = VPE_OUTPUT_W/2;
     lastPoint.y = VPE_OUTPUT_H;
-    roadSlope = 180;
-    startingPoint = {(VPE_OUTPUT_W/2), VPE_OUTPUT_H};
+    startingPoint = {(VPE_OUTPUT_W/2), VPE_OUTPUT_H, 0,};
 }
 void Navigator::cvTest(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     startingPoint = getStartingPoint(src);
     drawPath(src, des);
-    lastPoint = startingPoint;
 }
 Navigator::Point Navigator::getStartingPoint(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
@@ -29,6 +27,7 @@ Navigator::Point Navigator::getStartingPoint(uint8_t (src)[VPE_OUTPUT_H][VPE_OUT
             return roadCenter;
         }
     }
+    return {(VPE_OUTPUT_W/2), VPE_OUTPUT_H, 0,};
 }
 /* for drawPath */
 void Navigator::drawPath(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
@@ -36,14 +35,16 @@ void Navigator::drawPath(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (
     uint16_t y;
     Point roadCenter = {0,};
     for(y=VPE_OUTPUT_H-1; y > 0; y--) {
-        roadCenter = getRoadCenter(src, y);
+        roadCenter = getRoadCenter(src, y);\
         if(roadCenter.detected) {
             drawDot(des, roadCenter);
             drawDot(des, getRightPosition(src, y));
             drawDot(des, getLeftPosition(src, y));
+            lastPoint = roadCenter;
             if(isRoadEndDetected(src, y)) break;
         }
     }
+    lastPoint = startingPoint;
 }
 Navigator::Point Navigator::getRoadCenter(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y)
 {
@@ -54,22 +55,16 @@ Navigator::Point Navigator::getRoadCenter(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT
         roadPoint.x = (right_point.x + left_point.x)/2;
         roadPoint.y = (right_point.y + left_point.y)/2;
         roadPoint.detected = true;
-        roadSlope = getRoadDiff(roadPoint, lastPoint);
-        lastPoint = roadPoint;
     }
     else if( right_point.detected ) {
         roadPoint.x = right_point.x / 2;
         roadPoint.y = right_point.y;
         roadPoint.detected = true;
-        roadSlope = getRoadDiff(roadPoint, lastPoint);
-        lastPoint = roadPoint;
     }
     else if( left_point.detected ) {
         roadPoint.x = left_point.x + (VPE_OUTPUT_W - left_point.x)/ 2;
         roadPoint.y = left_point.y;
         roadPoint.detected = true;
-        roadSlope = getRoadDiff(roadPoint, lastPoint);
-        lastPoint = roadPoint;
     }
     else roadPoint.detected = false;
     return roadPoint;
@@ -85,21 +80,18 @@ Navigator::Point Navigator::getRoadPoint(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_
         roadPoint.y = (right_point.y + left_point.y)/2;
         roadPoint.detected = true;
         roadPoint.isCenterPoint = true;
-        lastPoint = roadPoint;
     }
     else if( right_point.detected ) {
         roadPoint.x = right_point.x;
         roadPoint.y = right_point.y;
         roadPoint.detected = true;
         roadPoint.isRightPoint = true;
-        lastPoint = roadPoint;
     }
     else if( left_point.detected ) {
         roadPoint.x = left_point.x;
         roadPoint.y = left_point.y;
         roadPoint.detected = true;
         roadPoint.isLeftPoint = true;
-        lastPoint = roadPoint;
     }
     else roadPoint.detected = false;
     return roadPoint;
@@ -144,15 +136,13 @@ Navigator::Point Navigator::getLeftPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTP
     }
     return point;
 }
-double Navigator::getRoadDiff(Point current, Point last)
+float Navigator::getRoadDiff(Point current, Point last)
 {
     int x_Variation, y_Variation;
     x_Variation = current.x - last.x;
     y_Variation = current.y - last.y;
-    if( !(x_Variation || y_Variation) ) return roadSlope;
-    else if( x_Variation == 0 ) return 180;
-    else if( y_Variation == 0 ) return 0;
-    else return (double)y_Variation / x_Variation;
+    if( !(x_Variation && y_Variation) ) return 0;
+    else return (float)x_Variation / y_Variation;
 }
 void Navigator::drawDot(uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], Point point)
 {
@@ -183,20 +173,17 @@ bool Navigator::isRoadEndDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], 
 {
     Point right_point = getRightPosition(src,y);
     Point left_point = getLeftPosition(src,y);
-    printf("right %d %d left %d %d\n\r", right_point.x, right_point.y, left_point.x, left_point.y);
     if(right_point.detected & left_point.detected) {
         if( (right_point.x - left_point.x) < 6 ) return true;
     }
-    else if(right_point.detected) {
-        if( right_point.x < 15 ) return true;
+    if(right_point.detected) {
+        if( right_point.x < 3 ) return true;
     }
     else if(left_point.detected) {
-        if( left_point.x > 305 ) return true;
+        if( left_point.x > 315 ) return true;
     }
-    printf("No break\n\r");
     return false;
 }
-
 bool Navigator::isPathStraight(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     uint8_t y;
@@ -208,7 +195,47 @@ bool Navigator::isPathStraight(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
         getRoadPoint(src,y);
     }
 }
+uint16_t Navigator::getDirection(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint8_t y;
+    uint8_t i,j;
+    i = j = 0;
+    uint8_t threshold = ( (double)(SIDE_DOWN - SIDE_UP)*((double)GET_DIRECTION_THRESHOLD/100) );
+    float totalRoadDiff = 0;
+    uint16_t direction = 1500;
+    float slope;
+    Point lastRoadPoint = {0,};
+    Point roadPoint = {0,};
+    Point roadCenter = {0,};
+    for(y=SIDE_DOWN; y > SIDE_UP; y--) {
+        roadCenter = getRoadCenter(src, y);
+        roadPoint = getRoadPoint(src, y);
+        if(roadPoint.detected) {
+            totalRoadDiff += getRoadDiff(roadPoint, lastRoadPoint);
+            i++;
+            printf("lastRoadPoint %d\n\r", lastRoadPoint.x);
+            lastRoadPoint = roadPoint;
+            lastPoint = roadCenter;
+            if(isRoadEndDetected(src, y)) break;
+        }
+        j++;
+    }
+    lastPoint = startingPoint;
 
+    if(((float)i/j)*100 > threshold) slope = (totalRoadDiff / i)/2;
+    else slope = 0;
+
+    if(slope == 0)              direction = 1500;
+    else if(slope > 1.11)      direction = 2000;
+    else if (slope < -1.11)   direction = 1000;
+    else                        direction = (uint16_t)(1500 - 450 * slope);
+    /*
+    printf("i %d\n\r", i);
+    printf("slope %f\n\r", slope);
+    printf("direction %d\n\r", direction);
+    */
+    return direction;
+}
 /*
 uint16_t Navigator::getDirection(uint8_t (*src)[VPE_OUTPUT_W*3])
 {

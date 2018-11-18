@@ -50,7 +50,9 @@ typedef struct _DumpMsg{
     long type;
     int  state_msg;
 }DumpMsg;
+struct CVinfo {
 
+};
 struct thr_data {
     struct display *disp;
     struct v4l2 *v4l2;
@@ -167,7 +169,7 @@ void * main_thread(void *arg)
     PositionControlOnOff_Write(UNCONTROL);
     SpeedControlOnOff_Write(CONTROL);
     //driver.waitStartSignal();
-    DesireSpeed_Write(0);
+    DesireSpeed_Write(50);
     while(1)
     {   
         gettimeofday(&st, NULL);
@@ -191,8 +193,8 @@ void * main_thread(void *arg)
         hsvConverter.bgr24_to_hsv(display_buf,image_buf);
         yellow.detectColor(image_buf, yellowImage);
         
-        //SteeringServoControl_Write(navigator.getDirection(image_buf));
         navigator.cvTest(yellowImage, yellowImage);
+        SteeringServoControl_Write(navigator.getDirection(yellowImage));
         draw.horizontal_line(yellowImage, FRONT_UP, 0, 320);
         draw.horizontal_line(yellowImage, FRONT_DOWN, 0, 320);
         draw.horizontal_line(yellowImage, SIDE_UP, 0, 320);

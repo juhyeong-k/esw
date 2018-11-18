@@ -94,4 +94,5 @@ class System_resource
 #define colorDetectTHRESHOLD 700
 
 /* CV.cpp */
-#define ROAD_END_DETCTED_THRESHOLD 3
+#define ROAD_END_DETCTED_THRESHOLD		3
+#define GET_DIRECTION_THRESHOLD		90 //90%
