@@ -14,7 +14,19 @@ class Navigator
         void cvTest(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         /* for drawPath */
         void drawPath(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
-        uint16_t getDirection(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+
+        /* Result info */
+        void updateInfo(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        struct Info {
+            uint8_t direction;
+            bool rightTurnDetected;
+            bool leftTurnDetected;
+            bool rightDetected;
+            bool leftDetected;
+            bool isPathRight;
+            bool isPathLeft;
+            bool isPathStraight;
+        };
 	private:
         /*
         uint8_t detected_flag;
@@ -49,12 +61,13 @@ class Navigator
             bool isRightPoint;
             bool isLeftPoint;
         };
-
         /* Valuables */
         Point lastPoint;
         Point startingPoint;
+        Info info;
 
         /* Get information */
+        uint16_t getDirection(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         Point getStartingPoint(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]); // for loop control
         float getRoadDiff(Point current, Point last);
         Point getRoadCenter(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
@@ -69,6 +82,12 @@ class Navigator
         bool isPathRight(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         bool isPathLeft(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         bool isPathStraight(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+
+        bool rightTurnDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        bool leftTurnDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+
+        bool rightDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        bool leftDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
 
         /* Draw functions */
         void drawDot(uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], Point point);

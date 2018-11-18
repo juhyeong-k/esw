@@ -50,9 +50,6 @@ typedef struct _DumpMsg{
     long type;
     int  state_msg;
 }DumpMsg;
-struct CVinfo {
-
-};
 struct thr_data {
     struct display *disp;
     struct v4l2 *v4l2;
@@ -194,7 +191,7 @@ void * main_thread(void *arg)
         yellow.detectColor(image_buf, yellowImage);
         
         navigator.cvTest(yellowImage, yellowImage);
-        SteeringServoControl_Write(navigator.getDirection(yellowImage));
+        //SteeringServoControl_Write(navigator.getDirection(yellowImage));
         draw.horizontal_line(yellowImage, FRONT_UP, 0, 320);
         draw.horizontal_line(yellowImage, FRONT_DOWN, 0, 320);
         draw.horizontal_line(yellowImage, SIDE_UP, 0, 320);
