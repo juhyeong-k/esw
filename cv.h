@@ -17,16 +17,7 @@ class Navigator
 
         /* Result info */
         void updateInfo(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
-        struct Info {
-            uint8_t direction;
-            bool rightTurnDetected;
-            bool leftTurnDetected;
-            bool rightDetected;
-            bool leftDetected;
-            bool isPathRight;
-            bool isPathLeft;
-            bool isPathStraight;
-        };
+        CVinfo cvInfo;
 	private:
         /*
         uint8_t detected_flag;
@@ -64,7 +55,6 @@ class Navigator
         /* Valuables */
         Point lastPoint;
         Point startingPoint;
-        Info info;
 
         /* Get information */
         uint16_t getDirection(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);

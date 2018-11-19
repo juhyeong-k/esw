@@ -26,6 +26,16 @@ class System_resource
 		long long totalPhysMem;
 		long long physMemUsed;
 };
+struct CVinfo {
+	uint16_t direction;
+	bool rightTurnDetected;
+	bool leftTurnDetected;
+	bool rightDetected;
+	bool leftDetected;
+	bool isPathRight;
+	bool isPathLeft;
+	bool isPathStraight;
+};
 /**
   * @Brief
   */
