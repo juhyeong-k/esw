@@ -12,4 +12,8 @@ class Driver
         void waitStartSignal();
     private:
         CVinfo lastCVinfo;
+        void decisionMaking(CVinfo info);
+        void waitRightDetect(CVinfo info);
+        void waitLeftDetect(CVinfo info);
+        void waitRoadClose(CVinfo info);
 };

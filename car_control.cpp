@@ -7,7 +7,23 @@ Driver::Driver()
 }
 void Driver::drive(CVinfo info)
 {
-    CVinfo cvInfo = info;
+    decisionMaking(info);
+}
+void Driver::decisionMaking(CVinfo info)
+{
+
+}
+void Driver::waitRightDetect(CVinfo info)
+{
+
+}
+void Driver::waitLeftDetect(CVinfo info)
+{
+
+}
+void Driver::waitRoadClose(CVinfo info)
+{
+    
 }
 void Driver::waitStartSignal()
 {
