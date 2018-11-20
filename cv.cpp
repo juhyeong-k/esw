@@ -46,7 +46,7 @@ bool Navigator::isRoadClose(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     uint8_t x,y,i,j,temp;
     uint8_t distance = ISROADCLOSE_DISTANCE;
     uint8_t width = ISROADCLOSE_WIDTH;
-    uint8_t threshold = (uint8_t)((float)distance*((float)ISROADCLOSE_THRESHOLD/100));
+    uint8_t threshold = ISROADCLOSE_THRESHOLD;
     for(x=0; x < width; x++) {
         temp = 0;
         if(x%2) i = 159 + (x-x/2);

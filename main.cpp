@@ -190,8 +190,9 @@ void * main_thread(void *arg)
         hsvConverter.bgr24_to_hsv(display_buf,image_buf);
         yellow.detectColor(image_buf, yellowImage);
         
-        navigator.cvTest(yellowImage, yellowImage);
         driver.drive(navigator.getInfo(yellowImage));
+        navigator.cvTest(yellowImage, yellowImage);
+        
         draw.horizontal_line(yellowImage, FRONT_UP, 0, 320);
         draw.horizontal_line(yellowImage, FRONT_DOWN, 0, 320);
         draw.horizontal_line(yellowImage, SIDE_UP, 0, 320);
