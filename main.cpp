@@ -166,7 +166,7 @@ void * main_thread(void *arg)
     PositionControlOnOff_Write(UNCONTROL);
     SpeedControlOnOff_Write(CONTROL);
     //driver.waitStartSignal();
-    DesireSpeed_Write(50);
+    DesireSpeed_Write(0);
     while(1)
     {   
         gettimeofday(&st, NULL);
@@ -191,7 +191,7 @@ void * main_thread(void *arg)
         yellow.detectColor(image_buf, yellowImage);
         
         navigator.cvTest(yellowImage, yellowImage);
-        //SteeringServoControl_Write(navigator.getDirection(yellowImage));
+        SteeringServoControl_Write(navigator.getDirection(yellowImage));
         draw.horizontal_line(yellowImage, FRONT_UP, 0, 320);
         draw.horizontal_line(yellowImage, FRONT_DOWN, 0, 320);
         draw.horizontal_line(yellowImage, SIDE_UP, 0, 320);

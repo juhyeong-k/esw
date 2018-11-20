@@ -18,6 +18,8 @@ class Navigator
         /* Result info */
         void updateInfo(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         CVinfo cvInfo;
+
+        uint16_t getDirection(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
 	private:
         /*
         uint8_t detected_flag;
@@ -57,7 +59,6 @@ class Navigator
         Point startingPoint;
 
         /* Get information */
-        uint16_t getDirection(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         Point getStartingPoint(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]); // for loop control
         float getRoadDiff(Point current, Point last);
         Point getRoadCenter(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
@@ -78,6 +79,9 @@ class Navigator
 
         bool rightDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         bool leftDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+
+        /* Functions */
+        bool isDifferentType(Point first, Point second);
 
         /* Draw functions */
         void drawDot(uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], Point point);

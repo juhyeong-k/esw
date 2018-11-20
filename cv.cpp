@@ -224,10 +224,12 @@ uint16_t Navigator::getDirection(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
         roadCenter = getRoadCenter(src, y);
         roadPoint = getRoadPoint(src, y);
         if(roadPoint.detected) {
-            totalRoadDiff += getRoadDiff(roadPoint, lastRoadPoint);
+            if( !isDifferentType(roadPoint, lastRoadPoint) ) {
+                totalRoadDiff += getRoadDiff(roadPoint, lastRoadPoint);
+                lastRoadPoint = roadPoint;
+                lastPoint = roadCenter;
+            }
             i++;
-            lastRoadPoint = roadPoint;
-            lastPoint = roadCenter;
             if(isRoadEndDetected(src, y)) break;
         }
         j++;
@@ -236,12 +238,18 @@ uint16_t Navigator::getDirection(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 
     if(((float)i/j)*100 > threshold) slope = (totalRoadDiff / i)/2;
     else slope = 0;
-
     if(slope == 0)              direction = 1500;
     else if(slope > 1.11)      direction = 2000;
     else if (slope < -1.11)   direction = 1000;
-    else                        direction = (uint16_t)(1500 - 450 * slope);
+    else                        direction = (uint16_t)(1500 + 450 * slope);
     return direction;
+}
+bool Navigator::isDifferentType(Point first, Point second)
+{
+    if(first.isCenterPoint & second.isCenterPoint) return false;
+    else if(first.isRightPoint & second.isRightPoint) return false;
+    else if(first.isLeftPoint & second.isLeftPoint) return false;
+    else return true;
 }
 /*
 uint16_t Navigator::getDirection(uint8_t (*src)[VPE_OUTPUT_W*3])
