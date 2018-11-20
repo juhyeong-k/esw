@@ -22,16 +22,94 @@ CVinfo Navigator::getInfo(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     CVinfo cvInfo = {1500, 0,};
     cvInfo.direction = getDirection(src);
+    if(cvInfo.direction == 1000) cvInfo.isRightTurnDetected = true;
+    else if(cvInfo.direction == 2000) cvInfo.isLeftTurnDetected = true;
+    cvInfo.isRightDetected = isRightDetected(src);
+    cvInfo.isLeftDetected = isLeftDetected(src);
     /*
-    cvInfo.rightTurnDetected = 
-    cvInfo.leftTurnDetected =
-    cvInfo.rightDetected =
-    cvInfo.leftDetected =
     cvInfo.isPathStraight
     cvInfo.isPathRight =
     cvInfo.isPathLeft =
     */
+    printf("* CV\r\n");
+    printf("direction : %d\r\n", cvInfo.direction);
+    printf("isRightTurnDetected : %d\r\n", cvInfo.isRightTurnDetected);
+    printf("isLeftTurnDetected : %d\r\n", cvInfo.isLeftTurnDetected);
+    printf("isRightDetected : %d\r\n", cvInfo.isRightDetected);
+    printf("isLeftDetected : %d\r\n", cvInfo.isLeftDetected);
     return cvInfo;
+}
+bool Navigator::isRightDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint8_t y;
+    uint8_t i,j;
+    i = j = 0;
+    uint8_t threshold = ( (double)(SIDE_DOWN - SIDE_UP)*((double)GET_DIRECTION_THRESHOLD/100) );
+    Point lastRoadPoint = {0,};
+    Point roadPoint = {0,};
+    Point roadCenter = {0,};
+    for(y=SIDE_DOWN; y > SIDE_UP; y--) {
+        roadCenter = getRoadCenter(src, y);
+        roadPoint = getRoadPoint(src, y);
+        if(roadPoint.isRightPoint | roadPoint.isCenterPoint) {
+            i++;
+            lastRoadPoint = roadPoint;
+            lastPoint = roadCenter;
+            break;
+        }
+        j++;
+    }
+    for(y--; y > SIDE_UP; y--) {
+        roadCenter = getRoadCenter(src, y);
+        roadPoint = getRoadPoint(src, y);
+        if(roadPoint.isRightPoint | roadPoint.isCenterPoint) {
+            lastRoadPoint = roadPoint;
+            lastPoint = roadCenter;
+            i++;
+            if(isRoadEndDetected(src, y)) break;
+        }
+        j++;
+    }
+    lastPoint = startingPoint;
+
+    if(((float)i/j)*100 > threshold) return true;
+    else return false;
+}
+bool Navigator::isLeftDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint8_t y;
+    uint8_t i,j;
+    i = j = 0;
+    uint8_t threshold = ( (double)(SIDE_DOWN - SIDE_UP)*((double)GET_DIRECTION_THRESHOLD/100) );
+    Point lastRoadPoint = {0,};
+    Point roadPoint = {0,};
+    Point roadCenter = {0,};
+    for(y=SIDE_DOWN; y > SIDE_UP; y--) {
+        roadCenter = getRoadCenter(src, y);
+        roadPoint = getRoadPoint(src, y);
+        if(roadPoint.isLeftPoint | roadPoint.isCenterPoint) {
+            i++;
+            lastRoadPoint = roadPoint;
+            lastPoint = roadCenter;
+            break;
+        }
+        j++;
+    }
+    for(y--; y > SIDE_UP; y--) {
+        roadCenter = getRoadCenter(src, y);
+        roadPoint = getRoadPoint(src, y);
+        if(roadPoint.isLeftPoint | roadPoint.isCenterPoint) {
+            lastRoadPoint = roadPoint;
+            lastPoint = roadCenter;
+            i++;
+            if(isRoadEndDetected(src, y)) break;
+        }
+        j++;
+    }
+    lastPoint = startingPoint;
+
+    if(((float)i/j)*100 > threshold) return true;
+    else return false;
 }
 Navigator::Point Navigator::getStartingPoint(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
@@ -253,8 +331,8 @@ uint16_t Navigator::getDirection(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     if(((float)i/j)*100 > threshold) slope = (totalRoadDiff / i)/2;
     else slope = 0;
     if(slope == 0)              direction = 1500;
-    else if(slope > 1.11)      direction = 2000;
-    else if (slope < -1.11)   direction = 1000;
+    else if(slope > 1.11)      direction = 2000;    // Left
+    else if (slope < -1.11)   direction = 1000;     // Right
     else                        direction = (uint16_t)(1500 + 450 * slope);
     return direction;
 }
@@ -265,149 +343,6 @@ bool Navigator::isDifferentType(Point first, Point second)
     else if(first.isLeftPoint & second.isLeftPoint) return false;
     else return true;
 }
-/*
-uint16_t Navigator::getDirection(uint8_t (*src)[VPE_OUTPUT_W*3])
-{
-    getUpperRightPosition(src);
-    getLowerRightPosition(src);
-    getUpperLeftPosition(src);
-    getLowerLeftPosition(src);
-
-    calculateDirection();
-    
-	detected_flag = 0;
-    printf("direction : %d\n", direction);
-	return direction;
-}
-void Navigator::getUpperRightPosition(uint8_t (*src)[VPE_OUTPUT_W*3])
-{
-	// detect direction from Right UPPER_LINE
-    temp = 0;
-    for(i = VPE_OUTPUT_W / 2; i < VPE_OUTPUT_W; i++)
-    {
-        j = 3*i;
-        if( src[UPPER_LINE][j] )
-        {
-            for(k=1; k<11; k++) {
-                if( src[UPPER_LINE][j+3*k] )    temp++;
-            }
-            if(temp > threshold) {
-                right_up = i;
-                drawBigdot(src, i, UPPER_LINE);
-                UpperRightDetected();
-                break;
-            }
-        }
-    }
-}
-void Navigator::getLowerRightPosition(uint8_t (*src)[VPE_OUTPUT_W*3])
-{
-	// detect direction from Right LOWER_LINE
-    temp = 0;
-    for(i = VPE_OUTPUT_W / 2; i < VPE_OUTPUT_W; i++)
-    {
-        j = 3*i;
-        if( src[LOWER_LINE][j] )
-        {
-            for(k=1; k<11; k++) {
-                if( src[LOWER_LINE][j+3*k] )    temp++;
-            }
-            if(temp > threshold) {
-                right_low = i;
-                drawBigdot(src, i, LOWER_LINE);
-                LowerRightDetected();
-                break;
-            }
-        }
-    }
-}
-void Navigator::getUpperLeftPosition(uint8_t (*src)[VPE_OUTPUT_W*3])
-{
-	// detect direction from Left UPPER_LINE
-    temp = 0;
-    for(i = VPE_OUTPUT_W / 2; i > 0; i--)
-    {
-        j = 3*i;
-        if( src[UPPER_LINE][j] )
-        {
-            for(k=1; k<11; k++) {
-                if( src[UPPER_LINE][j-3*k] )    temp++;
-            }
-            if(temp > threshold) {
-                left_up = i;
-                drawBigdot(src, i, UPPER_LINE);
-                UpperLeftDetected();
-                break;
-            }
-        }
-    }
-}
-void Navigator::getLowerLeftPosition(uint8_t (*src)[VPE_OUTPUT_W*3])
-{
-    temp = 0;
-    for(i = VPE_OUTPUT_W / 2; i > 0; i--)
-    {
-        j = 3*i;
-        if( src[LOWER_LINE][j] )
-        {
-            for(k=1; k<11; k++) {
-                if( src[LOWER_LINE][j-3*k] )    temp++;
-            }
-            if(temp > threshold) {
-                left_low = i;
-                drawBigdot(src, i, LOWER_LINE);
-                LowerLeftDetected();
-                break;
-            }
-        }
-    }
-}
-void Navigator::UpperRightDetected() { detected_flag += 1; }
-void Navigator::LowerRightDetected() { detected_flag += 2; }
-void Navigator::UpperLeftDetected()  { detected_flag += 4; }
-void Navigator::LowerLeftDetected()  { detected_flag += 8; }
-bool Navigator::isRightDetected() {
-	if((detected_flag & 1) && (detected_flag & 2)) return true;
-	else                                               return false;
-}
-bool Navigator::isLeftDetected() {
-    if((detected_flag & 4) && (detected_flag & 8)) return true;
-    else                                               return false;
-}
-void Navigator::calculateDirection()
-{
-    float vector;
-    if( isRightDetected() & isLeftDetected() )
-        vector = (float)(right_up - right_low) / (LOWER_LINE - UPPER_LINE) + (float)(left_up - left_low) / (LOWER_LINE - UPPER_LINE);
-    else if( isRightDetected() )
-        vector = (float)(right_up - right_low) / (LOWER_LINE - UPPER_LINE);
-    else if( isLeftDetected() )
-        vector = (float)(left_up - left_low) / (LOWER_LINE - UPPER_LINE);
-    else return;
-
-    if(vector > 1.11)         direction = 1000;
-    else if (vector < -1.11) direction = 2000;
-    else                       direction = (uint16_t)(1500 - 450 * vector);
-}
-void Navigator::drawDot(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t y)
-{
-    #ifdef bgr24
-        des[y][3*x+1] = 255;
-        des[y][3*x] = des[y][3*x+2] = 0;
-    #endif
-}
-void Navigator::drawBigdot(uint8_t (*des)[VPE_OUTPUT_W*3], uint16_t x, uint16_t y)
-{
-    #ifdef bgr24
-        for(i=-1; i<2; i++) {
-            for(j=-1; j<2; j++) {
-                des[y+j][3*(x+i)+1] = 255;
-                des[y+j][3*(x+i)] = des[y+j][3*(x+i)+2] = 0;
-            }
-        }
-    #endif
-}
-*/
 /**
   * @ Traffic Lights
   */

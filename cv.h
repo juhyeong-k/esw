@@ -20,28 +20,6 @@ class Navigator
 
         uint16_t getDirection(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
 	private:
-        /*
-        uint8_t detected_flag;
-        uint8_t threshold;
-        uint16_t direction;
-        int32_t temp,i,j,k;
-        uint16_t right_up, right_low, left_up, left_low;
-
-        void calculateDirection();
-
-        void getUpperRightPosition(uint8_t (*src)[VPE_OUTPUT_W*3]);
-        void getLowerRightPosition(uint8_t (*src)[VPE_OUTPUT_W*3]);
-        void getUpperLeftPosition (uint8_t (*src)[VPE_OUTPUT_W*3]);
-        void getLowerLeftPosition (uint8_t (*src)[VPE_OUTPUT_W*3]);
-
-        void UpperRightDetected();
-        void LowerRightDetected();
-        void UpperLeftDetected();
-        void LowerLeftDetected();
-
-        bool isRightDetected();
-        bool isLeftDetected();
-        */
         /* for drawPath */
         uint8_t threshold;
         /* Structures */
@@ -69,15 +47,12 @@ class Navigator
         // before using isRoadEndDetected() function, confirm the last.roadCenter has been updated.
         bool isRoadEndDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
 
+        bool isRightDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        bool isLeftDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+
         bool isPathRight(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         bool isPathLeft(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         bool isPathStraight(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
-
-        bool rightTurnDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
-        bool leftTurnDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
-
-        bool rightDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
-        bool leftDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
 
         /* Functions */
         bool isDifferentType(Point first, Point second);

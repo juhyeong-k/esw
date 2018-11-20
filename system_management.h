@@ -28,10 +28,10 @@ class System_resource
 };
 struct CVinfo {
 	uint16_t direction;
-	bool rightTurnDetected;
-	bool leftTurnDetected;
-	bool rightDetected;
-	bool leftDetected;
+	bool isRightTurnDetected;
+	bool isLeftTurnDetected;
+	bool isRightDetected;
+	bool isLeftDetected;
 	bool isPathStraight;
 	bool isPathRight;
 	bool isPathLeft;
