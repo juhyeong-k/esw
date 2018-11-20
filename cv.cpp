@@ -63,7 +63,7 @@ bool Navigator::isRightDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     uint8_t y;
     uint8_t i,j;
     i = j = 0;
-    uint8_t threshold = ( (double)(SIDE_DOWN - SIDE_UP)*((double)SIDE_DIRECTION_THRESHOLD/100) );
+    uint8_t threshold = ( (double)(SIDE_DIRECTION_SIDE_DOWN - SIDE_DIRECTION_SIDE_UP)*((double)SIDE_DIRECTION_THRESHOLD/100) );
     Point lastRoadPoint = {0,};
     Point roadPoint = {0,};
     Point roadCenter = {0,};
@@ -74,7 +74,6 @@ bool Navigator::isRightDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
             i++;
             lastRoadPoint = roadPoint;
             lastPoint = roadCenter;
-            if(roadPoint.y != 179) return false;
             break;
         }
         j++;
@@ -100,7 +99,7 @@ bool Navigator::isLeftDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     uint8_t y;
     uint8_t i,j;
     i = j = 0;
-    uint8_t threshold = ( (double)(SIDE_DOWN - SIDE_UP)*((double)SIDE_DIRECTION_THRESHOLD/100) );
+    uint8_t threshold = ( (double)(SIDE_DIRECTION_SIDE_DOWN - SIDE_DIRECTION_SIDE_UP)*((double)SIDE_DIRECTION_THRESHOLD/100) );
     Point lastRoadPoint = {0,};
     Point roadPoint = {0,};
     Point roadCenter = {0,};
@@ -111,7 +110,6 @@ bool Navigator::isLeftDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
             i++;
             lastRoadPoint = roadPoint;
             lastPoint = roadCenter;
-            if(roadPoint.y != 179) return false;
             break;
         }
         j++;
