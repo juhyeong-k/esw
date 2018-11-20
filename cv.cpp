@@ -17,6 +17,7 @@ void Navigator::cvTest(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (de
 {
     startingPoint = getStartingPoint(src);
     drawPath(src, des);
+    printf("direction %d\n\r", getDirection(src));
 }
 Navigator::Point Navigator::getStartingPoint(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
@@ -215,7 +216,7 @@ uint16_t Navigator::getDirection(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
             i++;
             lastRoadPoint = roadPoint;
             lastPoint = roadCenter;
-            if(isRoadEndDetected(src, y)) break;
+            break;
         }
         j++;
     }
