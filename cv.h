@@ -54,6 +54,8 @@ class Navigator
         bool isPathLeft(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         bool isPathStraight(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
 
+        bool isRoadClose(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+
         /* Functions */
         bool isDifferentType(Point first, Point second);
 

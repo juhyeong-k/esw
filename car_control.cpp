@@ -1,4 +1,14 @@
+#include "system_management.h"
 #include "car_control.h"
+
+Driver::Driver()
+{
+    lastCVinfo = {1500, 0,};
+}
+void Driver::drive(CVinfo info)
+{
+    CVinfo cvInfo = info;
+}
 void Driver::waitStartSignal()
 {
 	uint16_t fowardDistance;

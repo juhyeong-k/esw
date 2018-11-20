@@ -39,6 +39,10 @@ CVinfo Navigator::getInfo(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     printf("isLeftDetected : %d\r\n", cvInfo.isLeftDetected);
     return cvInfo;
 }
+bool isRoadClose(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+
+}
 bool Navigator::isRightDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     uint8_t y;
@@ -55,6 +59,7 @@ bool Navigator::isRightDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
             i++;
             lastRoadPoint = roadPoint;
             lastPoint = roadCenter;
+            if(roadPoint.y != 179) return false;
             break;
         }
         j++;
@@ -91,6 +96,7 @@ bool Navigator::isLeftDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
             i++;
             lastRoadPoint = roadPoint;
             lastPoint = roadCenter;
+            if(roadPoint.y != 179) return false;
             break;
         }
         j++;

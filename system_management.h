@@ -35,6 +35,7 @@ struct CVinfo {
 	bool isPathStraight;
 	bool isPathRight;
 	bool isPathLeft;
+	bool isRoadClose;
 };
 /**
   * @Brief
@@ -106,3 +107,4 @@ struct CVinfo {
 /* CV.cpp */
 #define ROAD_END_DETCTED_THRESHOLD		3
 #define GET_DIRECTION_THRESHOLD		90 //90%
+#define ISROADCLOSE_THRESHOLD
