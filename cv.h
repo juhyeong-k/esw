@@ -16,8 +16,7 @@ class Navigator
         void drawPath(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
 
         /* Result info */
-        void updateInfo(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
-        CVinfo cvInfo;
+        CVinfo getInfo(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
 
         uint16_t getDirection(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
 	private:

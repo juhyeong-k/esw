@@ -32,9 +32,9 @@ struct CVinfo {
 	bool leftTurnDetected;
 	bool rightDetected;
 	bool leftDetected;
+	bool isPathStraight;
 	bool isPathRight;
 	bool isPathLeft;
-	bool isPathStraight;
 };
 /**
   * @Brief
