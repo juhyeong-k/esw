@@ -74,11 +74,11 @@ struct CVinfo {
   */
 #define YELLOW 0
 #define yellow_HUE_MAX    40
-#define yellow_HUE_MIN    10
+#define yellow_HUE_MIN    8
 #define yellow_SAT_MAX    255
 #define yellow_SAT_MIN    50
 #define yellow_VAL_MAX    255
-#define yellow_VAL_MIN    50
+#define yellow_VAL_MIN    30
 
 #define RED 1
 #define red_HUE_MAX    180
@@ -112,5 +112,5 @@ struct CVinfo {
 #define SIDE_DIRECTION_SIDE_UP			149 //90%
 #define SIDE_DIRECTION_SIDE_DOWN		179 //90%
 
-#define ISROADCLOSE_DISTANCE			40
+#define ISROADCLOSE_DISTANCE			30
 #define ISROADCLOSE_THRESHOLD			5

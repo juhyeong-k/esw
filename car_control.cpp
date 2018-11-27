@@ -24,7 +24,7 @@ void Driver::decisionMaking(CVinfo info)
         }
     }
     if(driveState.isTurningRight) {
-        if(info.isRightDetected) {
+        if( !(info.isLeftDetected | info.isRightDetected) ) {
             driveState.isTurningRight = false;
             driveState.isGoingStraight = true;
             return;
@@ -32,7 +32,7 @@ void Driver::decisionMaking(CVinfo info)
         else return;
     }
     if(driveState.isTurningLeft) {
-        if(info.isLeftDetected) {
+        if( !(info.isLeftDetected | info.isRightDetected) ) {
             driveState.isTurningLeft = false;
             driveState.isGoingStraight = true;
             return;
