@@ -17,11 +17,8 @@ class Navigator
 
         /* Result info */
         CVinfo getInfo(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
-
-        uint16_t getDirection(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
 	private:
-        /* for drawPath */
-        uint8_t threshold;
+        uint8_t threshold; // No need to handle it. This value is changed automatically in functions.
         /* Structures */
         struct Point {
             uint16_t x;
@@ -37,11 +34,12 @@ class Navigator
 
         /* Get information */
         Point getStartingPoint(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]); // for loop control
-        float getRoadDiff(Point current, Point last);
         Point getRoadCenter(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
         Point getRoadPoint(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
         Point getRightPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
         Point getLeftPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
+        float getRoadDiff(Point current, Point last);
+        uint16_t getDirection(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
 
         /* Status Check */
         // before using isRoadEndDetected() function, confirm the last.roadCenter has been updated.
@@ -56,7 +54,7 @@ class Navigator
 
         bool isRoadClose(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
 
-        /* Functions */
+        /* Functions for CV class */
         bool isDifferentType(Point first, Point second);
 
         /* Draw functions */
