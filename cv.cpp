@@ -300,7 +300,9 @@ bool Navigator::isDifferentType(Point first, Point second)
     else if(first.isLeftPoint & second.isLeftPoint) return false;
     else return true;
 }
-/* for drawPath */
+/**
+ *  Draw functions 
+ */
 void Navigator::drawPath(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     uint16_t y;
