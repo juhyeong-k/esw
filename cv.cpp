@@ -26,7 +26,6 @@ CVinfo Navigator::getInfo(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     cvInfo.isRightDetected = isRightDetected(src);
     cvInfo.isLeftDetected = isLeftDetected(src);
     cvInfo.isRoadClose = isRoadClose(src);
-
     printf("* CV\r\n");
     printf("direction : %d\r\n", cvInfo.direction);
     printf("isRightTurnDetected : %d\r\n", cvInfo.isRightTurnDetected);
@@ -201,18 +200,17 @@ float Navigator::getRoadDiff(Point current, Point last)
  */
 bool Navigator::isRoadClose(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
-    uint8_t x,y,i,j,temp;
-    uint8_t distance = ISROADCLOSE_DISTANCE;
-    uint8_t width = ISROADCLOSE_WIDTH;
-    uint8_t threshold = ISROADCLOSE_THRESHOLD;
-    for(x=0; x < width; x++) {
-        temp = 0;
-        if(x%2) i = 159 + (x-x/2);
-        else i = 159 - x/2;
-        for(y=179; y > 179-distance; y--) {
-            if(src[y][i][0]) temp++;
+    uint8_t y,i,temp;
+    temp = 0;
+    for( y = 179; y > 100; y--) {
+        if( src[y][159][0] ) {
+            for(i=1; i<11; i++) {
+                if( src[y-i][159][0] ) temp++;
+            }
+            if( temp >  ISROADCLOSE_THRESHOLD ) {
+                if( y > (179 - ISROADCLOSE_DISTANCE) ) return true;
+            }
         }
-        if(temp > threshold) return true;
     }
     return false;
 }
