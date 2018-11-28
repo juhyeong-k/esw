@@ -35,9 +35,39 @@ CVinfo Navigator::getInfo(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     printf("isRoadClose : %d\r\n", cvInfo.isRoadClose);
     return cvInfo;
 }
-bool Navigator::isSafezoneDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+bool Navigator::isSafezoneClose(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
-    
+    int x,y,temp;
+    bool yellowDetected = false;
+    bool whiteDetected = true;
+    threshold = IS_SAFEZONE_CLOSE_THRESHOLD;
+    temp = 0;
+
+    for( y = SIDE_DIRECTION_SIDE_UP; y < 179; y++ ) {
+        for( x = 0; x < 319; x++)
+        {
+            if( whiteDetected ) {
+                if( yellow[y][x][0] ) {
+                    temp++;
+                    yellowDetected = true;
+                    whiteDetected = false;
+                }
+            }
+            if( yellowDetected ) {
+                if( white[y][x][0] ) {
+                    temp++;
+                    yellowDetected = false;
+                    whiteDetected = true;
+                }
+            }
+        }
+        if(temp > threshold) {
+            printf("IS_SAFEZONE_CLOSE\r\n");
+            return true;
+        }
+        else temp = 0;
+    }
+    return false;
 }
 /**
  *  Get informations
