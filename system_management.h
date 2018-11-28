@@ -125,3 +125,8 @@ struct CVinfo {
 
 #define IS_SAFEZONE_CLOSE_THRESHOLD	3
 #define SAFEZONE_CLOSE_UPLINE			129
+
+/**
+ *  Traffic Lights
+ */
+#define GREENLIGHT_WIDTH_THRESHOLD	20

@@ -15,8 +15,8 @@ class Navigator
         /* Result info */
         CVinfo getInfo(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         bool isSafezoneDetected(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        int getGreenLightHeight(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
 	private:
-        uint8_t threshold; // No need to handle it. This value is changed automatically in functions.
         /* Structures */
         struct Point {
             uint16_t x;

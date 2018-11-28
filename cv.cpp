@@ -40,7 +40,7 @@ bool Navigator::isSafezoneDetected(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3]
     int x,y,temp;
     bool yellowDetected = false;
     bool whiteDetected = true;
-    threshold = IS_SAFEZONE_CLOSE_THRESHOLD;
+    uint8_t threshold = IS_SAFEZONE_CLOSE_THRESHOLD;
     temp = 0;
 
     for( y = SIDE_DIRECTION_SIDE_UP; y < 179; y++ ) {
@@ -422,4 +422,44 @@ uint8_t Navigator::isTrafficLightsGreen(uint8_t (green)[VPE_OUTPUT_H][VPE_OUTPUT
     if(temp > colorDetectTHRESHOLD)    return 2;
 
     return 3;
+}
+int Navigator::getGreenLightHeight(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    int x,y,temp,i;
+    int y_sum = 0;
+    uint8_t checkNumber = 0;
+    int greenHeight;
+    uint8_t upperCheck = 0;
+    uint8_t lowerCheck = 0;
+    for(y = 0; y < VPE_OUTPUT_H; y++) {
+        for(x = 0; x < VPE_OUTPUT_W; x++) {
+            if( green[y][x][0] ) {
+                temp = 0;
+                for(i=0; i < VPE_OUTPUT_W-x; i++) {
+                    if(green[y][x+i][0]) temp++;
+                }
+                if(temp > GREENLIGHT_WIDTH_THRESHOLD) {
+                    y_sum += y;
+                    checkNumber++;
+                    break;
+                }
+            }
+        }
+    }
+    if(checkNumber) {
+        greenHeight = (int)((float)y_sum/checkNumber);
+        for(y = greenHeight; y > 0; y--) {
+            for(x = 0; x < VPE_OUTPUT_W; x++) {
+                if(green[y][x][0]) upperCheck++;
+            }
+        }
+        for(y = greenHeight; y < VPE_OUTPUT_H; y++) {
+            for(x = 0; x < VPE_OUTPUT_W; x++) {
+                if(green[y][x][0]) lowerCheck++;
+            }
+        }
+        printf("upperCheck : %d lowerCheck : %d\r\n", upperCheck, lowerCheck);
+        return greenHeight;
+    }
+    else return 0;
 }
