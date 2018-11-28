@@ -194,7 +194,7 @@ void * main_thread(void *arg)
         white.detectColor(image_buf, whiteImage);
         
         driver.drive(navigator.getInfo(yellowImage));
-        navigator.isSafezoneClose(yellowImage, whiteImage);
+        navigator.isSafezoneDetected(yellowImage, whiteImage);
         navigator.cvTest(yellowImage, yellowImage);
         
         draw.horizontal_line(yellowImage, FRONT_UP, 0, 320);
