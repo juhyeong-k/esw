@@ -186,12 +186,14 @@ void * main_thread(void *arg)
         uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
         uint8_t yellowImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
         uint8_t whiteImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
+        uint8_t greenImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
 
         memcpy(display_buf, omap_bo_map(capt->bo[0]), VPE_OUTPUT_IMG_SIZE);
 
         hsvConverter.bgr24_to_hsv(display_buf,image_buf);
         yellow.detectColor(image_buf, yellowImage);
         white.detectColor(image_buf, whiteImage);
+        green.detectColor(image_buf, greenImage);
         
         driver.drive(navigator.getInfo(yellowImage));
         navigator.isSafezoneDetected(yellowImage, whiteImage);
@@ -203,7 +205,7 @@ void * main_thread(void *arg)
         draw.horizontal_line(yellowImage, SIDE_DOWN, 0, 320);
         draw.vertical_line(yellowImage, 160, 0, 180);
 
-        memcpy(omap_bo_map(capt->bo[0]), yellowImage, VPE_OUTPUT_IMG_SIZE);
+        memcpy(omap_bo_map(capt->bo[0]), greenImage, VPE_OUTPUT_IMG_SIZE);
 
         if(pthread_create(&(data->threads[1]), NULL, secondary_thread, data)) {
             MSG("Failed creating Secondary thread");
