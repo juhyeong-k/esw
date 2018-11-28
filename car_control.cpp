@@ -8,10 +8,6 @@ Driver::Driver()
 }
 void Driver::drive(CVinfo info)
 {
-    decisionMaking(info);
-}
-void Driver::decisionMaking(CVinfo info)
-{
     if(driveState.isGoingStraight) {
         if(info.isRightTurnDetected | info.isLeftTurnDetected) {
             driveState.isGoingStraight = false;
@@ -64,6 +60,10 @@ void Driver::decisionMaking(CVinfo info)
             return;
         }
     }
+}
+void Driver::decisionMaking(CVinfo info)
+{
+    
 }
 void Driver::waitRightDetect(CVinfo info)
 {

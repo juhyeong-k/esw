@@ -35,6 +35,10 @@ CVinfo Navigator::getInfo(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     printf("isRoadClose : %d\r\n", cvInfo.isRoadClose);
     return cvInfo;
 }
+bool Navigator::isSafezoneDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    
+}
 /**
  *  Get informations
  */

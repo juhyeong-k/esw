@@ -202,7 +202,7 @@ void * main_thread(void *arg)
         draw.horizontal_line(yellowImage, SIDE_DOWN, 0, 320);
         draw.vertical_line(yellowImage, 160, 0, 180);
 
-        memcpy(omap_bo_map(capt->bo[0]), whiteImage, VPE_OUTPUT_IMG_SIZE);
+        memcpy(omap_bo_map(capt->bo[0]), yellowImage, VPE_OUTPUT_IMG_SIZE);
 
         if(pthread_create(&(data->threads[1]), NULL, secondary_thread, data)) {
             MSG("Failed creating Secondary thread");
