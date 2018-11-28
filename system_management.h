@@ -129,4 +129,4 @@ struct CVinfo {
 /**
  *  Traffic Lights
  */
-#define GREENLIGHT_WIDTH_THRESHOLD	20
+#define GREENLIGHT_WIDTH_THRESHOLD	30
