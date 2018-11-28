@@ -428,10 +428,14 @@ int Navigator::getGreenLightHeight(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     int x,y,temp,i;
     int y_sum = 0;
     uint8_t checkNumber = 0;
-    int greenHeight;
     uint8_t upperCheck = 0;
     uint8_t lowerCheck = 0;
+
+    /* Green Light information */
+    int greenHeight;
+    int greenCenter;
     Point leftPoint, rightPoint, upPoint, downPoint;
+
     for(y = 0; y < VPE_OUTPUT_H; y++) {
         for(x = 0; x < VPE_OUTPUT_W; x++) {
             if( green[y][x][0] ) {
@@ -447,6 +451,7 @@ int Navigator::getGreenLightHeight(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
             }
         }
     }
+
     if(checkNumber) {
         greenHeight = (int)((float)y_sum/checkNumber);
         for(x = 0; x < VPE_OUTPUT_W; x++) {
@@ -473,25 +478,35 @@ int Navigator::getGreenLightHeight(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
                 }
             }
         }
-        return leftPoint.x;
-    }
-    else 0;
-    /*
-    if(checkNumber) {
-        greenHeight = (int)((float)y_sum/checkNumber);
-        for(y = greenHeight; y > 0; y--) {
-            for(x = 0; x < VPE_OUTPUT_W; x++) {
-                if(green[y][x][0]) upperCheck++;
+        int y_high = greenHeight;
+        int y_low = greenHeight;
+        for(x = leftPoint.x; x < rightPoint.x; x++) {
+            for(y = greenHeight; y > 5; y--) {
+                temp = 0;
+                if(!green[y][x][0]) {
+                    for(i = 1; i < 6; i++) {
+                        if(!green[y-i][x][0]) temp++;
+                    }
+                    if(temp == 5) {
+                        if(y < y_high)  y_high = y;
+                        break;
+                    }
+                }
+            }
+            for(y = greenHeight; y < VPE_OUTPUT_H-5; y++) {
+                temp = 0;
+                if(!green[y][x][0]) {
+                    for(i = 1; i < 6; i++) {
+                        if(!green[y+i][x][0]) temp++;
+                    }
+                    if(temp == 5) {
+                        if(y > y_low) y_low = y;
+                        break;
+                    }
+                }
             }
         }
-        for(y = greenHeight; y < VPE_OUTPUT_H; y++) {
-            for(x = 0; x < VPE_OUTPUT_W; x++) {
-                if(green[y][x][0]) lowerCheck++;
-            }
-        }
-        printf("upperCheck : %d lowerCheck : %d\r\n", upperCheck, lowerCheck);
-        return greenHeight;
+        return y_low;
     }
-    else return 0;
-    */
+    return 0;
 }
