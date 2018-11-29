@@ -44,10 +44,6 @@ void * CV_thread(void *arg);
 
 uint16_t determine_direction(uint8_t *image_buf);
 
-typedef struct _DumpMsg{
-    long type;
-    int  state_msg;
-}DumpMsg;
 struct thr_data {
     struct display *disp;
     struct v4l2 *v4l2;
@@ -59,7 +55,9 @@ struct thr_data {
     bool bstream_start; // camera stream start 여부
     pthread_t threads[2];
 };
-
+struct v4l2 *v4l2;
+struct vpe *vpe;
+struct thr_data tdata;
 /**
   * @brief  Alloc vpe input buffer and a new buffer object
   * @param  data: pointer to parameter of thr_data
@@ -285,13 +283,7 @@ void signal_handler(int sig)
 int main(int argc, char **argv)
 {
 	fileout << "System start.\n\n";
-    struct v4l2 *v4l2;
-    struct vpe *vpe;
-    struct thr_data tdata;
-    int disp_argc = 3;
     char* disp_argv[] = {(char*)"dummy", (char*)"-s", (char*)"4:480x272", (char*)"\0"};
-
-    
     int ret = 0;
 
     CarControlInit();
@@ -316,7 +308,7 @@ int main(int argc, char **argv)
     vpe->dst.height = VPE_OUTPUT_H;
     describeFormat (VPE_OUTPUT_FORMAT, &vpe->dst);
 
-    vpe->disp = disp_open(disp_argc, disp_argv);
+    vpe->disp = disp_open(3, disp_argv);
     if (!vpe->disp) {
         ERROR("disp open error!");
         vpe_close(vpe);
