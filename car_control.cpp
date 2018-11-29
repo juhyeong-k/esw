@@ -102,18 +102,17 @@ void Driver::goTunnel(Task* currentTask) {
     {
         rightSensor = DistanceSensor(2);
         leftSensor = DistanceSensor(6) + 100;
-        printf("leftSensor %d  rightSensor %d\r\n", leftSensor, rightSensor);
+        
         float error = rightSensor - leftSensor;
         float P_term = error * Kp;
                   I_term += Ki*error*dT;
         float D_term = Kd * (error - prev_error)/dT;
 
         float PID = (P_term + I_term + D_term)/100;
+
         direction = (int)(direction + PID);
         if(direction > 2000) direction = 2000;
         else if (direction < 1000) direction = 1000;
-        printf("PID  %f\r\n", PID);
-        printf("direction %d\r\n", direction);
 
         SteeringServoControl_Write(direction);
     }
