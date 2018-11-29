@@ -423,7 +423,7 @@ uint8_t Navigator::isTrafficLightsGreen(uint8_t (green)[VPE_OUTPUT_H][VPE_OUTPUT
 
     return 3;
 }
-int Navigator::getGreenLightHeight(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+int Navigator::greenLightReply(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     uint16_t x,y,temp,i;
     int y_sum = 0;
@@ -535,4 +535,30 @@ int Navigator::getGreenLightHeight(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
         }
     }
     return 0;
+}
+int Navigator::getGreenHeight(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint16_t y,x,i,temp;
+    uint16_t y_sum = 0;
+    uint16_t checkNumber = 0;
+    for(y = 0; y < VPE_OUTPUT_H; y++) {
+        for(x = 0; x < VPE_OUTPUT_W; x++) {
+            if( green[y][x][0] ) {
+                temp = 0;
+                for(i=0; i < VPE_OUTPUT_W-x; i++) {
+                    if(green[y][x+i][0]) temp++;
+                }
+                if(temp > GREENLIGHT_WIDTH_THRESHOLD) {
+                    y_sum += y;
+                    checkNumber++;
+                    break;
+                }
+            }
+        }
+    }
+    if(checkNumber) {
+        y = (int)((float)y_sum/checkNumber);
+        return y;
+    }
+    else return 0;
 }
