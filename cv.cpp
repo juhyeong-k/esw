@@ -432,9 +432,11 @@ int Navigator::getGreenLightHeight(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     uint8_t lowerCheck = 0;
 
     /* Green Light information */
-    int greenHeight;
-    int greenCenter;
+    uint16_t greenHeight;
+    uint16_t greenCenter;
     Point leftPoint, rightPoint, upPoint, downPoint;
+    leftPoint = {0,};
+    rightPoint = {0,};
 
     for(y = 0; y < VPE_OUTPUT_H; y++) {
         for(x = 0; x < VPE_OUTPUT_W; x++) {
@@ -453,6 +455,7 @@ int Navigator::getGreenLightHeight(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     }
 
     if(checkNumber) {
+        /* greenHeight, leftPoint, rightPoint */
         greenHeight = (int)((float)y_sum/checkNumber);
         for(x = 0; x < VPE_OUTPUT_W; x++) {
             if(green[greenHeight][x][0]) {
@@ -478,35 +481,42 @@ int Navigator::getGreenLightHeight(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
                 }
             }
         }
-        int y_high = greenHeight;
-        int y_low = greenHeight;
-        for(x = leftPoint.x; x < rightPoint.x; x++) {
-            for(y = greenHeight; y > 5; y--) {
-                temp = 0;
-                if(!green[y][x][0]) {
-                    for(i = 1; i < 6; i++) {
-                        if(!green[y-i][x][0]) temp++;
+        if(leftPoint.x & rightPoint.x) {
+            /* Get y_high, y_low */
+            int y_high = greenHeight;
+            int y_low = greenHeight;
+            for(x = leftPoint.x; x < rightPoint.x; x++) {
+                for(y = greenHeight; y > 5; y--) {
+                    temp = 0;
+                    if(!green[y][x][0]) {
+                        for(i = 1; i < 6; i++) {
+                            if(!green[y-i][x][0]) temp++;
+                        }
+                        if(temp == 5) {
+                            if(y < y_high)  y_high = y;
+                            break;
+                        }
                     }
-                    if(temp == 5) {
-                        if(y < y_high)  y_high = y;
-                        break;
+                }
+                for(y = greenHeight; y < VPE_OUTPUT_H-5; y++) {
+                    temp = 0;
+                    if(!green[y][x][0]) {
+                        for(i = 1; i < 6; i++) {
+                            if(!green[y+i][x][0]) temp++;
+                        }
+                        if(temp == 5) {
+                            if(y > y_low) y_low = y;
+                            break;
+                        }
                     }
                 }
             }
-            for(y = greenHeight; y < VPE_OUTPUT_H-5; y++) {
-                temp = 0;
-                if(!green[y][x][0]) {
-                    for(i = 1; i < 6; i++) {
-                        if(!green[y+i][x][0]) temp++;
-                    }
-                    if(temp == 5) {
-                        if(y > y_low) y_low = y;
-                        break;
-                    }
-                }
+            /*
+            if( abs((y_low - y_high) - greenHeight) < GREENLIGHT_DETECTED_THRESHOLD ) {
             }
+            */
         }
-        return y_low;
+        else return 0;
     }
-    return 0;
+    else return 0;
 }
