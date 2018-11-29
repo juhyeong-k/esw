@@ -36,7 +36,7 @@ Task currentTask;
 bool isWaitingGreen;
 
 void * main_thread(void *arg);
-void * secondary_thread(void *arg);
+void * CV_thread(void *arg);
 
 uint16_t determine_direction(uint8_t *image_buf);
 
@@ -212,7 +212,6 @@ void * main_thread(void *arg)
         draw.horizontal_line(yellowImage, SIDE_DOWN, 0, 320);
         draw.vertical_line(yellowImage, 160, 0, 180);
         */
-        printf("h %d s %d v %d\r\n", image_buf[0][179][0], image_buf[0][179][1], image_buf[0][179][2]);
         memcpy(omap_bo_map(capt->bo[0]), yellowImage, VPE_OUTPUT_IMG_SIZE);
         if (disp_post_vid_buffer(vpe->disp, capt, 0, 0, vpe->dst.width, vpe->dst.height)) {
             ERROR("Post buffer failed");
@@ -228,11 +227,11 @@ void * main_thread(void *arg)
 }
 
 /**
-  * @brief  secondary_thread, assist the main thread.
+  * @brief  CV_thread, assist the main thread.
   * @param  arg: pointer to parameter of thr_data
   * @retval none
   */
-void * secondary_thread(void *arg)
+void * CV_thread(void *arg)
 {
 	Driver driver;
 	while(1)
@@ -354,7 +353,7 @@ int main(int argc, char **argv)
         MSG("Failed creating main thread");
     }
     pthread_detach(tdata.threads[0]);
-    ret = pthread_create(&tdata.threads[1], NULL, secondary_thread, &tdata);
+    ret = pthread_create(&tdata.threads[1], NULL, CV_thread, &tdata);
     if(ret) {
         MSG("Failed creating Secondary thread");
     }
