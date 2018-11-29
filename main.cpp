@@ -24,6 +24,7 @@ extern "C" {
 
 extern std::ofstream fileout;
 extern System_resource system_resource;
+pthread_mutex_t  cvInfoMutex = PTHREAD_MUTEX_INITIALIZER;
 
 #define DUMP_MSGQ_KEY           1020
 #define DUMP_MSGQ_MSG_TYPE      0x02
@@ -38,14 +39,6 @@ void * secondary_thread(void *arg);
 
 uint16_t determine_direction(uint8_t *image_buf);
 
-typedef enum {
-    DUMP_NONE,
-    DUMP_CMD,
-    DUMP_READY,
-    DUMP_WRITE_TO_FILE,
-    DUMP_DONE
-}DumpState;
-
 typedef struct _DumpMsg{
     long type;
     int  state_msg;
@@ -56,13 +49,12 @@ struct thr_data {
     struct vpe *vpe;
     struct buffer **input_bufs;
 
-    DumpState dump_state;
-    unsigned char dump_img_data[VPE_OUTPUT_IMG_SIZE]; // dump image size
-
     int msgq_id;
     bool bfull_screen; // true : 480x272 disp 화면에 맞게 scale 그렇지 않을 경우 false.
     bool bstream_start; // camera stream start 여부
     pthread_t threads[2];
+
+    CVinfo cvInfo;
 };
 
 /**
@@ -128,6 +120,7 @@ void * main_thread(void *arg)
     struct thr_data *data = (struct thr_data *)arg;
     struct v4l2 *v4l2 = data->v4l2;
     struct vpe *vpe = data->vpe;
+    CVinfo cvInfo = data->cvInfo;
     struct buffer *capt;
     bool isFirst = true;
     int index;
@@ -195,19 +188,26 @@ void * main_thread(void *arg)
         white.detectColor(image_buf, whiteImage);
         green.detectColor(image_buf, greenImage);
         
-        driver.drive(navigator.getInfo(yellowImage));
+        pthread_mutex_lock( &cvInfoMutex );
+        cvInfo = navigator.getInfo(yellowImage);
+        driver.drive(cvInfo);
+        pthread_mutex_unlock( &cvInfoMutex );
+
+        navigator.drawPath(yellowImage, yellowImage);
         navigator.greenLightReply(greenImage);
-        draw.horizontal_line(greenImage, navigator.getGreenHeight(greenImage), 0, 320);
         navigator.isSafezoneDetected(yellowImage, whiteImage);
-        navigator.cvTest(yellowImage, yellowImage);
-        
+        draw.horizontal_line(greenImage, navigator.getGreenHeight(greenImage), 0, 320);
+        //navigator.cvTest(yellowImage, yellowImage);
+
+        /*
         draw.horizontal_line(yellowImage, FRONT_UP, 0, 320);
         draw.horizontal_line(yellowImage, FRONT_DOWN, 0, 320);
         draw.horizontal_line(yellowImage, SIDE_UP, 0, 320);
         draw.horizontal_line(yellowImage, SIDE_DOWN, 0, 320);
         draw.vertical_line(yellowImage, 160, 0, 180);
+        */
 
-        memcpy(omap_bo_map(capt->bo[0]), greenImage, VPE_OUTPUT_IMG_SIZE);
+        memcpy(omap_bo_map(capt->bo[0]), yellowImage, VPE_OUTPUT_IMG_SIZE);
 
         if(pthread_create(&(data->threads[1]), NULL, secondary_thread, data)) {
             MSG("Failed creating Secondary thread");
@@ -234,6 +234,8 @@ void * main_thread(void *arg)
   */
 void * secondary_thread(void *arg)
 {
+	struct thr_data *data = (struct thr_data *)arg;
+	CVinfo cvInfo = data->cvInfo;
     return NULL;
 }
 

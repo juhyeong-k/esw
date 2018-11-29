@@ -11,14 +11,9 @@ Navigator::Navigator()
     lastPoint.y = VPE_OUTPUT_H;
     startingPoint = {(VPE_OUTPUT_W/2), VPE_OUTPUT_H, 0,};
 }
-void Navigator::cvTest(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
-{
-    startingPoint = getStartingPoint(src);
-    drawPath(src, des);
-    printf("direction %d\n\r", getDirection(src));
-}
 CVinfo Navigator::getInfo(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
+    startingPoint = getStartingPoint(src);
     CVinfo cvInfo = {1500, 0,};
     cvInfo.direction = getDirection(src);
     if(cvInfo.direction == 1000) cvInfo.isRightTurnDetected = true;
