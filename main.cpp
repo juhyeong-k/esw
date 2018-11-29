@@ -43,7 +43,6 @@ void * main_thread(void *arg);
 void * CV_thread(void *arg);
 
 uint16_t determine_direction(uint8_t *image_buf);
-
 struct thr_data {
     struct display *disp;
     struct v4l2 *v4l2;
@@ -53,7 +52,7 @@ struct thr_data {
     int msgq_id;
     bool bfull_screen; // true : 480x272 disp 화면에 맞게 scale 그렇지 않을 경우 false.
     bool bstream_start; // camera stream start 여부
-    pthread_t threads[2];
+    pthread_t threads[3];
 };
 struct v4l2 *v4l2;
 struct vpe *vpe;
@@ -133,7 +132,64 @@ void * main_thread(void *arg)
     }
     return NULL;
 }
+void * CV_handlingThread(void *arg)
+{
+    struct buffer *capt;
+    int index;
+    index = vpe_output_dqbuf(data->vpe);
+    capt = data->vpe->disp_bufs[index];
+    uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
+    memcpy(display_buf, omap_bo_map(capt->bo[0]), VPE_OUTPUT_IMG_SIZE);
 
+    colorFilter red(RED);
+    colorFilter green(GREEN);
+    colorFilter yellow(YELLOW);
+    colorFilter white(WHITE);
+    
+    Navigator navigator;
+    Driver driver;
+
+    uint8_t image_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
+    uint8_t yellowImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
+    uint8_t whiteImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
+    uint8_t greenImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
+
+
+    hsvConverter.bgr24_to_hsv(display_buf,image_buf);
+    yellow.detectColor(image_buf, yellowImage);
+    white.detectColor(image_buf, whiteImage);
+    green.detectColor(image_buf, greenImage);
+    
+    if( navigator.isTunnelDetected(image_buf) ) {
+        currentTask.tunnel = true;
+        currentTask.driving = false;
+    }
+    else {
+        currentTask.tunnel = false;
+        currentTask.driving = true;
+    }
+    if( currentTask.driving ) {
+        driver.drive(navigator.getInfo(yellowImage));
+    }
+
+    navigator.drawPath(yellowImage, yellowImage);
+    navigator.greenLightReply(greenImage);
+    navigator.isSafezoneDetected(yellowImage, whiteImage);
+    draw.horizontal_line(greenImage, navigator.getGreenHeight(greenImage), 0, 320);
+    /*
+    draw.horizontal_line(yellowImage, FRONT_UP, 0, 320);
+    draw.horizontal_line(yellowImage, FRONT_DOWN, 0, 320);
+    draw.horizontal_line(yellowImage, SIDE_UP, 0, 320);
+    draw.horizontal_line(yellowImage, SIDE_DOWN, 0, 320);
+    draw.vertical_line(yellowImage, 160, 0, 180);
+    */
+    memcpy(omap_bo_map(capt->bo[0]), yellowImage, VPE_OUTPUT_IMG_SIZE);
+    if (disp_post_vid_buffer(data->vpe->disp, capt, 0, 0, data->vpe->dst.width, data->vpe->dst.height)) {
+        ERROR("Post buffer failed");
+        return NULL;
+    }
+    return NULL;
+}
 /**
   * @brief  CV_thread, assist the main thread.
   * @param  arg: pointer to parameter of thr_data
@@ -146,13 +202,7 @@ void * CV_thread(void *arg)
     int i;
 
     isWaitingGreen = false;
-    colorFilter red(RED);
-    colorFilter green(GREEN);
-    colorFilter yellow(YELLOW);
-    colorFilter white(WHITE);
 
-    Navigator navigator;
-    Driver driver;
 
     v4l2_reqbufs(data->v4l2, NUMBUF);
     vpe_input_init(data->vpe);
@@ -188,51 +238,9 @@ void * CV_thread(void *arg)
         index = v4l2_dqbuf(data->v4l2, &data->vpe->field);
         vpe_input_qbuf(data->vpe, index);
 
-        index = vpe_output_dqbuf(data->vpe);
-        capt = data->vpe->disp_bufs[index];
+        pthread_create(&tdata.threads[2], NULL, CV_handlingThread, &tdata);
+        pthread_detach(tdata.threads[2]);
 
-        uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
-        uint8_t image_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
-        uint8_t yellowImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
-        uint8_t whiteImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
-        uint8_t greenImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
-
-        memcpy(display_buf, omap_bo_map(capt->bo[0]), VPE_OUTPUT_IMG_SIZE);
-
-        hsvConverter.bgr24_to_hsv(display_buf,image_buf);
-        yellow.detectColor(image_buf, yellowImage);
-        white.detectColor(image_buf, whiteImage);
-        green.detectColor(image_buf, greenImage);
-        
-        if( navigator.isTunnelDetected(image_buf) ) {
-            currentTask.tunnel = true;
-            currentTask.driving = false;
-        }
-        else {
-            currentTask.tunnel = false;
-            currentTask.driving = true;
-        }
-        if( currentTask.driving ) {
-            driver.drive(navigator.getInfo(yellowImage));
-        }
-
-        navigator.drawPath(yellowImage, yellowImage);
-        navigator.greenLightReply(greenImage);
-        navigator.isSafezoneDetected(yellowImage, whiteImage);
-        draw.horizontal_line(greenImage, navigator.getGreenHeight(greenImage), 0, 320);
-
-        /*
-        draw.horizontal_line(yellowImage, FRONT_UP, 0, 320);
-        draw.horizontal_line(yellowImage, FRONT_DOWN, 0, 320);
-        draw.horizontal_line(yellowImage, SIDE_UP, 0, 320);
-        draw.horizontal_line(yellowImage, SIDE_DOWN, 0, 320);
-        draw.vertical_line(yellowImage, 160, 0, 180);
-        */
-        memcpy(omap_bo_map(capt->bo[0]), yellowImage, VPE_OUTPUT_IMG_SIZE);
-        if (disp_post_vid_buffer(data->vpe->disp, capt, 0, 0, data->vpe->dst.width, data->vpe->dst.height)) {
-            ERROR("Post buffer failed");
-            return NULL;
-        }
         vpe_output_qbuf(data->vpe, index);
         index = vpe_input_dqbuf(data->vpe);
         v4l2_qbuf(data->v4l2, data->vpe->input_buf_dmafd[index], index);
@@ -251,6 +259,7 @@ void signal_handler(int sig)
     if(sig == SIGINT) {
         pthread_cancel(pexam_data->threads[0]);
         pthread_cancel(pexam_data->threads[1]);
+        pthread_cancel(pexam_data->threads[2]);
         
         msgctl(pexam_data->msgq_id, IPC_RMID, 0);
         

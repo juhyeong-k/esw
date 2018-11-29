@@ -26,6 +26,9 @@ class System_resource
 		long long totalPhysMem;
 		long long physMemUsed;
 };
+struct SystemInfo {
+
+};
 struct Task {
 	bool driving;
 	bool tunnel;
