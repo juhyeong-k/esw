@@ -119,6 +119,9 @@ void get_result(uint32_t optime, struct timeval st, struct timeval et )
 }
 void * main_thread(void *arg)
 {
+    PositionControlOnOff_Write(UNCONTROL);
+    SpeedControlOnOff_Write(CONTROL);
+    DesireSpeed_Write(70);
     // Variables for performance measurement
     uint32_t optime = 0;
     struct timeval st;
@@ -166,10 +169,6 @@ void * CV_thread(void *arg)
     vpe_stream_on(data->vpe->fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
     data->vpe->field = V4L2_FIELD_ANY;
 
-    PositionControlOnOff_Write(UNCONTROL);
-    SpeedControlOnOff_Write(CONTROL);
-    //driver.waitStartSignal();
-    DesireSpeed_Write(70);
 
     index = v4l2_dqbuf(data->v4l2, &data->vpe->field);
     vpe_input_qbuf(data->vpe, index);
@@ -177,10 +176,6 @@ void * CV_thread(void *arg)
     data->bstream_start = true;
     index = vpe_output_dqbuf(data->vpe);
     capt = data->vpe->disp_bufs[index];
-    /*
-    memcpy(display_buf, omap_bo_map(capt->bo[0]), VPE_OUTPUT_IMG_SIZE);
-    memcpy(omap_bo_map(capt->bo[0]), display_buf, VPE_OUTPUT_IMG_SIZE);
-    */
     if (disp_post_vid_buffer(data->vpe->disp, capt, 0, 0, data->vpe->dst.width, data->vpe->dst.height)) {
         ERROR("Post buffer failed");
         return NULL;
