@@ -511,12 +511,18 @@ int Navigator::getGreenLightHeight(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
                     }
                 }
             }
+            printf("greenHeight %d y %d\r\n", greenHeight, y_low - y_high);
             /*
             if( abs((y_low - y_high) - greenHeight) < GREENLIGHT_DETECTED_THRESHOLD ) {
+                int leftNumber = 0;
+                int rightNUmber = 0;
+                for(x = leftPoint.x; x < ) {
+
+                }
             }
             */
+            return greenHeight;
         }
-        else return 0;
     }
     else return 0;
 }
