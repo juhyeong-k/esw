@@ -441,14 +441,14 @@ int Navigator::greenLightReply(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
         Point rightPoint = getRightGreenPoint(green, greenHeight);
 
         if(leftPoint.x & rightPoint.x) {
-            /* Get greenCenter, y_up, y_down */
+
             greenCenter = (leftPoint.x + rightPoint.x)/2;
             uint16_t y_up = greenHeight;
             uint16_t y_down = greenHeight;
 
             y_up = getGreenUp(green, greenHeight, leftPoint, rightPoint);
             y_down = getGreenDown(green, greenHeight, leftPoint, rightPoint);
-
+            printf("y_up %d y_down %d\r\n", y_up, y_down);
             if( isGreenLightReliable(y_down, y_up, greenHeight) ) {
                 int leftNumber = 0;
                 int rightNumber = 0;
@@ -550,7 +550,6 @@ uint16_t Navigator::getGreenUp(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3],
                 if(temp == 5) {
                     if(y < y_up)  {
                         y_up = y;
-                        return y_up;
                     }
                 }
             }
@@ -573,7 +572,6 @@ uint16_t Navigator::getGreenDown(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3],
                 if(temp == 5) {
                     if(y > y_down) {
                         y_down = y;
-                        return y_down;
                     }
                 }
             }
@@ -586,3 +584,28 @@ bool Navigator::isGreenLightReliable(uint16_t y_down, uint16_t y_up, uint16_t gr
     if( (y_down + y_up - 2 * greenHeight) < GREENLIGHT_DETECTED_THRESHOLD) return true;
     else return false;
 }
+/*
+uint16_t Navigator::getGreenVerticalAxis()
+{
+    uint16_t y,x,i,temp;
+    uint16_t y_up = greenHeight;
+    uint16_t greenVerticalAxis = 0;
+    for(x = leftPoint.x; x < rightPoint.x; x++) {
+        for(y = greenHeight; y > 5; y--) {
+            temp = 0;
+            if(!green[y][x][0]) {
+                for(i = 1; i < 6; i++) {
+                    if(!green[y-i][x][0]) temp++;
+                }
+                if(temp == 5) {
+                    if(y < y_up)  {
+                        y_up = y;
+                        return y_up;
+                    }
+                }
+            }
+        }
+    }
+    return y_up;
+}
+*/
