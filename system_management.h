@@ -80,9 +80,9 @@ struct CVinfo {
   */
 #define YELLOW 0
 #define yellow_HUE_MAX    40
-#define yellow_HUE_MIN    8
+#define yellow_HUE_MIN    7
 #define yellow_SAT_MAX    255
-#define yellow_SAT_MIN    150
+#define yellow_SAT_MIN    30
 #define yellow_VAL_MAX    255
 #define yellow_VAL_MIN    50
 
