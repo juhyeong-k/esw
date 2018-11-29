@@ -92,3 +92,29 @@ void Driver::waitStartSignal()
     CarLight_Write(ALL_OFF);
     Alarm_Write(OFF);
 }
+void Driver::goTunnel(Task* currentTask) {
+
+    uint16_t leftSensor, rightSensor;
+    float I_term = 0;
+    float prev_error = 0;
+    uint16_t direction = SteeringServoControl_Read();
+    while(currentTask->tunnel)
+    {
+        rightSensor = DistanceSensor(2);
+        leftSensor = DistanceSensor(6) + 100;
+        printf("leftSensor %d  rightSensor %d\r\n", leftSensor, rightSensor);
+        float error = rightSensor - leftSensor;
+        float P_term = error * Kp;
+                  I_term += Ki*error*dT;
+        float D_term = Kd * (error - prev_error)/dT;
+
+        float PID = (P_term + I_term + D_term)/100;
+        direction = (int)(direction + PID);
+        if(direction > 2000) direction = 2000;
+        else if (direction < 1000) direction = 1000;
+        printf("PID  %f\r\n", PID);
+        printf("direction %d\r\n", direction);
+
+        SteeringServoControl_Write(direction);
+    }
+}

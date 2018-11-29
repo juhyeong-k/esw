@@ -24,7 +24,8 @@ extern "C" {
 
 extern std::ofstream fileout;
 extern System_resource system_resource;
-pthread_mutex_t  cvInfoMutex = PTHREAD_MUTEX_INITIALIZER;
+
+Task currentTask;
 
 #define DUMP_MSGQ_KEY           1020
 #define DUMP_MSGQ_MSG_TYPE      0x02
@@ -53,8 +54,6 @@ struct thr_data {
     bool bfull_screen; // true : 480x272 disp 화면에 맞게 scale 그렇지 않을 경우 false.
     bool bstream_start; // camera stream start 여부
     pthread_t threads[2];
-
-    CVinfo cvInfo;
 };
 
 /**
@@ -120,11 +119,11 @@ void * main_thread(void *arg)
     struct thr_data *data = (struct thr_data *)arg;
     struct v4l2 *v4l2 = data->v4l2;
     struct vpe *vpe = data->vpe;
-    CVinfo cvInfo = data->cvInfo;
     struct buffer *capt;
     bool isFirst = true;
     int index;
     int i;
+
     // Variables for performance measurement
     uint32_t optime = 0;
     struct timeval st;
@@ -161,6 +160,7 @@ void * main_thread(void *arg)
     SpeedControlOnOff_Write(CONTROL);
     //driver.waitStartSignal();
     DesireSpeed_Write(70);
+
     while(1)
     {   
         gettimeofday(&st, NULL);
@@ -188,16 +188,12 @@ void * main_thread(void *arg)
         white.detectColor(image_buf, whiteImage);
         green.detectColor(image_buf, greenImage);
         
-        pthread_mutex_lock( &cvInfoMutex );
-        cvInfo = navigator.getInfo(yellowImage);
-        driver.drive(cvInfo);
-        pthread_mutex_unlock( &cvInfoMutex );
+        //driver.drive(navigator.getInfo(yellowImage));
 
         navigator.drawPath(yellowImage, yellowImage);
         navigator.greenLightReply(greenImage);
         navigator.isSafezoneDetected(yellowImage, whiteImage);
         draw.horizontal_line(greenImage, navigator.getGreenHeight(greenImage), 0, 320);
-        //navigator.cvTest(yellowImage, yellowImage);
 
         /*
         draw.horizontal_line(yellowImage, FRONT_UP, 0, 320);
@@ -208,12 +204,6 @@ void * main_thread(void *arg)
         */
 
         memcpy(omap_bo_map(capt->bo[0]), yellowImage, VPE_OUTPUT_IMG_SIZE);
-
-        if(pthread_create(&(data->threads[1]), NULL, secondary_thread, data)) {
-            MSG("Failed creating Secondary thread");
-        }
-        pthread_detach(data->threads[1]);
-        
         if (disp_post_vid_buffer(vpe->disp, capt, 0, 0, vpe->dst.width, vpe->dst.height)) {
             ERROR("Post buffer failed");
             return NULL;
@@ -234,8 +224,13 @@ void * main_thread(void *arg)
   */
 void * secondary_thread(void *arg)
 {
-	struct thr_data *data = (struct thr_data *)arg;
-	CVinfo cvInfo = data->cvInfo;
+	Driver driver;
+	while(1)
+	{
+		if(currentTask.tunnel) {
+			driver.goTunnel(&currentTask);
+		}
+	}
     return NULL;
 }
 
@@ -287,7 +282,7 @@ int main(int argc, char **argv)
     CameraYServoControl_Write(CAMERA_Y_SERVO);
     SteeringServoControl_Write(1500);
     printf("-- Project Start --\n");
-    
+
     // open vpe
     vpe = vpe_open();
     if(!vpe) {
@@ -335,6 +330,7 @@ int main(int argc, char **argv)
     tdata.vpe = vpe;
     tdata.bfull_screen = true;
     tdata.bstream_start = false;
+    currentTask = {0,1};
 
     if(-1 == (tdata.msgq_id = msgget((key_t)DUMP_MSGQ_KEY, IPC_CREAT | 0666))) {
         fprintf(stderr, "%s msg create fail!!!\n", __func__);
@@ -348,6 +344,11 @@ int main(int argc, char **argv)
         MSG("Failed creating main thread");
     }
     pthread_detach(tdata.threads[0]);
+    ret = pthread_create(&tdata.threads[1], NULL, secondary_thread, &tdata);
+    if(ret) {
+        MSG("Failed creating Secondary thread");
+    }
+    pthread_detach(tdata.threads[1]);
 
     /* register signal handler for <CTRL>+C in order to clean up */
     if(signal(SIGINT, signal_handler) == SIG_ERR) {
