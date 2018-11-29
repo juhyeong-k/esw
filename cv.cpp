@@ -614,6 +614,6 @@ bool Navigator::isTunnelDetected(uint8_t src[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
         }
     }
     printf("Value < 50 : %d\r\n", temp);
-    if(temp > 2000) return true;
+    if(temp > TUNNEL_DETECT_THRESHOLD) return true;
     else return false;
 }

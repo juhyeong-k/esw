@@ -142,7 +142,4 @@ struct CVinfo {
 /**
  *  Tunnel
  */
-#define TUNNEL_ROI_X_START
-#define TUNNEL_ROI_WIDTH
-#define TUNNEL_ROI_Y_START
-#define TUNNEL_ROI_HEIGHT
+#define TUNNEL_DETECT_THRESHOLD			18000
