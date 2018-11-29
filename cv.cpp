@@ -314,6 +314,7 @@ bool Navigator::isLeftDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     if(i > threshold) return true;
     else return false;
 }
+/*
 bool Navigator::isPathStraight(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     uint8_t y;
@@ -325,6 +326,7 @@ bool Navigator::isPathStraight(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
         getRoadPoint(src,y);
     }
 }
+*/
 bool Navigator::isDifferentType(Point first, Point second)
 {
     if(first.isCenterPoint & second.isCenterPoint) return false;
@@ -393,6 +395,7 @@ bool Navigator::isRoadEndDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], 
 }
 /**
   * @ Traffic Lights
+  *
   */
 uint8_t Navigator::isTrafficLightsGreen(uint8_t (green)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (yellow)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (red)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
@@ -425,100 +428,37 @@ uint8_t Navigator::isTrafficLightsGreen(uint8_t (green)[VPE_OUTPUT_H][VPE_OUTPUT
 }
 int Navigator::greenLightReply(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
-    uint16_t x,y,temp,i;
-    int y_sum = 0;
-    uint8_t checkNumber = 0;
+    uint16_t x,y;
 
     /* Green Light information */
     uint16_t greenHeight;
     uint16_t greenCenter;
-    Point leftPoint, rightPoint;
-    leftPoint = {0,};
-    rightPoint = {0,};
 
-    for(y = 0; y < VPE_OUTPUT_H; y++) {
-        for(x = 0; x < VPE_OUTPUT_W; x++) {
-            if( green[y][x][0] ) {
-                temp = 0;
-                for(i=0; i < VPE_OUTPUT_W-x; i++) {
-                    if(green[y][x+i][0]) temp++;
-                }
-                if(temp > GREENLIGHT_WIDTH_THRESHOLD) {
-                    y_sum += y;
-                    checkNumber++;
-                    break;
-                }
-            }
-        }
-    }
     greenHeight = getGreenHeight(green);
     if(greenHeight) {
-        /* greenHeight, leftPoint, rightPoint */
-        for(x = 0; x < VPE_OUTPUT_W; x++) {
-            if(green[greenHeight][x][0]) {
-                temp = 0;
-                for(i=0; i < VPE_OUTPUT_W-x; i++) {
-                    if(green[greenHeight][x+i][0]) temp++;
-                }
-                if(temp > GREENLIGHT_WIDTH_THRESHOLD) {
-                    leftPoint = {x, greenHeight, 0,};
-                    break;
-                }
-            }
-        }
-        for(x = 0; x < VPE_OUTPUT_W; x++) {
-            if(!green[greenHeight][x][0]) {
-                temp = 0;
-                for(i = x; i > 0; i--) {
-                    if(green[greenHeight][i][0]) temp++;
-                }
-                if(temp > GREENLIGHT_WIDTH_THRESHOLD) {
-                    rightPoint = {x, greenHeight};
-                    break;
-                }
-            }
-        }
+
+        Point leftPoint = getLeftGreenPoint(green, greenHeight);
+        Point rightPoint = getRightGreenPoint(green, greenHeight);
+
         if(leftPoint.x & rightPoint.x) {
-            /* Get greenCenter, y_high, y_low */
+            /* Get greenCenter, y_up, y_down */
             greenCenter = (leftPoint.x + rightPoint.x)/2;
-            int y_high = greenHeight;
-            int y_low = greenHeight;
-            for(x = leftPoint.x; x < rightPoint.x; x++) {
-                for(y = greenHeight; y > 5; y--) {
-                    temp = 0;
-                    if(!green[y][x][0]) {
-                        for(i = 1; i < 6; i++) {
-                            if(!green[y-i][x][0]) temp++;
-                        }
-                        if(temp == 5) {
-                            if(y < y_high)  y_high = y;
-                            break;
-                        }
-                    }
-                }
-                for(y = greenHeight; y < VPE_OUTPUT_H-5; y++) {
-                    temp = 0;
-                    if(!green[y][x][0]) {
-                        for(i = 1; i < 6; i++) {
-                            if(!green[y+i][x][0]) temp++;
-                        }
-                        if(temp == 5) {
-                            if(y > y_low) y_low = y;
-                            break;
-                        }
-                    }
-                }
-            }
-            if( (y_low + y_high - 2 * greenHeight) < GREENLIGHT_DETECTED_THRESHOLD ) {
+            uint16_t y_up = greenHeight;
+            uint16_t y_down = greenHeight;
+
+            y_up = getGreenUp(green, greenHeight, leftPoint, rightPoint);
+            y_down = getGreenDown(green, greenHeight, leftPoint, rightPoint);
+
+            if( isGreenLightReliable(y_down, y_up, greenHeight) ) {
                 int leftNumber = 0;
                 int rightNumber = 0;
                 for(x = leftPoint.x; x <= greenCenter; x++) {
-                    for(y = y_low; y >= y_high; y--) {
+                    for(y = y_down; y >= y_up; y--) {
                         if( green[y][x][0] ) leftNumber++;
                     }
                 }
                 for(x = greenCenter; x <= rightPoint.x; x++) {
-                    for(y = y_low; y >= y_high; y--) {
+                    for(y = y_down; y >= y_up; y--) {
                         if( green[y][x][0] ) rightNumber++;
                     }
                 }
@@ -594,4 +534,55 @@ Navigator::Point Navigator::getRightGreenPoint(uint8_t green[VPE_OUTPUT_H][VPE_O
         }
     }
     return rightPoint;
+}
+uint16_t Navigator::getGreenUp(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], 
+                                            uint16_t greenHeight, Point leftPoint, Point rightPoint) 
+{
+    uint16_t y,x,i,temp;
+    uint16_t y_up = greenHeight;
+    for(x = leftPoint.x; x < rightPoint.x; x++) {
+        for(y = greenHeight; y > 5; y--) {
+            temp = 0;
+            if(!green[y][x][0]) {
+                for(i = 1; i < 6; i++) {
+                    if(!green[y-i][x][0]) temp++;
+                }
+                if(temp == 5) {
+                    if(y < y_up)  {
+                        y_up = y;
+                        return y_up;
+                    }
+                }
+            }
+        }
+    }
+    return y_up;
+}
+uint16_t Navigator::getGreenDown(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], 
+                                            uint16_t greenHeight, Point leftPoint, Point rightPoint)
+{
+    uint16_t y,x,i,temp;
+    uint16_t y_down = greenHeight;
+    for(x = leftPoint.x; x < rightPoint.x; x++) {
+        for(y = greenHeight; y < VPE_OUTPUT_H-5; y++) {
+            temp = 0;
+            if(!green[y][x][0]) {
+                for(i = 1; i < 6; i++) {
+                    if(!green[y+i][x][0]) temp++;
+                }
+                if(temp == 5) {
+                    if(y > y_down) {
+                        y_down = y;
+                        return y_down;
+                    }
+                }
+            }
+        }
+    }
+    return y_down;
+}
+bool Navigator::isGreenLightReliable(uint16_t y_down, uint16_t y_up, uint16_t greenHeight)
+{
+    if( (y_down + y_up - 2 * greenHeight) < GREENLIGHT_DETECTED_THRESHOLD) return true;
+    else return false;
 }

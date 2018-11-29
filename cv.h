@@ -46,6 +46,8 @@ class Navigator
         // Traffic lights
         Point getLeftGreenPoint(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t greenHeight);
         Point getRightGreenPoint(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t greenHeight);
+        uint16_t getGreenUp(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t greenHeight, Point leftPoint, Point rightPoint);
+        uint16_t getGreenDown(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t greenHeight, Point leftPoint, Point rightPoint);
 
         /* Status Check */
         // before using isRoadEndDetected() function, confirm the last.roadCenter has been updated.
@@ -59,6 +61,9 @@ class Navigator
         bool isPathStraight(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
 
         bool isRoadClose(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+
+
+        bool isGreenLightReliable(uint16_t y_down, uint16_t y_up, uint16_t greenHeight);
 
         /* Functions for CV class */
         bool isDifferentType(Point first, Point second);
