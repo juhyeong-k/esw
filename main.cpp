@@ -169,7 +169,6 @@ void * CV_thread(void *arg)
     vpe_stream_on(data->vpe->fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
     data->vpe->field = V4L2_FIELD_ANY;
 
-
     index = v4l2_dqbuf(data->v4l2, &data->vpe->field);
     vpe_input_qbuf(data->vpe, index);
     vpe_stream_on(data->vpe->fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE);
