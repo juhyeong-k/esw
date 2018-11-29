@@ -43,6 +43,10 @@ class Navigator
         float getRoadDiff(Point current, Point last);
         uint16_t getDirection(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
 
+        // Traffic lights
+        Point getLeftGreenPoint(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t greenHeight);
+        Point getRightGreenPoint(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t greenHeight);
+
         /* Status Check */
         // before using isRoadEndDetected() function, confirm the last.roadCenter has been updated.
         bool isRoadEndDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);

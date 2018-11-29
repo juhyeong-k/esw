@@ -451,10 +451,9 @@ int Navigator::greenLightReply(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
             }
         }
     }
-
-    if(checkNumber) {
+    greenHeight = getGreenHeight(green);
+    if(greenHeight) {
         /* greenHeight, leftPoint, rightPoint */
-        greenHeight = (int)((float)y_sum/checkNumber);
         for(x = 0; x < VPE_OUTPUT_W; x++) {
             if(green[greenHeight][x][0]) {
                 temp = 0;
@@ -561,4 +560,38 @@ int Navigator::getGreenHeight(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
         return y;
     }
     else return 0;
+}
+Navigator::Point Navigator::getLeftGreenPoint(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t greenHeight) {
+    uint16_t x,i,temp;
+    Point leftPoint = {0,};
+    for(x = 0; x < VPE_OUTPUT_W; x++) {
+        if(green[greenHeight][x][0]) {
+            temp = 0;
+            for(i=0; i < VPE_OUTPUT_W-x; i++) {
+                if(green[greenHeight][x+i][0]) temp++;
+            }
+            if(temp > GREENLIGHT_WIDTH_THRESHOLD) {
+                leftPoint = {x, greenHeight, 0,};
+                return leftPoint;
+            }
+        }
+    }
+    return leftPoint;
+}
+Navigator::Point Navigator::getRightGreenPoint(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t greenHeight) {
+    uint16_t x,i,temp;
+    Point rightPoint = {0,};
+    for(x = 0; x < VPE_OUTPUT_W; x++) {
+        if(!green[greenHeight][x][0]) {
+            temp = 0;
+            for(i = x; i > 0; i--) {
+                if(green[greenHeight][i][0]) temp++;
+            }
+            if(temp > GREENLIGHT_WIDTH_THRESHOLD) {
+                rightPoint = {x, greenHeight};
+                return rightPoint;
+            }
+        }
+    }
+    return rightPoint;
 }
