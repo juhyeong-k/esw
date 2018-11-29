@@ -188,7 +188,17 @@ void * main_thread(void *arg)
         white.detectColor(image_buf, whiteImage);
         green.detectColor(image_buf, greenImage);
         
-        //driver.drive(navigator.getInfo(yellowImage));
+        if( navigator.isTunnelDetected(image_buf) ) {
+        	currentTask.tunnel = true;
+        	currentTask.driving = false;
+        }
+        else {
+        	currentTask.tunnel = false;
+        	currentTask.driving = true;
+        }
+        if( currentTask.driving ) {
+        	driver.drive(navigator.getInfo(yellowImage));
+        }
 
         navigator.drawPath(yellowImage, yellowImage);
         navigator.greenLightReply(greenImage);

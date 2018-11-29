@@ -40,6 +40,8 @@ struct CVinfo {
 	bool isPathRight;
 	bool isPathLeft;
 	bool isRoadClose;
+
+	bool isTunnelDetected;
 };
 /**
   * @Brief
@@ -80,9 +82,9 @@ struct CVinfo {
 #define yellow_HUE_MAX    40
 #define yellow_HUE_MIN    8
 #define yellow_SAT_MAX    255
-#define yellow_SAT_MIN    50
+#define yellow_SAT_MIN    150
 #define yellow_VAL_MAX    255
-#define yellow_VAL_MIN    30
+#define yellow_VAL_MIN    50
 
 #define RED 1
 #define red_HUE_MAX    180
@@ -136,3 +138,11 @@ struct CVinfo {
 #define GREENLIGHT_WIDTH_THRESHOLD		30
 #define GREENLIGHT_DETECTED_THRESHOLD		10
 #define GREENLIGHT_LEFT_THRESHOLD		    20
+
+/**
+ *  Tunnel
+ */
+#define TUNNEL_ROI_X_START
+#define TUNNEL_ROI_WIDTH
+#define TUNNEL_ROI_Y_START
+#define TUNNEL_ROI_HEIGHT

@@ -604,3 +604,16 @@ uint16_t Navigator::getGreenVerticalAxis()
     return y_up;
 }
 */
+bool Navigator::isTunnelDetected(uint8_t src[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint16_t x,y;
+    int temp = 0;
+    for(x = 0; x < VPE_OUTPUT_W; x++) {
+        for(y = 0; y < VPE_OUTPUT_H; y++) {
+            if(src[y][x][2] < 50) temp++; 
+        }
+    }
+    printf("Value < 50 : %d\r\n", temp);
+    if(temp > 2000) return true;
+    else return false;
+}
