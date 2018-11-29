@@ -425,16 +425,14 @@ uint8_t Navigator::isTrafficLightsGreen(uint8_t (green)[VPE_OUTPUT_H][VPE_OUTPUT
 }
 int Navigator::getGreenLightHeight(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
-    int x,y,temp,i;
+    uint16_t x,y,temp,i;
     int y_sum = 0;
     uint8_t checkNumber = 0;
-    uint8_t upperCheck = 0;
-    uint8_t lowerCheck = 0;
 
     /* Green Light information */
     uint16_t greenHeight;
     uint16_t greenCenter;
-    Point leftPoint, rightPoint, upPoint, downPoint;
+    Point leftPoint, rightPoint;
     leftPoint = {0,};
     rightPoint = {0,};
 
@@ -512,17 +510,29 @@ int Navigator::getGreenLightHeight(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
                     }
                 }
             }
-            if( abs(y_low + y_high - 2 * greenHeight) < GREENLIGHT_DETECTED_THRESHOLD ) {
+            if( (y_low + y_high - 2 * greenHeight) < GREENLIGHT_DETECTED_THRESHOLD ) {
                 int leftNumber = 0;
-                int rightNUmber = 0;
-                /*
-                for(x = leftPoint.x; x < ) {
-
+                int rightNumber = 0;
+                for(x = leftPoint.x; x <= greenCenter; x++) {
+                    for(y = y_low; y >= y_high; y--) {
+                        if( green[y][x][0] ) leftNumber++;
+                    }
                 }
-                */
+                for(x = greenCenter; x <= rightPoint.x; x++) {
+                    for(y = y_low; y >= y_high; y--) {
+                        if( green[y][x][0] ) rightNumber++;
+                    }
+                }
+                printf("%f\r\n", (float)leftNumber/rightNumber);
+                if(leftNumber < rightNumber)
+                    printf("Right!!\r\n");
+                else if( (int)(((float)leftNumber/rightNumber - (int)(float)leftNumber/rightNumber)*100) > 6 )
+                    printf("Left!!\r\n");
+                else 
+                    printf("Right!!\r\n");
+                return 0;
             }
-            return greenCenter;
         }
     }
-    else return 0;
+    return 0;
 }
