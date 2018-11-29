@@ -9,12 +9,12 @@
 #include <iostream>
 #include <fstream>
 extern "C" {
-	#include "util.h"
-	#include "display-kms.h"
-	#include "v4l2.h"
-	#include "vpe-common.h"
-	#include "input_cmd.h"
-	#include "car_lib.h"
+    #include "util.h"
+    #include "display-kms.h"
+    #include "v4l2.h"
+    #include "vpe-common.h"
+    #include "input_cmd.h"
+    #include "car_lib.h"
 }
 #include "system_management.h"
 #include "car_control.h"
@@ -43,11 +43,13 @@ void * main_thread(void *arg);
 void * CV_thread(void *arg);
 
 uint16_t determine_direction(uint8_t *image_buf);
+
 struct thr_data {
     struct display *disp;
     struct v4l2 *v4l2;
     struct vpe *vpe;
     struct buffer **input_bufs;
+    int index;
 
     int msgq_id;
     bool bfull_screen; // true : 480x272 disp 화면에 맞게 scale 그렇지 않을 경우 false.
@@ -134,60 +136,11 @@ void * main_thread(void *arg)
 }
 void * CV_handlingThread(void *arg)
 {
-    struct buffer *capt;
-    int index;
-    index = vpe_output_dqbuf(data->vpe);
-    capt = data->vpe->disp_bufs[index];
-    uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
-    memcpy(display_buf, omap_bo_map(capt->bo[0]), VPE_OUTPUT_IMG_SIZE);
-
-    colorFilter red(RED);
-    colorFilter green(GREEN);
-    colorFilter yellow(YELLOW);
-    colorFilter white(WHITE);
-    
-    Navigator navigator;
-    Driver driver;
-
-    uint8_t image_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
-    uint8_t yellowImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
-    uint8_t whiteImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
-    uint8_t greenImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
-
-
-    hsvConverter.bgr24_to_hsv(display_buf,image_buf);
-    yellow.detectColor(image_buf, yellowImage);
-    white.detectColor(image_buf, whiteImage);
-    green.detectColor(image_buf, greenImage);
-    
-    if( navigator.isTunnelDetected(image_buf) ) {
-        currentTask.tunnel = true;
-        currentTask.driving = false;
-    }
-    else {
-        currentTask.tunnel = false;
-        currentTask.driving = true;
-    }
-    if( currentTask.driving ) {
-        driver.drive(navigator.getInfo(yellowImage));
-    }
-
-    navigator.drawPath(yellowImage, yellowImage);
-    navigator.greenLightReply(greenImage);
-    navigator.isSafezoneDetected(yellowImage, whiteImage);
-    draw.horizontal_line(greenImage, navigator.getGreenHeight(greenImage), 0, 320);
     /*
-    draw.horizontal_line(yellowImage, FRONT_UP, 0, 320);
-    draw.horizontal_line(yellowImage, FRONT_DOWN, 0, 320);
-    draw.horizontal_line(yellowImage, SIDE_UP, 0, 320);
-    draw.horizontal_line(yellowImage, SIDE_DOWN, 0, 320);
-    draw.vertical_line(yellowImage, 160, 0, 180);
+    uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
+    struct buffer *capt;
+    memcpy(display_buf, omap_bo_map(capt->bo[0]), VPE_OUTPUT_IMG_SIZE);
     */
-    memcpy(omap_bo_map(capt->bo[0]), yellowImage, VPE_OUTPUT_IMG_SIZE);
-    if (disp_post_vid_buffer(data->vpe->disp, capt, 0, 0, data->vpe->dst.width, data->vpe->dst.height)) {
-        ERROR("Post buffer failed");
-        return NULL;
-    }
     return NULL;
 }
 /**
@@ -198,11 +151,16 @@ void * CV_handlingThread(void *arg)
 void * CV_thread(void *arg)
 {
     struct buffer *capt;
-    int index;
     int i;
 
     isWaitingGreen = false;
+    colorFilter red(RED);
+    colorFilter green(GREEN);
+    colorFilter yellow(YELLOW);
+    colorFilter white(WHITE);
 
+    Navigator navigator;
+    Driver driver;
 
     v4l2_reqbufs(data->v4l2, NUMBUF);
     vpe_input_init(data->vpe);
@@ -219,31 +177,35 @@ void * CV_thread(void *arg)
     vpe_stream_on(data->vpe->fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
     data->vpe->field = V4L2_FIELD_ANY;
 
-    index = v4l2_dqbuf(data->v4l2, &data->vpe->field);
-    vpe_input_qbuf(data->vpe, index);
+    data->index = v4l2_dqbuf(data->v4l2, &data->vpe->field);
+    vpe_input_qbuf(data->vpe, data->index);
     vpe_stream_on(data->vpe->fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE);
     data->bstream_start = true;
-    index = vpe_output_dqbuf(data->vpe);
-    capt = data->vpe->disp_bufs[index];
+    data->index = vpe_output_dqbuf(data->vpe);
+    capt = data->vpe->disp_bufs[data->index];
     if (disp_post_vid_buffer(data->vpe->disp, capt, 0, 0, data->vpe->dst.width, data->vpe->dst.height)) {
         ERROR("Post buffer failed");
         return NULL;
     }
-    vpe_output_qbuf(data->vpe, index);
-    index = vpe_input_dqbuf(data->vpe);
-    v4l2_qbuf(data->v4l2, data->vpe->input_buf_dmafd[index], index);
+    vpe_output_qbuf(data->vpe, data->index);
+    data->index = vpe_input_dqbuf(data->vpe);
+    v4l2_qbuf(data->v4l2, data->vpe->input_buf_dmafd[data->index], data->index);
 
     while(1)
     {   
-        index = v4l2_dqbuf(data->v4l2, &data->vpe->field);
-        vpe_input_qbuf(data->vpe, index);
+        data->index = v4l2_dqbuf(data->v4l2, &data->vpe->field);
+        vpe_input_qbuf(data->vpe, data->index);
 
-        pthread_create(&tdata.threads[2], NULL, CV_handlingThread, &tdata);
-        pthread_detach(tdata.threads[2]);
+        data->index = vpe_output_dqbuf(data->vpe);
+        capt = data->vpe->disp_bufs[data->index];
 
-        vpe_output_qbuf(data->vpe, index);
-        index = vpe_input_dqbuf(data->vpe);
-        v4l2_qbuf(data->v4l2, data->vpe->input_buf_dmafd[index], index);
+        if (disp_post_vid_buffer(data->vpe->disp, capt, 0, 0, data->vpe->dst.width, data->vpe->dst.height)) {
+            ERROR("Post buffer failed");
+            return NULL;
+        }
+        vpe_output_qbuf(data->vpe, data->index);
+        data->index = vpe_input_dqbuf(data->vpe);
+        v4l2_qbuf(data->v4l2, data->vpe->input_buf_dmafd[data->index], data->index);
     }
     MSG("Ok!");
     return NULL;
@@ -259,7 +221,6 @@ void signal_handler(int sig)
     if(sig == SIGINT) {
         pthread_cancel(pexam_data->threads[0]);
         pthread_cancel(pexam_data->threads[1]);
-        pthread_cancel(pexam_data->threads[2]);
         
         msgctl(pexam_data->msgq_id, IPC_RMID, 0);
         
@@ -283,7 +244,7 @@ void signal_handler(int sig)
 
 int main(int argc, char **argv)
 {
-	fileout << "System start.\n\n";
+    fileout << "System start.\n\n";
     char* disp_argv[] = {(char*)"dummy", (char*)"-s", (char*)"4:480x272", (char*)"\0"};
     int ret = 0;
 
