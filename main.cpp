@@ -25,6 +25,10 @@ extern "C" {
 extern std::ofstream fileout;
 extern System_resource system_resource;
 
+// Class declaration
+BGR24_to_HSV hsvConverter;
+Draw draw;
+
 Task currentTask;
 
 #define DUMP_MSGQ_KEY           1020
@@ -116,21 +120,31 @@ void get_result(uint32_t optime, struct timeval st, struct timeval et )
 }
 void * main_thread(void *arg)
 {
-    struct thr_data *data = (struct thr_data *)arg;
-    struct v4l2 *v4l2 = data->v4l2;
-    struct vpe *vpe = data->vpe;
-    struct buffer *capt;
-    bool isFirst = true;
-    int index;
-    int i;
-
     // Variables for performance measurement
     uint32_t optime = 0;
     struct timeval st;
     struct timeval et;
-    // Class declaration
-    BGR24_to_HSV hsvConverter;
-    Draw draw;
+    while(1)
+    {
+        gettimeofday(&st, NULL);
+        get_result(optime, st, et);
+    }
+    return NULL;
+}
+
+/**
+  * @brief  CV_thread, assist the main thread.
+  * @param  arg: pointer to parameter of thr_data
+  * @retval none
+  */
+void * CV_thread(void *arg)
+{
+    struct thr_data *data = (struct thr_data *)arg;
+    struct v4l2 *v4l2 = data->v4l2;
+    struct vpe *vpe = data->vpe;
+    struct buffer *capt;
+    int index;
+    int i;
 
     isWaitingGreen = false;
     colorFilter red(RED);
@@ -161,22 +175,34 @@ void * main_thread(void *arg)
     //driver.waitStartSignal();
     DesireSpeed_Write(70);
 
+    index = v4l2_dqbuf(v4l2, &vpe->field);
+    vpe_input_qbuf(vpe, index);
+    vpe_stream_on(vpe->fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE);
+    data->bstream_start = true;
+    index = vpe_output_dqbuf(vpe);
+    capt = vpe->disp_bufs[index];
+    /*
+    memcpy(display_buf, omap_bo_map(capt->bo[0]), VPE_OUTPUT_IMG_SIZE);
+    memcpy(omap_bo_map(capt->bo[0]), display_buf, VPE_OUTPUT_IMG_SIZE);
+    */
+    if (disp_post_vid_buffer(vpe->disp, capt, 0, 0, vpe->dst.width, vpe->dst.height)) {
+        ERROR("Post buffer failed");
+        return NULL;
+    }
+    vpe_output_qbuf(vpe, index);
+    index = vpe_input_dqbuf(vpe);
+    v4l2_qbuf(v4l2, vpe->input_buf_dmafd[index], index);
+
     while(1)
     {   
-        gettimeofday(&st, NULL);
         index = v4l2_dqbuf(v4l2, &vpe->field);
         vpe_input_qbuf(vpe, index);
 
-        if (isFirst) {
-        vpe_stream_on(vpe->fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE);
-        isFirst = false;
-        MSG("streaming started...");
-        data->bstream_start = true;
-        }
         index = vpe_output_dqbuf(vpe);
         capt = vpe->disp_bufs[index];
-        uint8_t image_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
+
         uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
+        uint8_t image_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
         uint8_t yellowImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
         uint8_t whiteImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
         uint8_t greenImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
@@ -189,15 +215,15 @@ void * main_thread(void *arg)
         green.detectColor(image_buf, greenImage);
         
         if( navigator.isTunnelDetected(image_buf) ) {
-        	currentTask.tunnel = true;
-        	currentTask.driving = false;
+            currentTask.tunnel = true;
+            currentTask.driving = false;
         }
         else {
-        	currentTask.tunnel = false;
-        	currentTask.driving = true;
+            currentTask.tunnel = false;
+            currentTask.driving = true;
         }
         if( currentTask.driving ) {
-        	driver.drive(navigator.getInfo(yellowImage));
+            driver.drive(navigator.getInfo(yellowImage));
         }
 
         navigator.drawPath(yellowImage, yellowImage);
@@ -220,29 +246,10 @@ void * main_thread(void *arg)
         vpe_output_qbuf(vpe, index);
         index = vpe_input_dqbuf(vpe);
         v4l2_qbuf(v4l2, vpe->input_buf_dmafd[index], index);
-        get_result(optime, st, et);
     }
     MSG("Ok!");
     return NULL;
 }
-
-/**
-  * @brief  CV_thread, assist the main thread.
-  * @param  arg: pointer to parameter of thr_data
-  * @retval none
-  */
-void * CV_thread(void *arg)
-{
-	Driver driver;
-	while(1)
-	{
-		if(currentTask.tunnel) {
-			driver.goTunnel(&currentTask);
-		}
-	}
-    return NULL;
-}
-
 static struct thr_data* pexam_data = NULL;
 /**
   * @brief  handling an SIGINT(CTRL+C) signal
