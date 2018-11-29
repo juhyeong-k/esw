@@ -128,8 +128,8 @@ void * main_thread(void *arg)
     struct timeval et;
     while(1)
     {
-        gettimeofday(&st, NULL);
-        get_result(optime, st, et);
+        //gettimeofday(&st, NULL);
+        //get_result(optime, st, et);
     }
     return NULL;
 }
