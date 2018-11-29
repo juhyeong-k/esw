@@ -290,6 +290,8 @@ int main(int argc, char **argv)
     struct thr_data tdata;
     int disp_argc = 3;
     char* disp_argv[] = {(char*)"dummy", (char*)"-s", (char*)"4:480x272", (char*)"\0"};
+
+    
     int ret = 0;
 
     CarControlInit();
