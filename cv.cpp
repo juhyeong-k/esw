@@ -482,7 +482,8 @@ int Navigator::getGreenLightHeight(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
             }
         }
         if(leftPoint.x & rightPoint.x) {
-            /* Get y_high, y_low */
+            /* Get greenCenter, y_high, y_low */
+            greenCenter = (leftPoint.x + rightPoint.x)/2;
             int y_high = greenHeight;
             int y_low = greenHeight;
             for(x = leftPoint.x; x < rightPoint.x; x++) {
@@ -511,18 +512,16 @@ int Navigator::getGreenLightHeight(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
                     }
                 }
             }
-            if( abs(y_low + y_high - 2 * greenHeight) < GREENLIGHT_DETECTED_THRESHOLD )
-                printf("OKOKOK!!!\r\n");
-            /*
-            if( abs((y_low - y_high) - greenHeight) < GREENLIGHT_DETECTED_THRESHOLD ) {
+            if( abs(y_low + y_high - 2 * greenHeight) < GREENLIGHT_DETECTED_THRESHOLD ) {
                 int leftNumber = 0;
                 int rightNUmber = 0;
+                /*
                 for(x = leftPoint.x; x < ) {
 
                 }
+                */
             }
-            */
-            return y_low;
+            return greenCenter;
         }
     }
     else return 0;
