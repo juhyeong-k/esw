@@ -58,6 +58,7 @@ struct thr_data {
 struct v4l2 *v4l2;
 struct vpe *vpe;
 struct thr_data tdata;
+struct thr_data *data = &tdata;
 /**
   * @brief  Alloc vpe input buffer and a new buffer object
   * @param  data: pointer to parameter of thr_data
@@ -137,9 +138,6 @@ void * main_thread(void *arg)
   */
 void * CV_thread(void *arg)
 {
-    struct thr_data *data = (struct thr_data *)arg;
-    struct v4l2 *v4l2 = data->v4l2;
-    struct vpe *vpe = data->vpe;
     struct buffer *capt;
     int index;
     int i;
@@ -153,51 +151,51 @@ void * CV_thread(void *arg)
     Navigator navigator;
     Driver driver;
 
-    v4l2_reqbufs(v4l2, NUMBUF);
-    vpe_input_init(vpe);
+    v4l2_reqbufs(data->v4l2, NUMBUF);
+    vpe_input_init(data->vpe);
     allocate_input_buffers(data);
-    if(vpe->dst.coplanar)    vpe->disp->multiplanar = true;
-    else                       vpe->disp->multiplanar = false;
-    printf("disp multiplanar:%d \n", vpe->disp->multiplanar);
-    vpe_output_init(vpe);
-    vpe_output_fullscreen(vpe, data->bfull_screen);
+    if(data->vpe->dst.coplanar)    data->vpe->disp->multiplanar = true;
+    else                       data->vpe->disp->multiplanar = false;
+    printf("disp multiplanar:%d \n", data->vpe->disp->multiplanar);
+    vpe_output_init(data->vpe);
+    vpe_output_fullscreen(data->vpe, data->bfull_screen);
     // caputre image is used as a vpe input buffer
-    for (i = 0; i < NUMBUF; i++)    v4l2_qbuf(v4l2,vpe->input_buf_dmafd[i], i);
-    for (i = 0; i < NUMBUF; i++)    vpe_output_qbuf(vpe, i);
-    v4l2_streamon(v4l2);
-    vpe_stream_on(vpe->fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
-    vpe->field = V4L2_FIELD_ANY;
+    for (i = 0; i < NUMBUF; i++)    v4l2_qbuf(data->v4l2,data->vpe->input_buf_dmafd[i], i);
+    for (i = 0; i < NUMBUF; i++)    vpe_output_qbuf(data->vpe, i);
+    v4l2_streamon(data->v4l2);
+    vpe_stream_on(data->vpe->fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
+    data->vpe->field = V4L2_FIELD_ANY;
 
     PositionControlOnOff_Write(UNCONTROL);
     SpeedControlOnOff_Write(CONTROL);
     //driver.waitStartSignal();
     DesireSpeed_Write(70);
 
-    index = v4l2_dqbuf(v4l2, &vpe->field);
-    vpe_input_qbuf(vpe, index);
-    vpe_stream_on(vpe->fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE);
+    index = v4l2_dqbuf(data->v4l2, &data->vpe->field);
+    vpe_input_qbuf(data->vpe, index);
+    vpe_stream_on(data->vpe->fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE);
     data->bstream_start = true;
-    index = vpe_output_dqbuf(vpe);
-    capt = vpe->disp_bufs[index];
+    index = vpe_output_dqbuf(data->vpe);
+    capt = data->vpe->disp_bufs[index];
     /*
     memcpy(display_buf, omap_bo_map(capt->bo[0]), VPE_OUTPUT_IMG_SIZE);
     memcpy(omap_bo_map(capt->bo[0]), display_buf, VPE_OUTPUT_IMG_SIZE);
     */
-    if (disp_post_vid_buffer(vpe->disp, capt, 0, 0, vpe->dst.width, vpe->dst.height)) {
+    if (disp_post_vid_buffer(data->vpe->disp, capt, 0, 0, data->vpe->dst.width, data->vpe->dst.height)) {
         ERROR("Post buffer failed");
         return NULL;
     }
-    vpe_output_qbuf(vpe, index);
-    index = vpe_input_dqbuf(vpe);
-    v4l2_qbuf(v4l2, vpe->input_buf_dmafd[index], index);
+    vpe_output_qbuf(data->vpe, index);
+    index = vpe_input_dqbuf(data->vpe);
+    v4l2_qbuf(data->v4l2, data->vpe->input_buf_dmafd[index], index);
 
     while(1)
     {   
-        index = v4l2_dqbuf(v4l2, &vpe->field);
-        vpe_input_qbuf(vpe, index);
+        index = v4l2_dqbuf(data->v4l2, &data->vpe->field);
+        vpe_input_qbuf(data->vpe, index);
 
-        index = vpe_output_dqbuf(vpe);
-        capt = vpe->disp_bufs[index];
+        index = vpe_output_dqbuf(data->vpe);
+        capt = data->vpe->disp_bufs[index];
 
         uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
         uint8_t image_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
@@ -237,13 +235,13 @@ void * CV_thread(void *arg)
         draw.vertical_line(yellowImage, 160, 0, 180);
         */
         memcpy(omap_bo_map(capt->bo[0]), yellowImage, VPE_OUTPUT_IMG_SIZE);
-        if (disp_post_vid_buffer(vpe->disp, capt, 0, 0, vpe->dst.width, vpe->dst.height)) {
+        if (disp_post_vid_buffer(data->vpe->disp, capt, 0, 0, data->vpe->dst.width, data->vpe->dst.height)) {
             ERROR("Post buffer failed");
             return NULL;
         }
-        vpe_output_qbuf(vpe, index);
-        index = vpe_input_dqbuf(vpe);
-        v4l2_qbuf(v4l2, vpe->input_buf_dmafd[index], index);
+        vpe_output_qbuf(data->vpe, index);
+        index = vpe_input_dqbuf(data->vpe);
+        v4l2_qbuf(data->v4l2, data->vpe->input_buf_dmafd[index], index);
     }
     MSG("Ok!");
     return NULL;
