@@ -189,28 +189,32 @@ void * CV_handlingThread(void *arg)
 
     uint8_t image_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
     uint8_t yellowImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
-    uint8_t whiteImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
     uint8_t greenImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
+    uint8_t redImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
+    uint8_t whiteImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
+    uint8_t bgr[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
 
     hsvConverter.bgr24_to_hsv(display_buf,image_buf);
     yellow.detectColor(image_buf, yellowImage);
-    white.detectColor(image_buf, whiteImage);
     green.detectColor(image_buf, greenImage);
+    red.detectColor(image_buf, redImage);
+    white.detectColor(image_buf, whiteImage);
+    draw.mixColor(yellowImage, greenImage, redImage, whiteImage, bgr);
 
-    navigator.drawPath(yellowImage, yellowImage);
-    data->cvResult = navigator.getInfo(display_buf, yellowImage, greenImage, whiteImage);
+    navigator.drawPath(yellowImage, bgr);
+    data->cvResult = navigator.getInfo(display_buf, yellowImage, greenImage, redImage, whiteImage);
 
-    draw.horizontal_line(yellowImage, FRONT_UP, 0, 320);
-    draw.horizontal_line(yellowImage, FRONT_DOWN, 0, 320);
-    draw.horizontal_line(yellowImage, SIDE_UP, 0, 320);
-    draw.horizontal_line(yellowImage, SIDE_DOWN, 0, 320);
+    draw.horizontal_line(bgr, FRONT_UP, 0, 320);
+    draw.horizontal_line(bgr, FRONT_DOWN, 0, 320);
+    draw.horizontal_line(bgr, SIDE_UP, 0, 320);
+    draw.horizontal_line(bgr, SIDE_DOWN, 0, 320);
 
     /** HSV extract
     draw.dot(yellowImage, 159, 129); draw.dot(yellowImage, 160, 129);
     draw.dot(yellowImage, 158, 129); draw.dot(yellowImage, 159, 130); draw.dot(yellowImage, 159, 128);
     printf("H %d / S %d / V %d\r\n", display_buf[159][129][0], display_buf[159][129][1], display_buf[159][129][2]);
     */
-    memcpy(omap_bo_map(thread_disp->bo[0]), yellowImage, VPE_OUTPUT_IMG_SIZE);
+    memcpy(omap_bo_map(thread_disp->bo[0]), bgr, VPE_OUTPUT_IMG_SIZE);
     if (disp_post_vid_buffer(data->vpe->disp, thread_disp, 0, 0, data->vpe->dst.width, data->vpe->dst.height)) {
         ERROR("Post buffer failed");
         return NULL;

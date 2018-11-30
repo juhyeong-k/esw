@@ -61,6 +61,18 @@ void BGR24_to_HSV::bgr24_to_hsv(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], ui
   * @breif  Draw class
   *
   */
+void Draw::mixColor(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], 
+uint8_t red[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t des[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    int x,y;
+    for(x = 0; x < VPE_OUTPUT_W; x++) {
+        for(y = 0; y < VPE_OUTPUT_H; y++) {
+            des[y][x][0] = yellow[y][x][0] + green[y][x][0] + red[y][x][0] + white[y][x][0];
+            des[y][x][1] = yellow[y][x][1] + green[y][x][1] + red[y][x][1] + white[y][x][1];
+            des[y][x][2] = yellow[y][x][2] + green[y][x][2] + red[y][x][2] + white[y][x][2];
+        }
+    }
+}
 void Draw::horizontal_line(uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y, uint16_t x_start, uint16_t x_end)
 {
     #ifdef bgr24

@@ -17,6 +17,8 @@ class BGR24_to_HSV
 class Draw
 {
 	public:
+		void mixColor(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], 
+		uint8_t red[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t des[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
 		void horizontal_line(uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y, uint16_t x_start, uint16_t x_end);
 		void vertical_line(uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t x, uint16_t y_start, uint16_t y_end);
 		void dot(uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t x, uint16_t y);

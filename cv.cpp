@@ -12,7 +12,7 @@ Navigator::Navigator()
     startingPoint = {(VPE_OUTPUT_W/2), VPE_OUTPUT_H, 0,};
 }
 CVinfo Navigator::getInfo(uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3],
-                            uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     startingPoint = getStartingPoint(yellow);
     CVinfo cvInfo = {1500, 0,};
