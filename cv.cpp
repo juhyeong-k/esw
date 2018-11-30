@@ -11,16 +11,19 @@ Navigator::Navigator()
     lastPoint.y = VPE_OUTPUT_H;
     startingPoint = {(VPE_OUTPUT_W/2), VPE_OUTPUT_H, 0,};
 }
-CVinfo Navigator::getInfo(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+CVinfo Navigator::getInfo(uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
-    startingPoint = getStartingPoint(src);
+    startingPoint = getStartingPoint(yellow);
     CVinfo cvInfo = {1500, 0,};
-    cvInfo.direction = getDirection(src);
+
+    cvInfo.direction = getDirection(yellow);
     if(cvInfo.direction == 1000) cvInfo.isRightTurnDetected = true;
     else if(cvInfo.direction == 2000) cvInfo.isLeftTurnDetected = true;
-    cvInfo.isRightDetected = isRightDetected(src);
-    cvInfo.isLeftDetected = isLeftDetected(src);
-    cvInfo.isRoadClose = isRoadClose(src);
+    cvInfo.isRightDetected = isRightDetected(yellow);
+    cvInfo.isLeftDetected = isLeftDetected(yellow);
+    cvInfo.isRoadClose = isRoadClose(yellow);
+    cvInfo.isTunnelDetected = isTunnelDetected(display_buf);
+    
     printf("* CV\r\n");
     printf("direction : %d\r\n", cvInfo.direction);
     printf("isRightTurnDetected : %d\r\n", cvInfo.isRightTurnDetected);

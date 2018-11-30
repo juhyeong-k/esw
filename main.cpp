@@ -29,7 +29,6 @@ pthread_mutex_t  doingCV_handlingThread = PTHREAD_MUTEX_INITIALIZER;
 
 // Class declaration
 Navigator navigator;
-Driver driver;
 BGR24_to_HSV hsvConverter;
 Draw draw;
 
@@ -37,8 +36,6 @@ colorFilter red(RED);
 colorFilter green(GREEN);
 colorFilter yellow(YELLOW);
 colorFilter white(WHITE);
-
-Task currentTask;
 
 #define DUMP_MSGQ_KEY           1020
 #define DUMP_MSGQ_MSG_TYPE      0x02
@@ -65,6 +62,8 @@ struct thr_data {
     bool bfull_screen; // true : 480x272 disp 화면에 맞게 scale 그렇지 않을 경우 false.
     bool bstream_start; // camera stream start 여부
     pthread_t threads[3];
+
+    CVinfo cvResult;
 };
 struct v4l2 *v4l2;
 struct vpe *vpe;
@@ -156,10 +155,15 @@ void * main_thread(void *arg)
     data->index = vpe_input_dqbuf(data->vpe);
     v4l2_qbuf(data->v4l2, data->vpe->input_buf_dmafd[data->index], data->index);
 
-
     PositionControlOnOff_Write(UNCONTROL);
     SpeedControlOnOff_Write(CONTROL);
     DesireSpeed_Write(80);
+
+    Driver driver;
+    Task currentTask;
+    currentTask = {0,1};
+    data->cvResult = {1500,0,};
+
     uint32_t optime = 0;
     struct timeval st;
     struct timeval et;
@@ -168,6 +172,18 @@ void * main_thread(void *arg)
         gettimeofday(&st, NULL);
         pthread_create(&tdata.threads[1], NULL, CV_thread, &tdata);
         pthread_join(tdata.threads[1], NULL);
+
+        if( data->cvResult.isTunnelDetected ) {
+        currentTask.tunnel = true;
+        currentTask.driving = false;
+        }
+        else {
+            currentTask.tunnel = false;
+            currentTask.driving = true;
+        }
+        if( currentTask.driving ) {
+            driver.drive(data->cvResult);
+        }
         get_result(optime, st, et);
     }
     return NULL;
@@ -192,18 +208,8 @@ void * CV_handlingThread(void *arg)
     white.detectColor(image_buf, whiteImage);
     green.detectColor(image_buf, greenImage);
 
-    if( navigator.isTunnelDetected(image_buf) ) {
-            currentTask.tunnel = true;
-            currentTask.driving = false;
-        }
-        else {
-            currentTask.tunnel = false;
-            currentTask.driving = true;
-        }
-        if( currentTask.driving ) {
-            driver.drive(navigator.getInfo(yellowImage));
-        }
     navigator.drawPath(yellowImage, yellowImage);
+    data->cvResult = navigator.getInfo(display_buf, yellowImage);
     navigator.greenLightReply(greenImage);
     navigator.isSafezoneDetected(yellowImage, whiteImage);
     draw.horizontal_line(greenImage, navigator.getGreenHeight(greenImage), 0, 320);
@@ -329,7 +335,6 @@ int main(int argc, char **argv)
     tdata.vpe = vpe;
     tdata.bfull_screen = true;
     tdata.bstream_start = false;
-    currentTask = {0,1};
 
     if(-1 == (tdata.msgq_id = msgget((key_t)DUMP_MSGQ_KEY, IPC_CREAT | 0666))) {
         fprintf(stderr, "%s msg create fail!!!\n", __func__);
