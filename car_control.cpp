@@ -11,7 +11,7 @@ Driver::Driver()
 void Driver::drive(CVinfo info)
 {
     if(info.isTunnelDetected) {
-        goTunnel();
+        //goTunnel();
         return;
     }
     else {

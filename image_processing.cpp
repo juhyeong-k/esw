@@ -99,6 +99,7 @@ colorFilter::colorFilter(uint8_t colorName)
     switch(colorName)
     {
         case YELLOW :
+            r = 255; g = 228; b = 1;
             HUE_MAX = yellow_HUE_MAX;
             HUE_MIN = yellow_HUE_MIN;
             SAT_MAX = yellow_SAT_MAX;
@@ -107,6 +108,7 @@ colorFilter::colorFilter(uint8_t colorName)
             VAL_MIN = yellow_VAL_MIN;
             break;
         case RED :
+            r = 255; g = 1; b = 1;
             HUE_MAX = red_HUE_MAX;
             HUE_MIN = red_HUE_MIN;
             SAT_MAX = red_SAT_MAX;
@@ -115,6 +117,7 @@ colorFilter::colorFilter(uint8_t colorName)
             VAL_MIN = red_VAL_MIN;
             break;
         case GREEN :
+            r = 29; g = 219; b = 22;
             HUE_MAX = green_HUE_MAX;
             HUE_MIN = green_HUE_MIN;
             SAT_MAX = green_SAT_MAX;
@@ -123,6 +126,7 @@ colorFilter::colorFilter(uint8_t colorName)
             VAL_MIN = green_VAL_MIN;
             break;
         case WHITE :
+            r = 255; g = 255; b = 255;
             HUE_MAX = white_HUE_MAX;
             HUE_MIN = white_HUE_MIN;
             SAT_MAX = white_SAT_MAX;
@@ -146,8 +150,9 @@ void colorFilter::detectColor(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint
             h = temp_buf[i][j][0];
             s = temp_buf[i][j][1];
             v = temp_buf[i][j][2];
-            if(inRange(h,s,v))
-                des[i][j][0] = des[i][j][1] = des[i][j][2] = 255;
+            if(inRange(h,s,v)) {
+                des[i][j][0] = b; des[i][j][1] = g; des[i][j][2] = r;
+            }
             else
                 des[i][j][0] = des[i][j][1] = des[i][j][2] = 0;
         }
