@@ -157,34 +157,60 @@ void * main_thread(void *arg)
     PositionControlOnOff_Write(UNCONTROL);
     SpeedControlOnOff_Write(CONTROL);
     DesireSpeed_Write(70);
+    uint32_t optime = 0;
+    struct timeval st;
+    struct timeval et;
     while(1)
     {
+        gettimeofday(&st, NULL);
         pthread_create(&tdata.threads[1], NULL, CV_thread, &tdata);
         pthread_join(tdata.threads[1], NULL);
+        get_result(optime, st, et);
     }
     return NULL;
 }
 void * CV_handlingThread(void *arg)
 {
-    pthread_mutex_lock(&doingCV_handlingThread);
-    /*
-    uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
-    struct buffer *capt;
-    memcpy(display_buf, omap_bo_map(capt->bo[0]), VPE_OUTPUT_IMG_SIZE);
-    */
-    // Variables for performance measurement
-    /*
-    uint32_t optime = 0;
-    struct timeval st;
-    struct timeval et;
-    gettimeofday(&st, NULL);
-    get_result(optime, st, et);
-    */
     data->index = vpe_output_dqbuf(data->vpe);
     data->capt = data->vpe->disp_bufs[data->index];
+    uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
+    memcpy(display_buf, omap_bo_map(data->capt->bo[0]), VPE_OUTPUT_IMG_SIZE);
     pthread_mutex_unlock(&bufCopying);
 
-    pthread_mutex_unlock(&doingCV_handlingThread);
+    colorFilter red(RED);
+    colorFilter green(GREEN);
+    colorFilter yellow(YELLOW);
+    colorFilter white(WHITE);
+
+    Navigator navigator;
+    Driver driver;
+
+    uint8_t image_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
+    uint8_t yellowImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
+    uint8_t whiteImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
+    uint8_t greenImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
+
+    hsvConverter.bgr24_to_hsv(display_buf,image_buf);
+    yellow.detectColor(image_buf, yellowImage);
+    white.detectColor(image_buf, whiteImage);
+    green.detectColor(image_buf, greenImage);
+
+    if( navigator.isTunnelDetected(image_buf) ) {
+            currentTask.tunnel = true;
+            currentTask.driving = false;
+        }
+        else {
+            currentTask.tunnel = false;
+            currentTask.driving = true;
+        }
+        if( currentTask.driving ) {
+            driver.drive(navigator.getInfo(yellowImage));
+        }
+    navigator.drawPath(yellowImage, yellowImage);
+    navigator.greenLightReply(greenImage);
+    navigator.isSafezoneDetected(yellowImage, whiteImage);
+    draw.horizontal_line(greenImage, navigator.getGreenHeight(greenImage), 0, 320);
+
     return NULL;
 }
 /**
@@ -198,8 +224,6 @@ void * CV_thread(void *arg)
     vpe_input_qbuf(data->vpe, data->index);
     pthread_mutex_lock(&bufCopying);
 
-    pthread_mutex_lock(&doingCV_handlingThread);
-    pthread_mutex_unlock(&doingCV_handlingThread);
     pthread_create(&tdata.threads[2], NULL, CV_handlingThread, &tdata);
     pthread_detach(tdata.threads[2]);
 
