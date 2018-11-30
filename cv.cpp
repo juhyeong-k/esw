@@ -28,15 +28,14 @@ CVinfo Navigator::getInfo(uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3], ui
     cvInfo.isSafezoneDetected = isSafezoneDetected(yellow, white);
 
     printf("\r\n*** CV ***\r\n");
-    printf("direction : %d\r\n", cvInfo.direction);
-    printf("isRightTurnDetected : %d\r\n", cvInfo.isRightTurnDetected);
-    printf("isLeftTurnDetected : %d\r\n", cvInfo.isLeftTurnDetected);
-    printf("isRightDetected : %d\r\n", cvInfo.isRightDetected);
-    printf("isLeftDetected : %d\r\n", cvInfo.isLeftDetected);
-    printf("isRoadClose : %d\r\n", cvInfo.isRoadClose);
-    printf("isTunnelDetected : %d\r\n", cvInfo.isTunnelDetected);
-    printf("greenLightReply : %d\r\n", cvInfo.greenLightReply);
-    printf("isSafezoneDetected : %d\r\n", cvInfo.isSafezoneDetected);
+    printf("direction \t%d\r\n", cvInfo.direction);
+    printf("isLeftTurnDetected\t%d\tisRightTurnDetected\t%d\r\n", cvInfo.isLeftTurnDetected, cvInfo.isRightTurnDetected);
+    printf("isLeftDetected\t\t%d\tisRightDetected\t\t%d\r\n", cvInfo.isLeftDetected, cvInfo.isRightDetected);
+    printf("isRoadClose\t\t%d\r\n", cvInfo.isRoadClose);
+    printf("isTunnelDetected\t%d\r\n", cvInfo.isTunnelDetected);
+    printf("greenLightReply\t\t%d\r\n", cvInfo.greenLightReply);
+    printf("isSafezoneDetected\t%d\r\n", cvInfo.isSafezoneDetected);
+    printf("\r\n");
     return cvInfo;
 }
 bool Navigator::isSafezoneDetected(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
@@ -467,13 +466,15 @@ int Navigator::greenLightReply(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
                     }
                 }
                 printf("%f\r\n", (float)leftNumber/rightNumber);
-                if(leftNumber < rightNumber)
-                    printf("Right!!\r\n");
-                else if( (int)(((float)leftNumber/rightNumber - (int)(float)leftNumber/rightNumber)*100) > 6 )
-                    printf("Left!!\r\n");
-                else 
-                    printf("Right!!\r\n");
-                return 0;
+                if(leftNumber < rightNumber) {
+                    return 2;
+                }
+                else if( (int)(((float)leftNumber/rightNumber - (int)(float)leftNumber/rightNumber)*100) > 6 ) {
+                    return 1;
+                }
+                else {
+                    return 2;
+                }
             }
         }
     }
