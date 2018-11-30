@@ -24,6 +24,7 @@ extern "C" {
 
 extern std::ofstream fileout;
 extern System_resource system_resource;
+pthread_mutex_t  mutex = PTHREAD_MUTEX_INITIALIZER;
 
 // Class declaration
 BGR24_to_HSV hsvConverter;
@@ -121,47 +122,7 @@ void get_result(uint32_t optime, struct timeval st, struct timeval et )
 }
 void * main_thread(void *arg)
 {
-    PositionControlOnOff_Write(UNCONTROL);
-    SpeedControlOnOff_Write(CONTROL);
-    DesireSpeed_Write(70);
-    // Variables for performance measurement
-    uint32_t optime = 0;
-    struct timeval st;
-    struct timeval et;
-    while(1)
-    {
-        //gettimeofday(&st, NULL);
-        //get_result(optime, st, et);
-    }
-    return NULL;
-}
-void * CV_handlingThread(void *arg)
-{
-    /*
-    uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
-    struct buffer *capt;
-    memcpy(display_buf, omap_bo_map(capt->bo[0]), VPE_OUTPUT_IMG_SIZE);
-    */
-    return NULL;
-}
-/**
-  * @brief  CV_thread, assist the main thread.
-  * @param  arg: pointer to parameter of thr_data
-  * @retval none
-  */
-void * CV_thread(void *arg)
-{
     int i;
-
-    isWaitingGreen = false;
-    colorFilter red(RED);
-    colorFilter green(GREEN);
-    colorFilter yellow(YELLOW);
-    colorFilter white(WHITE);
-
-    Navigator navigator;
-    Driver driver;
-
     v4l2_reqbufs(data->v4l2, NUMBUF);
     vpe_input_init(data->vpe);
     allocate_input_buffers(data);
@@ -191,16 +152,55 @@ void * CV_thread(void *arg)
     data->index = vpe_input_dqbuf(data->vpe);
     v4l2_qbuf(data->v4l2, data->vpe->input_buf_dmafd[data->index], data->index);
 
+    pthread_create(&tdata.threads[1], NULL, CV_thread, &tdata);
+    pthread_detach(tdata.threads[1]);
+
+    PositionControlOnOff_Write(UNCONTROL);
+    SpeedControlOnOff_Write(CONTROL);
+    DesireSpeed_Write(70);
+    while(1)
+    {
+    }
+    return NULL;
+}
+void * CV_handlingThread(void *arg)
+{
+    /*
+    uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
+    struct buffer *capt;
+    memcpy(display_buf, omap_bo_map(capt->bo[0]), VPE_OUTPUT_IMG_SIZE);
+    */
+    // Variables for performance measurement
+    /*
+    uint32_t optime = 0;
+    struct timeval st;
+    struct timeval et;
+    gettimeofday(&st, NULL);
+    get_result(optime, st, et);
+    */
+    data->index = vpe_output_dqbuf(data->vpe);
+    data->capt = data->vpe->disp_bufs[data->index];
+    pthread_mutex_unlock(&mutex);
+    return NULL;
+}
+/**
+  * @brief  CV_thread, assist the main thread.
+  * @param  arg: pointer to parameter of thr_data
+  * @retval none
+  */
+void * CV_thread(void *arg)
+{
     while(1)
     {   
         data->index = v4l2_dqbuf(data->v4l2, &data->vpe->field);
         vpe_input_qbuf(data->vpe, data->index);
-
-        data->index = vpe_output_dqbuf(data->vpe);
-        data->capt = data->vpe->disp_bufs[data->index];
+        pthread_mutex_lock(&mutex);
 
         pthread_create(&tdata.threads[2], NULL, CV_handlingThread, &tdata);
         pthread_detach(tdata.threads[2]);
+
+        pthread_mutex_lock(&mutex);
+        pthread_mutex_unlock(&mutex);
 
         if (disp_post_vid_buffer(data->vpe->disp, data->capt, 0, 0, data->vpe->dst.width, data->vpe->dst.height)) {
             ERROR("Post buffer failed");
@@ -210,7 +210,6 @@ void * CV_thread(void *arg)
         data->index = vpe_input_dqbuf(data->vpe);
         v4l2_qbuf(data->v4l2, data->vpe->input_buf_dmafd[data->index], data->index);
     }
-    MSG("Ok!");
     return NULL;
 }
 static struct thr_data* pexam_data = NULL;
@@ -319,11 +318,6 @@ int main(int argc, char **argv)
         MSG("Failed creating main thread");
     }
     pthread_detach(tdata.threads[0]);
-    ret = pthread_create(&tdata.threads[1], NULL, CV_thread, &tdata);
-    if(ret) {
-        MSG("Failed creating Secondary thread");
-    }
-    pthread_detach(tdata.threads[1]);
 
     /* register signal handler for <CTRL>+C in order to clean up */
     if(signal(SIGINT, signal_handler) == SIG_ERR) {
