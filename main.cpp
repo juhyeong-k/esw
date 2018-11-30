@@ -28,8 +28,15 @@ pthread_mutex_t  bufCopying = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t  doingCV_handlingThread = PTHREAD_MUTEX_INITIALIZER;
 
 // Class declaration
+Navigator navigator;
+Driver driver;
 BGR24_to_HSV hsvConverter;
 Draw draw;
+
+colorFilter red(RED);
+colorFilter green(GREEN);
+colorFilter yellow(YELLOW);
+colorFilter white(WHITE);
 
 Task currentTask;
 
@@ -176,14 +183,6 @@ void * CV_handlingThread(void *arg)
     uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
     memcpy(display_buf, omap_bo_map(data->capt->bo[0]), VPE_OUTPUT_IMG_SIZE);
     pthread_mutex_unlock(&bufCopying);
-
-    colorFilter red(RED);
-    colorFilter green(GREEN);
-    colorFilter yellow(YELLOW);
-    colorFilter white(WHITE);
-
-    Navigator navigator;
-    Driver driver;
 
     uint8_t image_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
     uint8_t yellowImage[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
