@@ -152,10 +152,6 @@ void * main_thread(void *arg)
     data->bstream_start = true;
     data->index = vpe_output_dqbuf(data->vpe);
     data->capt = data->vpe->disp_bufs[data->index];
-    if (disp_post_vid_buffer(data->vpe->disp, data->capt, 0, 0, data->vpe->dst.width, data->vpe->dst.height)) {
-        ERROR("Post buffer failed");
-        return NULL;
-    }
     vpe_output_qbuf(data->vpe, data->index);
     data->index = vpe_input_dqbuf(data->vpe);
     v4l2_qbuf(data->v4l2, data->vpe->input_buf_dmafd[data->index], data->index);
@@ -182,6 +178,8 @@ void * CV_handlingThread(void *arg)
     data->capt = data->vpe->disp_bufs[data->index];
     uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
     memcpy(display_buf, omap_bo_map(data->capt->bo[0]), VPE_OUTPUT_IMG_SIZE);
+    struct buffer *thread_disp;
+    thread_disp = data->vpe->disp_bufs[data->index];
     pthread_mutex_unlock(&bufCopying);
 
     uint8_t image_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
@@ -210,6 +208,11 @@ void * CV_handlingThread(void *arg)
     navigator.isSafezoneDetected(yellowImage, whiteImage);
     draw.horizontal_line(greenImage, navigator.getGreenHeight(greenImage), 0, 320);
 
+    memcpy(omap_bo_map(thread_disp->bo[0]), yellowImage, VPE_OUTPUT_IMG_SIZE);
+    if (disp_post_vid_buffer(data->vpe->disp, thread_disp, 0, 0, data->vpe->dst.width, data->vpe->dst.height)) {
+        ERROR("Post buffer failed");
+        return NULL;
+    }
     return NULL;
 }
 /**
@@ -229,10 +232,6 @@ void * CV_thread(void *arg)
     pthread_mutex_lock(&bufCopying);
     pthread_mutex_unlock(&bufCopying);
 
-    if (disp_post_vid_buffer(data->vpe->disp, data->capt, 0, 0, data->vpe->dst.width, data->vpe->dst.height)) {
-        ERROR("Post buffer failed");
-        return NULL;
-    }
     vpe_output_qbuf(data->vpe, data->index);
     data->index = vpe_input_dqbuf(data->vpe);
     v4l2_qbuf(data->v4l2, data->vpe->input_buf_dmafd[data->index], data->index);
