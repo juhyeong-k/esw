@@ -49,6 +49,7 @@ struct thr_data {
     struct v4l2 *v4l2;
     struct vpe *vpe;
     struct buffer **input_bufs;
+    struct buffer *capt;
     int index;
 
     int msgq_id;
@@ -150,7 +151,6 @@ void * CV_handlingThread(void *arg)
   */
 void * CV_thread(void *arg)
 {
-    struct buffer *capt;
     int i;
 
     isWaitingGreen = false;
@@ -182,8 +182,8 @@ void * CV_thread(void *arg)
     vpe_stream_on(data->vpe->fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE);
     data->bstream_start = true;
     data->index = vpe_output_dqbuf(data->vpe);
-    capt = data->vpe->disp_bufs[data->index];
-    if (disp_post_vid_buffer(data->vpe->disp, capt, 0, 0, data->vpe->dst.width, data->vpe->dst.height)) {
+    data->capt = data->vpe->disp_bufs[data->index];
+    if (disp_post_vid_buffer(data->vpe->disp, data->capt, 0, 0, data->vpe->dst.width, data->vpe->dst.height)) {
         ERROR("Post buffer failed");
         return NULL;
     }
@@ -197,12 +197,12 @@ void * CV_thread(void *arg)
         vpe_input_qbuf(data->vpe, data->index);
 
         data->index = vpe_output_dqbuf(data->vpe);
-        capt = data->vpe->disp_bufs[data->index];
+        data->capt = data->vpe->disp_bufs[data->index];
 
         pthread_create(&tdata.threads[2], NULL, CV_handlingThread, &tdata);
         pthread_detach(tdata.threads[2]);
 
-        if (disp_post_vid_buffer(data->vpe->disp, capt, 0, 0, data->vpe->dst.width, data->vpe->dst.height)) {
+        if (disp_post_vid_buffer(data->vpe->disp, data->capt, 0, 0, data->vpe->dst.width, data->vpe->dst.height)) {
             ERROR("Post buffer failed");
             return NULL;
         }
