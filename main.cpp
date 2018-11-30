@@ -159,7 +159,7 @@ void * main_thread(void *arg)
 
     PositionControlOnOff_Write(UNCONTROL);
     SpeedControlOnOff_Write(CONTROL);
-    DesireSpeed_Write(70);
+    DesireSpeed_Write(80);
     uint32_t optime = 0;
     struct timeval st;
     struct timeval et;
