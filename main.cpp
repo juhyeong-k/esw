@@ -24,7 +24,7 @@ extern "C" {
 
 extern std::ofstream fileout;
 extern System_resource system_resource;
-pthread_mutex_t  mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t  bufCopying = PTHREAD_MUTEX_INITIALIZER;
 
 // Class declaration
 BGR24_to_HSV hsvConverter;
@@ -152,14 +152,14 @@ void * main_thread(void *arg)
     data->index = vpe_input_dqbuf(data->vpe);
     v4l2_qbuf(data->v4l2, data->vpe->input_buf_dmafd[data->index], data->index);
 
-    pthread_create(&tdata.threads[1], NULL, CV_thread, &tdata);
-    pthread_detach(tdata.threads[1]);
 
     PositionControlOnOff_Write(UNCONTROL);
     SpeedControlOnOff_Write(CONTROL);
     DesireSpeed_Write(70);
     while(1)
     {
+        pthread_create(&tdata.threads[1], NULL, CV_thread, &tdata);
+        pthread_join(tdata.threads[1], NULL);
     }
     return NULL;
 }
@@ -180,7 +180,7 @@ void * CV_handlingThread(void *arg)
     */
     data->index = vpe_output_dqbuf(data->vpe);
     data->capt = data->vpe->disp_bufs[data->index];
-    pthread_mutex_unlock(&mutex);
+    pthread_mutex_unlock(&bufCopying);
     return NULL;
 }
 /**
@@ -190,26 +190,23 @@ void * CV_handlingThread(void *arg)
   */
 void * CV_thread(void *arg)
 {
-    while(1)
-    {   
-        data->index = v4l2_dqbuf(data->v4l2, &data->vpe->field);
-        vpe_input_qbuf(data->vpe, data->index);
-        pthread_mutex_lock(&mutex);
+    data->index = v4l2_dqbuf(data->v4l2, &data->vpe->field);
+    vpe_input_qbuf(data->vpe, data->index);
+    pthread_mutex_lock(&bufCopying);
 
-        pthread_create(&tdata.threads[2], NULL, CV_handlingThread, &tdata);
-        pthread_detach(tdata.threads[2]);
+    pthread_create(&tdata.threads[2], NULL, CV_handlingThread, &tdata);
+    pthread_detach(tdata.threads[2]);
 
-        pthread_mutex_lock(&mutex);
-        pthread_mutex_unlock(&mutex);
+    pthread_mutex_lock(&bufCopying);
+    pthread_mutex_unlock(&bufCopying);
 
-        if (disp_post_vid_buffer(data->vpe->disp, data->capt, 0, 0, data->vpe->dst.width, data->vpe->dst.height)) {
-            ERROR("Post buffer failed");
-            return NULL;
-        }
-        vpe_output_qbuf(data->vpe, data->index);
-        data->index = vpe_input_dqbuf(data->vpe);
-        v4l2_qbuf(data->v4l2, data->vpe->input_buf_dmafd[data->index], data->index);
+    if (disp_post_vid_buffer(data->vpe->disp, data->capt, 0, 0, data->vpe->dst.width, data->vpe->dst.height)) {
+        ERROR("Post buffer failed");
+        return NULL;
     }
+    vpe_output_qbuf(data->vpe, data->index);
+    data->index = vpe_input_dqbuf(data->vpe);
+    v4l2_qbuf(data->v4l2, data->vpe->input_buf_dmafd[data->index], data->index);
     return NULL;
 }
 static struct thr_data* pexam_data = NULL;
