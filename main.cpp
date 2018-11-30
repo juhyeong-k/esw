@@ -199,6 +199,9 @@ void * CV_thread(void *arg)
         data->index = vpe_output_dqbuf(data->vpe);
         capt = data->vpe->disp_bufs[data->index];
 
+        pthread_create(&tdata.threads[2], NULL, CV_handlingThread, &tdata);
+        pthread_detach(tdata.threads[2]);
+
         if (disp_post_vid_buffer(data->vpe->disp, capt, 0, 0, data->vpe->dst.width, data->vpe->dst.height)) {
             ERROR("Post buffer failed");
             return NULL;
