@@ -95,7 +95,7 @@ struct CVinfo {
 
 
 #define GREEN 2
-#define green_HUE_MAX    140
+#define green_HUE_MAX    80
 #define green_HUE_MIN    40
 #define green_SAT_MAX    255
 #define green_SAT_MIN    100
