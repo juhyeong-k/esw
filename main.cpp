@@ -209,10 +209,7 @@ void * CV_handlingThread(void *arg)
     green.detectColor(image_buf, greenImage);
 
     navigator.drawPath(yellowImage, yellowImage);
-    data->cvResult = navigator.getInfo(display_buf, yellowImage);
-    navigator.greenLightReply(greenImage);
-    navigator.isSafezoneDetected(yellowImage, whiteImage);
-    draw.horizontal_line(greenImage, navigator.getGreenHeight(greenImage), 0, 320);
+    data->cvResult = navigator.getInfo(display_buf, yellowImage, greenImage, whiteImage);
 
     memcpy(omap_bo_map(thread_disp->bo[0]), yellowImage, VPE_OUTPUT_IMG_SIZE);
     if (disp_post_vid_buffer(data->vpe->disp, thread_disp, 0, 0, data->vpe->dst.width, data->vpe->dst.height)) {

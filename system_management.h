@@ -45,6 +45,9 @@ struct CVinfo {
 	bool isRoadClose;
 
 	bool isTunnelDetected;
+	bool isSafezoneDetected;
+
+	uint8_t greenLightReply;
 };
 /**
   * @Brief
@@ -145,4 +148,4 @@ struct CVinfo {
 /**
  *  Tunnel
  */
-#define TUNNEL_DETECT_THRESHOLD			18000
+#define TUNNEL_DETECT_THRESHOLD			30000

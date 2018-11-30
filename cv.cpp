@@ -11,7 +11,8 @@ Navigator::Navigator()
     lastPoint.y = VPE_OUTPUT_H;
     startingPoint = {(VPE_OUTPUT_W/2), VPE_OUTPUT_H, 0,};
 }
-CVinfo Navigator::getInfo(uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+CVinfo Navigator::getInfo(uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3],
+                            uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     startingPoint = getStartingPoint(yellow);
     CVinfo cvInfo = {1500, 0,};
@@ -23,7 +24,9 @@ CVinfo Navigator::getInfo(uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3], ui
     cvInfo.isLeftDetected = isLeftDetected(yellow);
     cvInfo.isRoadClose = isRoadClose(yellow);
     cvInfo.isTunnelDetected = isTunnelDetected(display_buf);
-    
+    cvInfo.greenLightReply = greenLightReply(green);
+    cvInfo.isSafezoneDetected = isSafezoneDetected(yellow, white);
+
     printf("* CV\r\n");
     printf("direction : %d\r\n", cvInfo.direction);
     printf("isRightTurnDetected : %d\r\n", cvInfo.isRightTurnDetected);
@@ -31,6 +34,9 @@ CVinfo Navigator::getInfo(uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3], ui
     printf("isRightDetected : %d\r\n", cvInfo.isRightDetected);
     printf("isLeftDetected : %d\r\n", cvInfo.isLeftDetected);
     printf("isRoadClose : %d\r\n", cvInfo.isRoadClose);
+    printf("isTunnelDetected : %d\r\n", cvInfo.isTunnelDetected);
+    printf("greenLightReply : %d\r\n", cvInfo.greenLightReply);
+    printf("isSafezoneDetected : %d\r\n", cvInfo.isSafezoneDetected);
     return cvInfo;
 }
 bool Navigator::isSafezoneDetected(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
@@ -613,10 +619,10 @@ bool Navigator::isTunnelDetected(uint8_t src[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     int temp = 0;
     for(x = 0; x < VPE_OUTPUT_W; x++) {
         for(y = 0; y < VPE_OUTPUT_H; y++) {
-            if(src[y][x][2] < 50) temp++; 
+            if(src[y][x][2] < 30) temp++; 
         }
     }
-    printf("Value < 50 : %d\r\n", temp);
+    printf("Value < 30 : %d\r\n", temp);
     if(temp > TUNNEL_DETECT_THRESHOLD) return true;
     else return false;
 }
