@@ -5,9 +5,19 @@ Driver::Driver()
 {
     lastCVinfo = {1500, 0,};
     driveState = {1,0,};
+    I_term = 0;
+    prev_error = 0;
 }
 void Driver::drive(CVinfo info)
 {
+    if(info.isTunnelDetected) {
+        goTunnel();
+        return;
+    }
+    else {
+        I_term = 0;
+        prev_error = 0;
+    }
     if(driveState.isGoingStraight) {
         if(info.isRightTurnDetected | info.isLeftTurnDetected) {
             driveState.isGoingStraight = false;
@@ -92,28 +102,22 @@ void Driver::waitStartSignal()
     CarLight_Write(ALL_OFF);
     Alarm_Write(OFF);
 }
-void Driver::goTunnel(Task* currentTask) {
-
+void Driver::goTunnel() {
     uint16_t leftSensor, rightSensor;
-    float I_term = 0;
-    float prev_error = 0;
     uint16_t direction = SteeringServoControl_Read();
-    while(currentTask->tunnel)
-    {
-        rightSensor = DistanceSensor(2);
-        leftSensor = DistanceSensor(6) + 100;
-        
-        float error = rightSensor - leftSensor;
-        float P_term = error * Kp;
-                  I_term += Ki*error*dT;
-        float D_term = Kd * (error - prev_error)/dT;
+    rightSensor = DistanceSensor(2);
+    leftSensor = DistanceSensor(6) + 100;
+    
+    float error = rightSensor - leftSensor;
+    float P_term = error * Kp;
+            I_term += Ki*error*dT;
+    float D_term = Kd * (error - prev_error)/dT;
 
-        float PID = (P_term + I_term + D_term)/100;
+    float PID = (P_term + I_term + D_term)/100;
 
-        direction = (int)(direction + PID);
-        if(direction > 2000) direction = 2000;
-        else if (direction < 1000) direction = 1000;
+    direction = (int)(direction + PID);
+    if(direction > 2000) direction = 2000;
+    else if (direction < 1000) direction = 1000;
 
-        SteeringServoControl_Write(direction);
-    }
+    SteeringServoControl_Write(direction);
 }

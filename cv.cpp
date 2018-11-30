@@ -27,7 +27,7 @@ CVinfo Navigator::getInfo(uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3], ui
     cvInfo.greenLightReply = greenLightReply(green);
     cvInfo.isSafezoneDetected = isSafezoneDetected(yellow, white);
 
-    printf("* CV\r\n");
+    printf("\r\n*** CV ***\r\n");
     printf("direction : %d\r\n", cvInfo.direction);
     printf("isRightTurnDetected : %d\r\n", cvInfo.isRightTurnDetected);
     printf("isLeftTurnDetected : %d\r\n", cvInfo.isLeftTurnDetected);
@@ -619,10 +619,10 @@ bool Navigator::isTunnelDetected(uint8_t src[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     int temp = 0;
     for(x = 0; x < VPE_OUTPUT_W; x++) {
         for(y = 0; y < VPE_OUTPUT_H; y++) {
-            if(src[y][x][2] < 30) temp++; 
+            if(src[y][x][2] < 50) temp++; 
         }
     }
-    printf("Value < 30 : %d\r\n", temp);
+    printf("Value < 50 : %d\r\n", temp);
     if(temp > TUNNEL_DETECT_THRESHOLD) return true;
     else return false;
 }

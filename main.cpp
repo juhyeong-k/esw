@@ -211,7 +211,12 @@ void * CV_handlingThread(void *arg)
     navigator.drawPath(yellowImage, yellowImage);
     data->cvResult = navigator.getInfo(display_buf, yellowImage, greenImage, whiteImage);
 
-    memcpy(omap_bo_map(thread_disp->bo[0]), yellowImage, VPE_OUTPUT_IMG_SIZE);
+    draw.horizontal_line(yellowImage, FRONT_UP, 0, 320);
+    draw.horizontal_line(yellowImage, FRONT_DOWN, 0, 320);
+    draw.horizontal_line(yellowImage, SIDE_UP, 0, 320);
+    draw.horizontal_line(yellowImage, SIDE_DOWN, 0, 320);
+
+    memcpy(omap_bo_map(thread_disp->bo[0]), whiteImage, VPE_OUTPUT_IMG_SIZE);
     if (disp_post_vid_buffer(data->vpe->disp, thread_disp, 0, 0, data->vpe->dst.width, data->vpe->dst.height)) {
         ERROR("Post buffer failed");
         return NULL;

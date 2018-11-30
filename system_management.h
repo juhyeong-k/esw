@@ -148,4 +148,4 @@ struct CVinfo {
 /**
  *  Tunnel
  */
-#define TUNNEL_DETECT_THRESHOLD			30000
+#define TUNNEL_DETECT_THRESHOLD			3500

@@ -14,18 +14,20 @@ class Driver
     public:
     	Driver();
         void drive(CVinfo info);
-        void goTunnel(Task* currentTask);
+        void goTunnel();
         void waitStartSignal();
     private:
         struct DriveState {
         	bool isGoingStraight;
         	bool isTurningRight;
         	bool isTurningLeft;
-
         	bool isEnteringCurve;
         };
         DriveState driveState;
         CVinfo lastCVinfo;
+
+        float I_term;
+        float prev_error;
 
         void decisionMaking(CVinfo info);
         void waitRightDetect(CVinfo info);
