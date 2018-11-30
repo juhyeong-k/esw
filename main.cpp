@@ -25,6 +25,7 @@ extern "C" {
 extern std::ofstream fileout;
 extern System_resource system_resource;
 pthread_mutex_t  bufCopying = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t  doingCV_handlingThread = PTHREAD_MUTEX_INITIALIZER;
 
 // Class declaration
 BGR24_to_HSV hsvConverter;
@@ -165,6 +166,7 @@ void * main_thread(void *arg)
 }
 void * CV_handlingThread(void *arg)
 {
+    pthread_mutex_lock(&doingCV_handlingThread);
     /*
     uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3];
     struct buffer *capt;
@@ -181,6 +183,8 @@ void * CV_handlingThread(void *arg)
     data->index = vpe_output_dqbuf(data->vpe);
     data->capt = data->vpe->disp_bufs[data->index];
     pthread_mutex_unlock(&bufCopying);
+
+    pthread_mutex_unlock(&doingCV_handlingThread);
     return NULL;
 }
 /**
@@ -194,6 +198,8 @@ void * CV_thread(void *arg)
     vpe_input_qbuf(data->vpe, data->index);
     pthread_mutex_lock(&bufCopying);
 
+    pthread_mutex_lock(&doingCV_handlingThread);
+    pthread_mutex_unlock(&doingCV_handlingThread);
     pthread_create(&tdata.threads[2], NULL, CV_handlingThread, &tdata);
     pthread_detach(tdata.threads[2]);
 
