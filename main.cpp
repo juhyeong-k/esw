@@ -216,7 +216,12 @@ void * CV_handlingThread(void *arg)
     draw.horizontal_line(yellowImage, SIDE_UP, 0, 320);
     draw.horizontal_line(yellowImage, SIDE_DOWN, 0, 320);
 
-    memcpy(omap_bo_map(thread_disp->bo[0]), whiteImage, VPE_OUTPUT_IMG_SIZE);
+    /** HSV extract
+    draw.dot(yellowImage, 159, 129); draw.dot(yellowImage, 160, 129);
+    draw.dot(yellowImage, 158, 129); draw.dot(yellowImage, 159, 130); draw.dot(yellowImage, 159, 128);
+    printf("H %d / S %d / V %d\r\n", display_buf[159][129][0], display_buf[159][129][1], display_buf[159][129][2]);
+    */
+    memcpy(omap_bo_map(thread_disp->bo[0]), yellowImage, VPE_OUTPUT_IMG_SIZE);
     if (disp_post_vid_buffer(data->vpe->disp, thread_disp, 0, 0, data->vpe->dst.width, data->vpe->dst.height)) {
         ERROR("Post buffer failed");
         return NULL;
