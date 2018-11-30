@@ -160,8 +160,6 @@ void * main_thread(void *arg)
     DesireSpeed_Write(80);
 
     Driver driver;
-    Task currentTask;
-    currentTask = {0,1};
     data->cvResult = {1500,0,};
 
     uint32_t optime = 0;
@@ -173,17 +171,8 @@ void * main_thread(void *arg)
         pthread_create(&tdata.threads[1], NULL, CV_thread, &tdata);
         pthread_join(tdata.threads[1], NULL);
 
-        if( data->cvResult.isTunnelDetected ) {
-        currentTask.tunnel = true;
-        currentTask.driving = false;
-        }
-        else {
-            currentTask.tunnel = false;
-            currentTask.driving = true;
-        }
-        if( currentTask.driving ) {
-            driver.drive(data->cvResult);
-        }
+        driver.drive(data->cvResult);
+
         get_result(optime, st, et);
     }
     return NULL;
