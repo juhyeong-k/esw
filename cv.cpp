@@ -512,7 +512,6 @@ int Navigator::greenLightReply(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
         Point rightPoint = getRightGreenPoint(green, greenHeight);
 
         if(leftPoint.x & rightPoint.x) {
-
             greenCenter = (leftPoint.x + rightPoint.x)/2;
             uint16_t y_up = greenHeight;
             uint16_t y_down = greenHeight;
@@ -616,7 +615,7 @@ uint16_t Navigator::getGreenUp(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3],
     for(x = leftPoint.x; x < rightPoint.x; x++) {
         for(y = greenHeight; y > 5; y--) {
             temp = 0;
-            if(!green[y][x][0]) {
+            if(green[y][x][0]) {
                 for(i = 1; i < 6; i++) {
                     if(!green[y-i][x][0]) temp++;
                 }
@@ -638,7 +637,7 @@ uint16_t Navigator::getGreenDown(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3],
     for(x = leftPoint.x; x < rightPoint.x; x++) {
         for(y = greenHeight; y < VPE_OUTPUT_H-5; y++) {
             temp = 0;
-            if(!green[y][x][0]) {
+            if(green[y][x][0]) {
                 for(i = 1; i < 6; i++) {
                     if(!green[y+i][x][0]) temp++;
                 }
