@@ -499,7 +499,7 @@ signed short SteeringServoControl_Read(void)
     return ((signed short)(read_buf[3]<<8) + (signed short)(read_buf[2]));
 }
 
-void SteeringServoControl_Write(signed short angle)
+void Steering_Write(signed short angle)
 {
     unsigned char buf[8];
 

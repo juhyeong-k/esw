@@ -8,9 +8,9 @@ Driver::Driver()
     I_term = 0;
     prev_error = 0;
 }
-void Driver::drive(CVinfo info)
+void Driver::drive(CVinfo cvInfo)
 {
-    if(info.isTunnelDetected) {
+    if(cvInfo.isTunnelDetected) {
         //goTunnel();
         //return;
     }
@@ -19,28 +19,27 @@ void Driver::drive(CVinfo info)
         prev_error = 0;
     }
 
-    if(info.isDepartedLeft) {
-        SteeringServoControl_Write(1000);
+    if(cvInfo.isDepartedLeft) {
+        Steering_Write(1000);
         return;
     }
-    else if(info.isDepartedRight) {
-        SteeringServoControl_Write(2000);
+    else if(cvInfo.isDepartedRight) {
+        Steering_Write(2000);
         return;
     }
 
     if(driveState.isGoing) {
-        if(info.isRightTurnDetected | info.isLeftTurnDetected) {
-            driveState.isGoing = false;
-            driveState.isEnteringCurve = true;
+        if(TurnDetected(cvInfo)) {
+            StateisEnteringCurve(&driveState);
             return;
         }
-        else if( !(driveState.isTurningRight | driveState.isTurningLeft) ) {
-            SteeringServoControl_Write(info.direction);
+        else if( !Turning(driveState) ) {
+            Steering_Write(cvInfo.direction);
             return;
         }
     }
     if(driveState.isTurningRight) {
-        if( !(info.isLeftDetected | info.isRightDetected) ) {
+        if( !LineDetected(cvInfo) ) {
             driveState.isTurningRight = false;
             driveState.isGoing = true;
             return;
@@ -48,7 +47,7 @@ void Driver::drive(CVinfo info)
         else return;
     }
     if(driveState.isTurningLeft) {
-        if( !(info.isLeftDetected | info.isRightDetected) ) {
+        if( !LineDetected(cvInfo) ) {
             driveState.isTurningLeft = false;
             driveState.isGoing = true;
             return;
@@ -56,45 +55,49 @@ void Driver::drive(CVinfo info)
         else return;
     }
     if(driveState.isEnteringCurve) {
-        if(info.isRoadClose) {
-            if(info.direction < 1500) {
+        if(cvInfo.isRoadClose) {
+            if(cvInfo.direction < 1500) {
                 driveState.isEnteringCurve = false;
                 driveState.isTurningRight = true;
-                SteeringServoControl_Write(1000);
+                Steering_Write(1000);
                 return;
             }
-            else if(info.direction > 1500) {
+            else if(cvInfo.direction > 1500) {
                 driveState.isEnteringCurve = false;
                 driveState.isTurningLeft = true;
-                SteeringServoControl_Write(2000);
+                Steering_Write(2000);
                 return;
             }
             else {
-                SteeringServoControl_Write(info.direction);
+                Steering_Write(cvInfo.direction);
                 return;
             }
         }
         else {
-            SteeringServoControl_Write(1500);
+            Steering_Write(1500);
             return;
         }
     }
 }
-void Driver::decisionMaking(CVinfo info)
+bool Driver::TurnDetected(CVinfo cvInfo)
 {
-    
+    if(cvInfo.isRightTurnDetected | cvInfo.isLeftTurnDetected) return true;
+    else return false;
 }
-void Driver::waitRightDetect(CVinfo info)
+bool Driver::LineDetected(CVinfo cvInfo)
 {
-
+    if(cvInfo.isLeftDetected | cvInfo.isRightDetected) return true;
+    else return false;
 }
-void Driver::waitLeftDetect(CVinfo info)
+bool Driver::Turning(DriveState driveState)
 {
-
+    if(driveState.isTurningRight | driveState.isTurningLeft) return true;
+    else return false;
 }
-void Driver::waitRoadClose(CVinfo info)
+void Driver::StateisEnteringCurve(struct DriveState *driveState)
 {
-
+    driveState->isGoing = false;
+    driveState->isEnteringCurve = true;
 }
 void Driver::waitStartSignal()
 {
@@ -128,7 +131,7 @@ void Driver::goTunnel() {
     if(direction > 2000) direction = 2000;
     else if (direction < 1000) direction = 1000;
 
-    SteeringServoControl_Write(direction);
+    Steering_Write(direction);
 }
 
 

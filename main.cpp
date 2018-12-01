@@ -282,7 +282,7 @@ void signal_handler(int sig)
         fileout.close();
         
         DesireSpeed_Write(0);
-        SteeringServoControl_Write(1500);
+        Steering_Write(1500);
         printf("-- Project End --\n");
     }
 }
@@ -297,7 +297,7 @@ int main(int argc, char **argv)
     CarLight_Write(ALL_OFF);
     CameraXServoControl_Write(CAMERA_X_SERVO);
     CameraYServoControl_Write(CAMERA_Y_SERVO);
-    SteeringServoControl_Write(1500);
+    Steering_Write(1500);
     printf("-- Project Start --\n");
 
     // open vpe

@@ -13,7 +13,7 @@ class Driver
 {
     public:
     	Driver();
-        void drive(CVinfo info);
+        void drive(CVinfo cvInfo);
         void goTunnel();
         void waitStartSignal();
     private:
@@ -29,10 +29,11 @@ class Driver
         float I_term;
         float prev_error;
 
-        void decisionMaking(CVinfo info);
-        void waitRightDetect(CVinfo info);
-        void waitLeftDetect(CVinfo info);
-        void waitRoadClose(CVinfo info);
+        bool TurnDetected(CVinfo cvInfo);
+        bool LineDetected(CVinfo cvInfo);
+
+        bool Turning(DriveState driveState);
+        void StateisEnteringCurve(struct DriveState *driveState);
 };
 class Sensor
 {

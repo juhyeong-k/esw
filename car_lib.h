@@ -51,7 +51,7 @@ void DesireEncoderCount_Write(signed int position);
 signed int EncoderCounter_Read(void);
 void EncoderCounter_Write(signed int position);
 signed short SteeringServoControl_Read(void);
-void SteeringServoControl_Write(signed short angle);
+void Steering_Write(signed short angle);
 signed short CameraXServoControl_Read(void);
 void CameraXServoControl_Write(signed short angle);
 signed short CameraYServoControl_Read(void);
