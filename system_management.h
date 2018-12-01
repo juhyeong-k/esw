@@ -82,7 +82,7 @@ struct SensorInfo {
   * @Brief
   */
 #define YELLOW 0
-#define yellow_HUE_MAX    40
+#define yellow_HUE_MAX    45
 #define yellow_HUE_MIN    7
 #define yellow_SAT_MAX    255
 #define yellow_SAT_MIN    30
@@ -100,7 +100,7 @@ struct SensorInfo {
 
 #define GREEN 2
 #define green_HUE_MAX    80
-#define green_HUE_MIN    40
+#define green_HUE_MIN    45
 #define green_SAT_MAX    255
 #define green_SAT_MIN    100
 #define green_VAL_MAX    255

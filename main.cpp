@@ -37,15 +37,9 @@ colorFilter red(RED);
 colorFilter green(GREEN);
 colorFilter yellow(YELLOW);
 colorFilter white(WHITE);
-
-#define DUMP_MSGQ_KEY           1020
-#define DUMP_MSGQ_MSG_TYPE      0x02
-
 /**
   * @brief  Required threads, functions, and structures.\
   */
-bool isWaitingGreen;
-
 void * main_thread(void *arg);
 void * CV_thread(void *arg);
 void * CV_handlingThread(void *arg);
@@ -170,8 +164,8 @@ void * main_thread(void *arg)
     struct timeval st;
     struct timeval et;
 
-    pthread_create(&tdata.threads[3], NULL, sensingThread, &tdata);
-    pthread_detach(tdata.threads[3]);
+    //pthread_create(&tdata.threads[3], NULL, sensingThread, &tdata);
+    //pthread_detach(tdata.threads[3]);
 
     while(1)
     {
@@ -180,7 +174,7 @@ void * main_thread(void *arg)
 
         pthread_join(tdata.threads[1], NULL);
 
-        printSensorInfo(data);
+        //printSensorInfo(data);
         driver.drive(data->cvResult);
 
         get_result(optime, st, et);
@@ -228,7 +222,7 @@ void * CV_handlingThread(void *arg)
     draw.horizontal_line(bgr, SIDE_DOWN, 0, 320);
 
     /** HSV extract
-    printf("H %d / S %d / V %d\r\n", image_buf[159][129][0], image_buf[159][129][1], image_buf[159][129][2]);
+    printf("H %d / S %d / V %d\r\n", image_buf[129][159][0], image_buf[129][159][1], image_buf[129][159][2]);
     draw.dot(bgr, 159, 129); draw.dot(bgr, 160, 129);
     draw.dot(bgr, 158, 129); draw.dot(bgr, 159, 130); draw.dot(bgr, 159, 128);
     */
@@ -353,11 +347,6 @@ int main(int argc, char **argv)
     tdata.vpe = vpe;
     tdata.bfull_screen = true;
     tdata.bstream_start = false;
-
-    if(-1 == (tdata.msgq_id = msgget((key_t)DUMP_MSGQ_KEY, IPC_CREAT | 0666))) {
-        fprintf(stderr, "%s msg create fail!!!\n", __func__);
-        return -1;
-    }
 
     pexam_data = &tdata;
 
