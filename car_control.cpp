@@ -10,7 +10,7 @@ Driver::Driver()
 }
 void Driver::drive(CVinfo cvInfo)
 {
-    printf("driveState %d %d %d %d\r\n", driveState.isGoing, driveState.isTurningRight, driveState.isTurningLeft, driveState.isEnteringCurve);
+    printf("Going %d Left %d Right %d EnteringCurve %d\r\n", driveState.isGoing, driveState.isTurningLeft, driveState.isTurningRight, driveState.isEnteringCurve);
     if(cvInfo.isTunnelDetected) {
         //goTunnel();
         //return;
@@ -45,16 +45,14 @@ void Driver::drive(CVinfo cvInfo)
     }
     if(driveState.isTurningRight) {
         if( !LineDetected(cvInfo) ) {
-            driveState.isTurningRight = false;
-            driveState.isGoing = true;
+            StateisGoing(&driveState);
             return;
         }
         else return;
     }
     if(driveState.isTurningLeft) {
         if( !LineDetected(cvInfo) ) {
-            driveState.isTurningLeft = false;
-            driveState.isGoing = true;
+            StateisGoing(&driveState);
             return;
         }
         else return;
@@ -103,6 +101,12 @@ void Driver::StateisEnteringCurve(struct DriveState *driveState)
 {
     driveState->isGoing = false;
     driveState->isEnteringCurve = true;
+}
+void Driver::StateisGoing(struct DriveState *driveState)
+{
+    driveState->isTurningLeft = false;
+    driveState->isTurningLeft = false;
+    driveState->isGoing = true;
 }
 void Driver::waitStartSignal()
 {

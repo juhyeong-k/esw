@@ -34,6 +34,7 @@ class Driver
 
         bool Turning(DriveState driveState);
         void StateisEnteringCurve(struct DriveState *driveState);
+        void StateisGoing(struct DriveState *driveState);
 };
 class Sensor
 {
