@@ -31,6 +31,7 @@ pthread_mutex_t  doingCV_handlingThread = PTHREAD_MUTEX_INITIALIZER;
 Navigator navigator;
 BGR24_to_HSV hsvConverter;
 Draw draw;
+Sensor sensor;
 
 colorFilter red(RED);
 colorFilter green(GREEN);
@@ -47,8 +48,10 @@ bool isWaitingGreen;
 
 void * main_thread(void *arg);
 void * CV_thread(void *arg);
+void * CV_handlingThread(void *arg);
+void * sensingThread(void *arg);
 
-uint16_t determine_direction(uint8_t *image_buf);
+void printSensorInfo(struct thr_data *data);
 
 struct thr_data {
     struct display *disp;
@@ -61,9 +64,10 @@ struct thr_data {
     int msgq_id;
     bool bfull_screen; // true : 480x272 disp 화면에 맞게 scale 그렇지 않을 경우 false.
     bool bstream_start; // camera stream start 여부
-    pthread_t threads[3];
+    pthread_t threads[4];
 
     CVinfo cvResult;
+    SensorInfo sensorInfo;
 };
 struct v4l2 *v4l2;
 struct vpe *vpe;
@@ -157,7 +161,7 @@ void * main_thread(void *arg)
 
     PositionControlOnOff_Write(UNCONTROL);
     SpeedControlOnOff_Write(CONTROL);
-    DesireSpeed_Write(80);
+    DesireSpeed_Write(75);
 
     Driver driver;
     data->cvResult = {1500,0,};
@@ -165,15 +169,28 @@ void * main_thread(void *arg)
     uint32_t optime = 0;
     struct timeval st;
     struct timeval et;
+
+    pthread_create(&tdata.threads[3], NULL, sensingThread, &tdata);
+    pthread_detach(tdata.threads[3]);
+
     while(1)
     {
         gettimeofday(&st, NULL);
         pthread_create(&tdata.threads[1], NULL, CV_thread, &tdata);
+
         pthread_join(tdata.threads[1], NULL);
 
+        printSensorInfo(data);
         driver.drive(data->cvResult);
 
         get_result(optime, st, et);
+    }
+    return NULL;
+}
+void * sensingThread(void *arg)
+{
+    while(1) {
+        data->sensorInfo = sensor.getInfo();
     }
     return NULL;
 }
@@ -359,4 +376,20 @@ int main(int argc, char **argv)
     pause();
 
     return ret;
+}
+void printSensorInfo(struct thr_data *data)
+{
+    int i;
+    char byte = 0x80;
+    char sensorResult = data->sensorInfo.line;
+    for(i=0; i<8; i++)
+    {
+        if((sensorResult & byte)) printf("1");
+        else printf("0");
+        sensorResult = sensorResult << 1;
+    }
+    printf("\r\n");
+
+    printf("%d\t%d\t%d\r\n", data->sensorInfo.distance[6], data->sensorInfo.distance[1], data->sensorInfo.distance[2]);
+    printf("%d\t%d\t%d\r\n", data->sensorInfo.distance[5], data->sensorInfo.distance[4], data->sensorInfo.distance[3]);
 }

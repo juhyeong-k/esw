@@ -38,7 +38,7 @@ class Sensor
 {
     public:
         Sensor();
-        SensorInfo updateInfo();
+        SensorInfo getInfo();
     private:
-        
+        SensorInfo sensorInfo;
 };

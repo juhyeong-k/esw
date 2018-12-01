@@ -27,7 +27,7 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     cvInfo.greenLightReply = greenLightReply(green);
     cvInfo.isSafezoneDetected = isSafezoneDetected(yellow, white);
 
-    printf("\r\n*** CV ***\r\n");
+    printf("*** CV ***\r\n");
     printf("direction \t%d\r\n", cvInfo.direction);
     printf("LeftTurnDetected\t%d\tRightTurnDetected\t%d\r\n", cvInfo.isLeftTurnDetected, cvInfo.isRightTurnDetected);
     printf("LeftDetected\t\t%d\tRightDetected\t\t%d\r\n", cvInfo.isLeftDetected, cvInfo.isRightDetected);
@@ -35,7 +35,6 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     printf("\tTunnelDetected\t\t%d\r\n", cvInfo.isTunnelDetected);
     printf("greenLightReply\t\t%d", cvInfo.greenLightReply);
     printf("\tSafezoneDetected\t%d\r\n", cvInfo.isSafezoneDetected);
-    printf("\r\n");
     return cvInfo;
 }
 bool Navigator::isSafezoneDetected(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3])

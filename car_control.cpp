@@ -12,7 +12,7 @@ void Driver::drive(CVinfo info)
 {
     if(info.isTunnelDetected) {
         //goTunnel();
-        return;
+        //return;
     }
     else {
         I_term = 0;
@@ -120,4 +120,22 @@ void Driver::goTunnel() {
     else if (direction < 1000) direction = 1000;
 
     SteeringServoControl_Write(direction);
+}
+
+
+/**
+ *
+ */
+Sensor::Sensor()
+{
+    sensorInfo.distance[0] = 0;
+}
+SensorInfo Sensor::getInfo()
+{
+    int i;
+    sensorInfo.line = LineSensor_Read();
+    for(i=1; i < 7; i++) {
+        sensorInfo.distance[i] = DistanceSensor(i);
+    }
+    return sensorInfo;
 }
