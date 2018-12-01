@@ -221,6 +221,7 @@ void * CV_handlingThread(void *arg)
     navigator.drawPath(yellowImage, bgr);
     data->cvResult = navigator.getInfo(display_buf, yellowImage, greenImage, redImage, whiteImage);
 
+    draw.vertical_line(bgr, 159, (179 - ISROADCLOSE_DISTANCE), 179 );
     draw.horizontal_line(bgr, FRONT_UP, 0, 320);
     draw.horizontal_line(bgr, FRONT_DOWN, 0, 320);
     draw.horizontal_line(bgr, SIDE_UP, 0, 320);
