@@ -18,7 +18,7 @@ class Driver
         void waitStartSignal();
     private:
         struct DriveState {
-        	bool isGoingStraight;
+        	bool isGoing;
         	bool isTurningRight;
         	bool isTurningLeft;
         	bool isEnteringCurve;

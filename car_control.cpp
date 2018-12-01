@@ -28,9 +28,9 @@ void Driver::drive(CVinfo info)
         return;
     }
 
-    if(driveState.isGoingStraight) {
+    if(driveState.isGoing) {
         if(info.isRightTurnDetected | info.isLeftTurnDetected) {
-            driveState.isGoingStraight = false;
+            driveState.isGoing = false;
             driveState.isEnteringCurve = true;
             return;
         }
@@ -42,7 +42,7 @@ void Driver::drive(CVinfo info)
     if(driveState.isTurningRight) {
         if( !(info.isLeftDetected | info.isRightDetected) ) {
             driveState.isTurningRight = false;
-            driveState.isGoingStraight = true;
+            driveState.isGoing = true;
             return;
         }
         else return;
@@ -50,7 +50,7 @@ void Driver::drive(CVinfo info)
     if(driveState.isTurningLeft) {
         if( !(info.isLeftDetected | info.isRightDetected) ) {
             driveState.isTurningLeft = false;
-            driveState.isGoingStraight = true;
+            driveState.isGoing = true;
             return;
         }
         else return;
