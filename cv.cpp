@@ -35,6 +35,7 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     cvInfo.isTunnelDetected = isTunnelDetected(display_buf);
     cvInfo.greenLightReply = greenLightReply(green);
     cvInfo.isSafezoneDetected = isSafezoneDetected(yellow, white);
+    cvInfo.isEmergency = isEmergency(red);
 
     if(cvInfo.isDepartedLeft)            departedFlag.isDepartedLeft = true;
     else if(cvInfo.isDepartedRight)     departedFlag.isDepartedRight = true;
@@ -61,6 +62,7 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     printf("\tTunnelDetected\t\t%d\r\n", cvInfo.isTunnelDetected);
     printf("greenLightReply\t\t%d", cvInfo.greenLightReply);
     printf("\tSafezoneDetected\t%d\r\n", cvInfo.isSafezoneDetected);
+    printf("isEmergency\t\t%d\r\n", cvInfo.isEmergency);
 
     return cvInfo;
 }
@@ -109,6 +111,18 @@ bool Navigator::isRightReinstation(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3]
         }
     }
     return false;
+}
+bool Navigator::isEmergency(uint8_t red[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint16_t x,y;
+    int temp = 0;
+    for(x = 0; x < VPE_OUTPUT_W; x++) {
+        for(y = 0; y < VPE_OUTPUT_H; y++) {
+            if( red[y][x][0] ) temp++;
+        }
+    }
+    if(temp > EMERGENCY_THRESHOLD) return true;
+    else return false;
 }
 bool Navigator::isSafezoneDetected(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {

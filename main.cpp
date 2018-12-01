@@ -155,7 +155,7 @@ void * main_thread(void *arg)
 
     PositionControlOnOff_Write(UNCONTROL);
     SpeedControlOnOff_Write(CONTROL);
-    DesireSpeed_Write(75);
+    DesireSpeed_Write(0);
 
     Driver driver;
     data->cvResult = {1500,0,};
@@ -164,8 +164,8 @@ void * main_thread(void *arg)
     struct timeval st;
     struct timeval et;
 
-    //pthread_create(&tdata.threads[3], NULL, sensingThread, &tdata);
-    //pthread_detach(tdata.threads[3]);
+    pthread_create(&tdata.threads[3], NULL, sensingThread, &tdata);
+    pthread_detach(tdata.threads[3]);
 
     while(1)
     {
@@ -174,7 +174,7 @@ void * main_thread(void *arg)
 
         pthread_join(tdata.threads[1], NULL);
 
-        //printSensorInfo(data);
+        printSensorInfo(data);
         driver.drive(data->cvResult);
 
         get_result(optime, st, et);
