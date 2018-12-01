@@ -348,7 +348,7 @@ bool Navigator::isRightDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
             lastRoadPoint = roadPoint;
             lastPoint = roadCenter;
             i++;
-            if(isRoadEndDetected(src, y)) break;
+            if(isRoadEndDetected(src, y)) return true;
         }
     }
     lastPoint = startingPoint;
@@ -381,7 +381,7 @@ bool Navigator::isLeftDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
             lastRoadPoint = roadPoint;
             lastPoint = roadCenter;
             i++;
-            if(isRoadEndDetected(src, y)) break;
+            if(isRoadEndDetected(src, y)) return true;
         }
     }
     lastPoint = startingPoint;
