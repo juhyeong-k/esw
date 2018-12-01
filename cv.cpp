@@ -21,12 +21,16 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     cvInfo.direction = getDirection(yellow);
     if(cvInfo.direction == 2000)         cvInfo.isLeftTurnDetected = true;
     else if(cvInfo.direction == 1000)   cvInfo.isRightTurnDetected = true;
+
     cvInfo.isLeftDetected = isLeftDetected(yellow);
     cvInfo.isRightDetected = isRightDetected(yellow);
+
     cvInfo.isDepartedLeft = isDepartedLeft(yellow);
     cvInfo.isDepartedRight = isDepartedRight(yellow);
+
     cvInfo.isLeftReinstation = isLeftReinstation(yellow);
     cvInfo.isRightReinstation = isRightReinstation(yellow);
+
     cvInfo.isRoadClose = isRoadClose(yellow);
     cvInfo.isTunnelDetected = isTunnelDetected(display_buf);
     cvInfo.greenLightReply = greenLightReply(green);
@@ -35,8 +39,8 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     if(cvInfo.isDepartedLeft)            departedFlag.isDepartedLeft = true;
     else if(cvInfo.isDepartedRight)     departedFlag.isDepartedRight = true;
 
-    if(cvInfo.isLeftReinstation)        departedFlag.isDepartedLeft = false;
-    else if(cvInfo.isRightReinstation) departedFlag.isDepartedRight = false;
+    if(cvInfo.isRightReinstation)       departedFlag.isDepartedLeft = false;
+    else if(cvInfo.isLeftReinstation)   departedFlag.isDepartedRight = false;
 
     if(departedFlag.isDepartedLeft) {
         cvInfo.isDepartedLeft = true;

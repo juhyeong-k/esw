@@ -140,7 +140,7 @@ struct SensorInfo {
 #define IS_SAFEZONE_CLOSE_THRESHOLD	3
 #define SAFEZONE_CLOSE_UPLINE			129
 
-#define REINSTATION_WIDTH				60
+#define REINSTATION_WIDTH				80
 
 /**
  *  Traffic Lights

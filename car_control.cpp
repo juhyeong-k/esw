@@ -10,6 +10,7 @@ Driver::Driver()
 }
 void Driver::drive(CVinfo cvInfo)
 {
+    printf("driveState %d %d %d %d\r\n", driveState.isGoing, driveState.isTurningRight, driveState.isTurningLeft, driveState.isEnteringCurve);
     if(cvInfo.isTunnelDetected) {
         //goTunnel();
         //return;
@@ -20,10 +21,14 @@ void Driver::drive(CVinfo cvInfo)
     }
 
     if(cvInfo.isDepartedLeft) {
+        driveState.isGoing = false;
+        driveState.isTurningRight = true;
         Steering_Write(1000);
         return;
     }
     else if(cvInfo.isDepartedRight) {
+        driveState.isGoing = false;
+        driveState.isTurningLeft = true;
         Steering_Write(2000);
         return;
     }
