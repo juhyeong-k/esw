@@ -29,12 +29,12 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
 
     printf("\r\n*** CV ***\r\n");
     printf("direction \t%d\r\n", cvInfo.direction);
-    printf("isLeftTurnDetected\t%d\tisRightTurnDetected\t%d\r\n", cvInfo.isLeftTurnDetected, cvInfo.isRightTurnDetected);
-    printf("isLeftDetected\t\t%d\tisRightDetected\t\t%d\r\n", cvInfo.isLeftDetected, cvInfo.isRightDetected);
-    printf("isRoadClose\t\t%d\r\n", cvInfo.isRoadClose);
-    printf("isTunnelDetected\t%d\r\n", cvInfo.isTunnelDetected);
-    printf("greenLightReply\t\t%d\r\n", cvInfo.greenLightReply);
-    printf("isSafezoneDetected\t%d\r\n", cvInfo.isSafezoneDetected);
+    printf("LeftTurnDetected\t%d\tRightTurnDetected\t%d\r\n", cvInfo.isLeftTurnDetected, cvInfo.isRightTurnDetected);
+    printf("LeftDetected\t\t%d\tRightDetected\t\t%d\r\n", cvInfo.isLeftDetected, cvInfo.isRightDetected);
+    printf("RoadClose\t\t%d", cvInfo.isRoadClose);
+    printf("\tTunnelDetected\t\t%d\r\n", cvInfo.isTunnelDetected);
+    printf("greenLightReply\t\t%d", cvInfo.greenLightReply);
+    printf("\tSafezoneDetected\t%d\r\n", cvInfo.isSafezoneDetected);
     printf("\r\n");
     return cvInfo;
 }

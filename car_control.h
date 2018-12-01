@@ -34,3 +34,11 @@ class Driver
         void waitLeftDetect(CVinfo info);
         void waitRoadClose(CVinfo info);
 };
+class Sensor
+{
+    public:
+        Sensor();
+        SensorInfo updateInfo();
+    private:
+        
+};

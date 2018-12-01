@@ -42,6 +42,10 @@ struct CVinfo {
 
 	uint8_t greenLightReply;
 };
+struct SensorInfo {
+	uint8_t line;
+	int distance[8];
+};
 /**
   * @Brief
   */
