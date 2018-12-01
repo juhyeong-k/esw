@@ -7,6 +7,7 @@
 #include "cv.h"
 Navigator::Navigator()
 {
+    departedFlag = {0,};
     lastPoint.x = VPE_OUTPUT_W/2;
     lastPoint.y = VPE_OUTPUT_H;
     startingPoint = {(VPE_OUTPUT_W/2), VPE_OUTPUT_H, 0,};
@@ -31,6 +32,20 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     cvInfo.greenLightReply = greenLightReply(green);
     cvInfo.isSafezoneDetected = isSafezoneDetected(yellow, white);
 
+    if(cvInfo.isDepartedLeft)            departedFlag.isDepartedLeft = true;
+    else if(cvInfo.isDepartedRight)     departedFlag.isDepartedRight = true;
+
+    if(cvInfo.isLeftReinstation)        departedFlag.isDepartedLeft = false;
+    else if(cvInfo.isRightReinstation) departedFlag.isDepartedRight = false;
+
+    if(departedFlag.isDepartedLeft) {
+        cvInfo.isDepartedLeft = true;
+        startingPoint = {319, VPE_OUTPUT_H, 0,};
+    }
+    else if(departedFlag.isDepartedRight) {
+        cvInfo.isDepartedRight = true;
+        startingPoint = {0, VPE_OUTPUT_H, 0,};
+    }
 
     printf("*** CV ***\r\n");
     printf("direction \t%d\r\n", cvInfo.direction);
@@ -48,25 +63,31 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
 bool Navigator::isDepartedRight(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     Point point = getRoadPoint(yellow, 179);
-    if(point.x == 0) return true;
-    else return false;
+    if(point.y) {
+        if(point.x == 0) return true;
+    }
+    return false;
 }
 bool Navigator::isDepartedLeft(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     Point point = getRoadPoint(yellow, 179);
-    if(point.x == 319) return true;
-    else return false;
+    if(point.y) {
+        if(point.x == 319) return true;
+    }
+    return false;
 }
 bool Navigator::isLeftReinstation(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     uint8_t i;
     uint8_t temp = 0;
     Point point = getRoadPoint(yellow, 179);
-    for(i=0; i<5; i++) {
-        if(!yellow[179][i][0]) temp++;
-    }
-    if(temp == 5) {
-        if(point.x < REINSTATION_WIDTH) return true;
+    if(point.y) {
+        for(i=0; i<5; i++) {
+            if(!yellow[179][i][0]) temp++;
+        }
+        if(temp == 5) {
+            if(point.x < REINSTATION_WIDTH) return true;
+        }
     }
     return false;
 }
@@ -75,11 +96,13 @@ bool Navigator::isRightReinstation(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3]
     uint8_t i;
     uint8_t temp = 0;
     Point point = getRoadPoint(yellow, 179);
-    for(i=0; i<5; i++) {
-        if(!yellow[179][319-i][0]) temp++;
-    }
-    if(temp == 5) {
-        if(point.x > 319 - REINSTATION_WIDTH) return true;
+    if(point.y) {
+        for(i=0; i<5; i++) {
+            if(!yellow[179][319-i][0]) temp++;
+        }
+        if(temp == 5) {
+            if(point.x > 319 - REINSTATION_WIDTH) return true;
+        }
     }
     return false;
 }

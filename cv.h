@@ -31,9 +31,14 @@ class Navigator
             bool isRightPoint;
             bool isLeftPoint;
         };
+        struct DepartedFlag {
+            bool isDepartedLeft;
+            bool isDepartedRight;
+        };
         /* Valuables */
         Point lastPoint;
         Point startingPoint;
+        DepartedFlag departedFlag;
 
         /* Get information */
         Point getStartingPoint(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]); // for loop control

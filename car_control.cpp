@@ -18,6 +18,16 @@ void Driver::drive(CVinfo info)
         I_term = 0;
         prev_error = 0;
     }
+
+    if(info.isDepartedLeft) {
+        SteeringServoControl_Write(1000);
+        return;
+    }
+    else if(info.isDepartedRight) {
+        SteeringServoControl_Write(2000);
+        return;
+    }
+
     if(driveState.isGoingStraight) {
         if(info.isRightTurnDetected | info.isLeftTurnDetected) {
             driveState.isGoingStraight = false;
@@ -57,7 +67,6 @@ void Driver::drive(CVinfo info)
                 driveState.isEnteringCurve = false;
                 driveState.isTurningLeft = true;
                 SteeringServoControl_Write(2000);
-                printf("SteeringServoControl_Write\r\n");
                 return;
             }
             else {
