@@ -518,7 +518,6 @@ int Navigator::greenLightReply(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 
             y_up = getGreenUp(green, greenHeight, leftPoint, rightPoint);
             y_down = getGreenDown(green, greenHeight, leftPoint, rightPoint);
-            printf("y_up %d y_down %d\r\n", y_up, y_down);
             if( isGreenLightReliable(y_down, y_up, greenHeight) ) {
                 int leftNumber = 0;
                 int rightNumber = 0;
@@ -532,7 +531,6 @@ int Navigator::greenLightReply(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
                         if( green[y][x][0] ) rightNumber++;
                     }
                 }
-                printf("%f\r\n", (float)leftNumber/rightNumber);
                 if(leftNumber < rightNumber) {
                     return 2;
                 }
