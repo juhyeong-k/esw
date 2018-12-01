@@ -7,10 +7,23 @@ Driver::Driver()
     driveState = {1,0,};
     I_term = 0;
     prev_error = 0;
+    emergencyTimeout = 0;
 }
 void Driver::drive(CVinfo cvInfo)
 {
     printf("Going %d Left %d Right %d EnteringCurve %d\r\n", driveState.isGoing, driveState.isTurningLeft, driveState.isTurningRight, driveState.isEnteringCurve);
+
+    if(cvInfo.isEmergency) {
+        DesireSpeed_Write(0);
+        emergencyTimeout = 50;
+        return;
+    }
+    else if(emergencyTimeout) {
+        emergencyTimeout--;
+        if(emergencyTimeout == 0) DesireSpeed_Write(DRIVE_SPEED);
+        return;
+    }
+
     if(cvInfo.isTunnelDetected) {
         //goTunnel();
         //return;

@@ -28,6 +28,7 @@ class Driver
 
         float I_term;
         float prev_error;
+        uint8_t emergencyTimeout;
 
         bool TurnDetected(CVinfo cvInfo);
         bool LineDetected(CVinfo cvInfo);

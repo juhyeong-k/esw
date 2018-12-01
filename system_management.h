@@ -120,7 +120,7 @@ struct SensorInfo {
 #define white_VAL_MAX    255
 #define white_VAL_MIN    150
 
-
+#define DRIVE_SPEED		75
 /**
   * @Brief
   */
@@ -143,7 +143,7 @@ struct SensorInfo {
 
 #define REINSTATION_WIDTH				80
 
-#define EMERGENCY_THRESHOLD				80
+#define EMERGENCY_THRESHOLD				300
 
 /**
  *  Traffic Lights
