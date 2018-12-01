@@ -42,6 +42,8 @@ struct CVinfo {
 
 	bool isDepartedLeft;
 	bool isDepartedRight;
+	bool isLeftReinstation;
+	bool isRightReinstation;
 
 	uint8_t greenLightReply;
 };
@@ -137,6 +139,8 @@ struct SensorInfo {
 
 #define IS_SAFEZONE_CLOSE_THRESHOLD	3
 #define SAFEZONE_CLOSE_UPLINE			129
+
+#define REINSTATION_WIDTH				60
 
 /**
  *  Traffic Lights

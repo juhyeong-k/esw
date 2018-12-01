@@ -65,6 +65,8 @@ class Navigator
 
         bool isDepartedRight(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         bool isDepartedLeft(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        bool isLeftReinstation(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        bool isRightReinstation(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
 
         bool isGreenLightReliable(uint16_t y_down, uint16_t y_up, uint16_t greenHeight);
 

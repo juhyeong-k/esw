@@ -24,6 +24,8 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     cvInfo.isRightDetected = isRightDetected(yellow);
     cvInfo.isDepartedLeft = isDepartedLeft(yellow);
     cvInfo.isDepartedRight = isDepartedRight(yellow);
+    cvInfo.isLeftReinstation = isLeftReinstation(yellow);
+    cvInfo.isRightReinstation = isRightReinstation(yellow);
     cvInfo.isRoadClose = isRoadClose(yellow);
     cvInfo.isTunnelDetected = isTunnelDetected(display_buf);
     cvInfo.greenLightReply = greenLightReply(green);
@@ -35,11 +37,12 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     printf("LeftTurnDetected\t%d\tRightTurnDetected\t%d\r\n", cvInfo.isLeftTurnDetected, cvInfo.isRightTurnDetected);
     printf("LeftDetected\t\t%d\tRightDetected\t\t%d\r\n", cvInfo.isLeftDetected, cvInfo.isRightDetected);
     printf("isDepartedLeft\t\t%d\tisDepartedRight\t\t%d\r\n", cvInfo.isDepartedLeft, cvInfo.isDepartedRight);
+    printf("isLeftReinstation\t%d\tisRightReinstation\t%d\r\n", cvInfo.isLeftReinstation, cvInfo.isRightReinstation);
     printf("RoadClose\t\t%d", cvInfo.isRoadClose);
     printf("\tTunnelDetected\t\t%d\r\n", cvInfo.isTunnelDetected);
     printf("greenLightReply\t\t%d", cvInfo.greenLightReply);
     printf("\tSafezoneDetected\t%d\r\n", cvInfo.isSafezoneDetected);
-    
+
     return cvInfo;
 }
 bool Navigator::isDepartedRight(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
@@ -53,6 +56,32 @@ bool Navigator::isDepartedLeft(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     Point point = getRoadPoint(yellow, 179);
     if(point.x == 319) return true;
     else return false;
+}
+bool Navigator::isLeftReinstation(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint8_t i;
+    uint8_t temp = 0;
+    Point point = getRoadPoint(yellow, 179);
+    for(i=0; i<5; i++) {
+        if(!yellow[179][i][0]) temp++;
+    }
+    if(temp == 5) {
+        if(point.x < REINSTATION_WIDTH) return true;
+    }
+    return false;
+}
+bool Navigator::isRightReinstation(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint8_t i;
+    uint8_t temp = 0;
+    Point point = getRoadPoint(yellow, 179);
+    for(i=0; i<5; i++) {
+        if(!yellow[179][319-i][0]) temp++;
+    }
+    if(temp == 5) {
+        if(point.x > 319 - REINSTATION_WIDTH) return true;
+    }
+    return false;
 }
 bool Navigator::isSafezoneDetected(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
