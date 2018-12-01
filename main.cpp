@@ -213,7 +213,6 @@ void * CV_handlingThread(void *arg)
     draw.mixColor(yellowImage, greenImage, redImage, whiteImage, bgr);
 
     navigator.drawPath(yellowImage, bgr);
-    data->cvResult = navigator.getInfo(display_buf, yellowImage, greenImage, redImage, whiteImage);
 
     draw.vertical_line(bgr, 159, (179 - ISROADCLOSE_DISTANCE), 179 );
     draw.horizontal_line(bgr, FRONT_UP, 0, 320);
@@ -231,6 +230,9 @@ void * CV_handlingThread(void *arg)
         ERROR("Post buffer failed");
         return NULL;
     }
+
+    data->cvResult = navigator.getInfo(display_buf, yellowImage, greenImage, redImage, whiteImage);
+    
     return NULL;
 }
 /**

@@ -70,7 +70,6 @@ bool Navigator::isDepartedRight(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     if(point.y) {
         if(point.x < 2) return true;
     }
-    printf("isDepartedRight x : %d\r\n", point.x);
     return false;
 }
 bool Navigator::isDepartedLeft(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
