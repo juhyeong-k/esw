@@ -105,7 +105,7 @@ void Driver::StateisEnteringCurve(struct DriveState *driveState)
 void Driver::StateisGoing(struct DriveState *driveState)
 {
     driveState->isTurningLeft = false;
-    driveState->isTurningLeft = false;
+    driveState->isTurningRight = false;
     driveState->isGoing = true;
 }
 void Driver::waitStartSignal()
