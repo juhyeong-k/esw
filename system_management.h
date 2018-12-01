@@ -8,6 +8,8 @@
 #include <fstream>
 #include <sys/types.h>
 #include <sys/sysinfo.h>
+
+#define DRIVE_SPEED		0
 /**
   * @Brief
   */
@@ -119,8 +121,6 @@ struct SensorInfo {
 #define white_SAT_MIN    0
 #define white_VAL_MAX    255
 #define white_VAL_MIN    150
-
-#define DRIVE_SPEED		75
 /**
   * @Brief
   */

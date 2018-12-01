@@ -15,7 +15,7 @@ void Driver::drive(CVinfo cvInfo)
 
     if(cvInfo.isEmergency) {
         DesireSpeed_Write(0);
-        emergencyTimeout = 50;
+        emergencyTimeout = 100;
         return;
     }
     else if(emergencyTimeout) {
