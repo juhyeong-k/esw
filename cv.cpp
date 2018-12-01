@@ -18,24 +18,41 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     CVinfo cvInfo = {1500, 0,};
 
     cvInfo.direction = getDirection(yellow);
-    if(cvInfo.direction == 1000) cvInfo.isRightTurnDetected = true;
-    else if(cvInfo.direction == 2000) cvInfo.isLeftTurnDetected = true;
-    cvInfo.isRightDetected = isRightDetected(yellow);
+    if(cvInfo.direction == 2000)         cvInfo.isLeftTurnDetected = true;
+    else if(cvInfo.direction == 1000)   cvInfo.isRightTurnDetected = true;
     cvInfo.isLeftDetected = isLeftDetected(yellow);
+    cvInfo.isRightDetected = isRightDetected(yellow);
+    cvInfo.isDepartedLeft = isDepartedLeft(yellow);
+    cvInfo.isDepartedRight = isDepartedRight(yellow);
     cvInfo.isRoadClose = isRoadClose(yellow);
     cvInfo.isTunnelDetected = isTunnelDetected(display_buf);
     cvInfo.greenLightReply = greenLightReply(green);
     cvInfo.isSafezoneDetected = isSafezoneDetected(yellow, white);
 
+
     printf("*** CV ***\r\n");
     printf("direction \t%d\r\n", cvInfo.direction);
     printf("LeftTurnDetected\t%d\tRightTurnDetected\t%d\r\n", cvInfo.isLeftTurnDetected, cvInfo.isRightTurnDetected);
     printf("LeftDetected\t\t%d\tRightDetected\t\t%d\r\n", cvInfo.isLeftDetected, cvInfo.isRightDetected);
+    printf("isDepartedLeft\t\t%d\tisDepartedRight\t\t%d\r\n", cvInfo.isDepartedLeft, cvInfo.isDepartedRight);
     printf("RoadClose\t\t%d", cvInfo.isRoadClose);
     printf("\tTunnelDetected\t\t%d\r\n", cvInfo.isTunnelDetected);
     printf("greenLightReply\t\t%d", cvInfo.greenLightReply);
     printf("\tSafezoneDetected\t%d\r\n", cvInfo.isSafezoneDetected);
+    
     return cvInfo;
+}
+bool Navigator::isDepartedRight(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    Point point = getRoadPoint(yellow, 179);
+    if(point.x == 0) return true;
+    else return false;
+}
+bool Navigator::isDepartedLeft(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    Point point = getRoadPoint(yellow, 179);
+    if(point.x == 319) return true;
+    else return false;
 }
 bool Navigator::isSafezoneDetected(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
