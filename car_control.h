@@ -25,8 +25,11 @@ class Driver
 
             bool isWhiteLineDetected;
         };
+        struct ParkingState {
+            uint8_t stage[7];
+        };
         DriveState driveState;
-        CVinfo lastCVinfo;
+        ParkingState parkingState;
 
         float I_term;
         float prev_error;
@@ -36,6 +39,7 @@ class Driver
         bool LineDetected(CVinfo cvInfo);
 
         bool isWhiteLineDetected(SensorInfo sensorInfo);
+        void updatePakingState(SensorInfo sensorInfo, ParkingState *parkingState);
 
         bool Turning(DriveState driveState);
         void StateisEnteringCurve(struct DriveState *driveState);

@@ -3,7 +3,8 @@
 
 Driver::Driver()
 {
-    lastCVinfo = {1500, 0,};
+    int i;
+    for(i=0; i<7; i++) parkingState.stage[i] = 0;
     driveState = {1,0,};
     I_term = 0;
     prev_error = 0;
@@ -26,9 +27,10 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
     }
     // White Line detect handling
     if( isWhiteLineDetected(sensorInfo) ) {
-        data->encoderInitRequest = true;
+        //request
     }
-
+    updatePakingState(sensorInfo, &parkingState);
+    return;
     // Tunnel
     if(cvInfo.isTunnelDetected) {
         //goTunnel();
@@ -99,6 +101,35 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         else {
             Steering_Write(1500);
             return;
+        }
+    }
+}
+void Driver::updatePakingState(SensorInfo sensorInfo, ParkingState *parkingState)
+{
+    //R front detected
+    if(sensorInfo.distance[2] > 750) {
+        parkingState->stage[0] = 1;
+    }
+    //R back only detected
+    if( parkingState->stage[0] ) {
+        if( (sensorInfo.distance[2] < 400) && (sensorInfo.distance[3] > 750) ) {
+            parkingState->stage[0] = 0;
+            parkingState->stage[1] = 1;
+        }
+    }
+    //R front only detected
+    if( parkingState->stage[1] ) {
+        if( (sensorInfo.distance[2] > 750) && (sensorInfo.distance[3] < 750) ) {
+            parkingState->stage[1] = 0;
+            parkingState->stage[2] = 1;
+        }
+    }
+    //R front not detected
+    if( parkingState->stage[2]) {
+        if( sensorInfo.distance[2] < 400 ) {
+            parkingState->stage[2] = 0;
+            parkingState->stage[3] = 1;
+            DesireSpeed_Write(0);
         }
     }
 }

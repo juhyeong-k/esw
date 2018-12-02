@@ -169,15 +169,6 @@ void * sensingThread(void *arg)
 {
     while(1) {
         data->sensorInfo = sensor.getInfo();
-        if(data->encoderInitRequest) {
-            data->encoderInitRequest = false;
-            data->enableEncoder = true;
-            EncoderCounter_Write(0);
-        }
-        if(data->enableEncoder) {
-            data->travelDistance = EncoderCounter_Read();
-            printf("data->travelDistance : %d\r\n", data->travelDistance);
-        }
     }
     return NULL;
 }
@@ -343,10 +334,6 @@ int main(int argc, char **argv)
     tdata.vpe = vpe;
     tdata.bfull_screen = true;
     tdata.bstream_start = false;
-
-    tdata.encoderInitRequest = false;
-    tdata.enableEncoder = false;
-    tdata.travelDistance = 0;
 
     pexam_data = &tdata;
 

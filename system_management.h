@@ -54,7 +54,7 @@ struct CVinfo {
 };
 struct SensorInfo {
 	uint8_t line;
-	int distance[8];
+	int distance[7];
 };
 struct thr_data {
     struct display *disp;
@@ -71,10 +71,6 @@ struct thr_data {
 
     CVinfo cvResult;
     SensorInfo sensorInfo;
-
-    bool encoderInitRequest;
-    bool enableEncoder;
-    int travelDistance;
 };
 /**
   * @Brief
