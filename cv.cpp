@@ -673,6 +673,12 @@ bool Navigator::isGreenLightReliable(uint16_t y_down, uint16_t y_up, uint16_t gr
     else return false;
 }
 /*
+int Navigator::getFrontLineSlope()
+{
+
+}
+*/
+/*
 uint16_t Navigator::getGreenVerticalAxis()
 {
     uint16_t y,x,i,temp;

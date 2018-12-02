@@ -9,7 +9,7 @@
 #include <sys/types.h>
 #include <sys/sysinfo.h>
 
-#define DRIVE_SPEED		0
+#define DRIVE_SPEED		75
 /**
   * @Brief
   */

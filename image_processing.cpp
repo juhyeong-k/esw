@@ -172,9 +172,9 @@ void colorFilter::detectColor(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint
 }
 bool colorFilter::inRange(uint8_t h, uint8_t s, uint8_t v)
 {
-    if( ( HUE_MIN < h && h < HUE_MAX ) && 
-        ( SAT_MIN < s && s < SAT_MAX ) &&
-        ( VAL_MIN < v && v < VAL_MAX) )
+    if( ( HUE_MIN < h && h <= HUE_MAX ) && 
+        ( SAT_MIN < s && s <= SAT_MAX ) &&
+        ( VAL_MIN < v && v <= VAL_MAX) )
           return true;
     else return false;
 }
