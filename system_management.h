@@ -47,6 +47,7 @@ struct CVinfo {
 	bool isLeftReinstation;
 	bool isRightReinstation;
 	bool isEmergency;
+	bool isForwadPathExist;
 
 	uint8_t greenLightReply;
 };
@@ -137,6 +138,9 @@ struct SensorInfo {
 
 #define ISROADCLOSE_DISTANCE			35
 #define ISROADCLOSE_THRESHOLD			5
+
+#define FOWARD_PATH_EXIST_DISTANCE		80
+#define FOWARD_PATH_EXIST_THRESHOLD	ISROADCLOSE_THRESHOLD
 
 #define IS_SAFEZONE_CLOSE_THRESHOLD	3
 #define SAFEZONE_CLOSE_UPLINE			129

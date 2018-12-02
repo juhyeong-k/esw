@@ -36,6 +36,7 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     cvInfo.greenLightReply = greenLightReply(green);
     cvInfo.isSafezoneDetected = isSafezoneDetected(yellow, white);
     cvInfo.isEmergency = isEmergency(red);
+    cvInfo.isForwadPathExist = isForwadPathExist(yellow);
 
     if(cvInfo.isDepartedLeft)            departedFlag.isDepartedLeft = true;
     else if(cvInfo.isDepartedRight)     departedFlag.isDepartedRight = true;
@@ -62,7 +63,8 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     printf("\tTunnelDetected\t\t%d\r\n", cvInfo.isTunnelDetected);
     printf("greenLightReply\t\t%d", cvInfo.greenLightReply);
     printf("\tSafezoneDetected\t%d\r\n", cvInfo.isSafezoneDetected);
-    printf("isEmergency\t\t%d\r\n", cvInfo.isEmergency);
+    printf("isEmergency\t\t%d", cvInfo.isEmergency);
+    printf("\tisForwadPathExist\t%d\r\n", cvInfo.isForwadPathExist);
 
     return cvInfo;
 }
@@ -336,6 +338,20 @@ bool Navigator::isRoadClose(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
         }
     }
     return false;
+}
+bool Navigator::isForwadPathExist(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint8_t y,i,temp;
+    temp = 0;
+    for( y = 179; y > 179 - FOWARD_PATH_EXIST_DISTANCE; y--) {
+        if( yellow[y][159][0] ) {
+            for(i=1; i<11; i++) {
+                if( yellow[y-i][159][0] ) temp++;
+            }
+            if( temp >  FOWARD_PATH_EXIST_THRESHOLD )   return false;
+        }
+    }
+    return true;
 }
 bool Navigator::isRightDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
