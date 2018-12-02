@@ -172,9 +172,7 @@ void * sensingThread(void *arg)
         if(data->encoderInitRequest) {
             data->encoderInitRequest = false;
             data->enableEncoder = true;
-            printf("------------------ distance Request!!! -------\r\n");
             EncoderCounter_Write(0);
-            DesireSpeed_Write(0);
         }
         if(data->enableEncoder) {
             data->travelDistance = EncoderCounter_Read();
