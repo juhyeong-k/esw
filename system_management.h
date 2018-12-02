@@ -72,7 +72,8 @@ struct thr_data {
     CVinfo cvResult;
     SensorInfo sensorInfo;
 
-    bool requestDistance;
+    bool encoderInitRequest;
+    bool enableEncoder;
     int travelDistance;
 };
 /**

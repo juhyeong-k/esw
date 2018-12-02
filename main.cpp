@@ -143,10 +143,10 @@ void * main_thread(void *arg)
 
     Driver driver;
     data->cvResult = {1500,0,};
-
     uint32_t optime = 0;
     struct timeval st;
     struct timeval et;
+    data->sensorInfo = sensor.getInfo(); //Init sensorInfo
 
     pthread_create(&tdata.threads[3], NULL, sensingThread, &tdata);
     pthread_detach(tdata.threads[3]);
@@ -169,9 +169,16 @@ void * sensingThread(void *arg)
 {
     while(1) {
         data->sensorInfo = sensor.getInfo();
-        if(data->requestDistance) {
-            data->requestDistance = false;
-            printf("\r\n--------------------requestDistance!\r\n\r\n");
+        if(data->encoderInitRequest) {
+            data->encoderInitRequest = false;
+            data->enableEncoder = true;
+            printf("------------------ distance Request!!! -------\r\n");
+            EncoderCounter_Write(0);
+            DesireSpeed_Write(0);
+        }
+        if(data->enableEncoder) {
+            data->travelDistance = EncoderCounter_Read();
+            printf("data->travelDistance : %d\r\n", data->travelDistance);
         }
     }
     return NULL;
@@ -339,7 +346,8 @@ int main(int argc, char **argv)
     tdata.bfull_screen = true;
     tdata.bstream_start = false;
 
-    tdata.requestDistance = false;
+    tdata.encoderInitRequest = false;
+    tdata.enableEncoder = false;
     tdata.travelDistance = 0;
 
     pexam_data = &tdata;

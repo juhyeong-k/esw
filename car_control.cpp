@@ -26,7 +26,7 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
     }
     // White Line detect handling
     if( (sensorInfo.line & 0b00111110) != 0b00111110 ) {
-        data->requestDistance = true;
+        data->encoderInitRequest = true;
     }
 
     // Tunnel
