@@ -100,6 +100,7 @@ void Driver::drive(CVinfo cvInfo, SensorInfo sensorInfo)
 }
 bool Driver::TurnDetected(CVinfo cvInfo)
 {
+    if(cvInfo.isForwadPathExist) return false;
     if(cvInfo.isRightTurnDetected | cvInfo.isLeftTurnDetected) return true;
     else return false;
 }
