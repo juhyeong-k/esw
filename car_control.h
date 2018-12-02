@@ -13,7 +13,7 @@ class Driver
 {
     public:
     	Driver();
-        void drive(CVinfo cvInfo, SensorInfo sensorInfo);
+        void drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo);
         void goTunnel();
         void waitStartSignal();
     private:
@@ -22,6 +22,8 @@ class Driver
         	bool isTurningRight;
         	bool isTurningLeft;
         	bool isEnteringCurve;
+
+            bool isWhiteLineDetected;
         };
         DriveState driveState;
         CVinfo lastCVinfo;

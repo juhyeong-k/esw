@@ -18,6 +18,7 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     startingPoint = getStartingPoint(yellow);
     CVinfo cvInfo = {1500, 0,};
 
+    // Update CV information
     cvInfo.direction = getDirection(yellow);
     if(cvInfo.direction == 2000)         cvInfo.isLeftTurnDetected = true;
     else if(cvInfo.direction == 1000)   cvInfo.isRightTurnDetected = true;
@@ -38,6 +39,7 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     cvInfo.isEmergency = isEmergency(red);
     cvInfo.isForwadPathExist = isForwadPathExist(yellow);
 
+    // Depart handling
     if(cvInfo.isDepartedLeft)            departedFlag.isDepartedLeft = true;
     else if(cvInfo.isDepartedRight)     departedFlag.isDepartedRight = true;
 
@@ -53,6 +55,7 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
         startingPoint = {0, VPE_OUTPUT_H, 0,};
     }
 
+    // Print CV information
     printf("*** CV ***\r\n");
     printf("direction \t%d\r\n", cvInfo.direction);
     printf("LeftTurnDetected\t%d\tRightTurnDetected\t%d\r\n", cvInfo.isLeftTurnDetected, cvInfo.isRightTurnDetected);

@@ -175,7 +175,7 @@ void * main_thread(void *arg)
         pthread_join(tdata.threads[1], NULL);
 
         printSensorInfo(data);
-        driver.drive(data->cvResult, data->sensorInfo);
+        driver.drive(&tdata, data->cvResult, data->sensorInfo);
 
         get_result(optime, st, et);
     }

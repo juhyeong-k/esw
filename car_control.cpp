@@ -9,7 +9,7 @@ Driver::Driver()
     prev_error = 0;
     emergencyTimeout = 0;
 }
-void Driver::drive(CVinfo cvInfo, SensorInfo sensorInfo)
+void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
 {
     printf("Going %d Left %d Right %d EnteringCurve %d\r\n", driveState.isGoing, driveState.isTurningLeft, driveState.isTurningRight, driveState.isEnteringCurve);
 
@@ -23,6 +23,10 @@ void Driver::drive(CVinfo cvInfo, SensorInfo sensorInfo)
         emergencyTimeout--;
         if(emergencyTimeout == 0) DesireSpeed_Write(DRIVE_SPEED);
         return;
+    }
+    // White Line detect handling
+    if(sensorInfo.line) {
+        driveState.isWhiteLineDetected = true;
     }
 
     // Tunnel
