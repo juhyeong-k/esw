@@ -170,6 +170,8 @@ struct thr_data {
 
 #define EMERGENCY_THRESHOLD				300
 
+#define WHITELINE_DETECT_THRESHOLD		3 // Low -> sensetive
+
 /**
  *  Traffic Lights
  */

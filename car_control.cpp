@@ -25,7 +25,7 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         return;
     }
     // White Line detect handling
-    if( (sensorInfo.line & 0b00111110) != 0b00111110 ) {
+    if( isWhiteLineDetected(sensorInfo) ) {
         data->encoderInitRequest = true;
     }
 
@@ -101,6 +101,16 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
             return;
         }
     }
+}
+bool Driver::isWhiteLineDetected(SensorInfo sensorInfo)
+{
+    uint8_t i,temp;
+    temp = 0;
+    for(i = 1; i < 6; i++) {
+        if( ~sensorInfo.line & (1 << i) ) temp++;
+    }
+    if(temp > 3) return true;
+    else return false;
 }
 bool Driver::TurnDetected(CVinfo cvInfo)
 {

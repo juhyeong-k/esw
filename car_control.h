@@ -35,6 +35,8 @@ class Driver
         bool TurnDetected(CVinfo cvInfo);
         bool LineDetected(CVinfo cvInfo);
 
+        bool isWhiteLineDetected(SensorInfo sensorInfo);
+
         bool Turning(DriveState driveState);
         void StateisEnteringCurve(struct DriveState *driveState);
         void StateisGoing(struct DriveState *driveState);
