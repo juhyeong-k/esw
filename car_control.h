@@ -13,7 +13,7 @@ class Driver
 {
     public:
     	Driver();
-        void drive(CVinfo cvInfo);
+        void drive(CVinfo cvInfo, SensorInfo sensorInfo);
         void goTunnel();
         void waitStartSignal();
     private:

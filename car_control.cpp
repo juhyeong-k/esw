@@ -9,10 +9,11 @@ Driver::Driver()
     prev_error = 0;
     emergencyTimeout = 0;
 }
-void Driver::drive(CVinfo cvInfo)
+void Driver::drive(CVinfo cvInfo, SensorInfo sensorInfo)
 {
     printf("Going %d Left %d Right %d EnteringCurve %d\r\n", driveState.isGoing, driveState.isTurningLeft, driveState.isTurningRight, driveState.isEnteringCurve);
 
+    // Emergency
     if(cvInfo.isEmergency) {
         DesireSpeed_Write(0);
         emergencyTimeout = 100;
@@ -24,6 +25,7 @@ void Driver::drive(CVinfo cvInfo)
         return;
     }
 
+    // Tunnel
     if(cvInfo.isTunnelDetected) {
         //goTunnel();
         //return;
@@ -33,6 +35,7 @@ void Driver::drive(CVinfo cvInfo)
         prev_error = 0;
     }
 
+    // Normal Driving
     if(cvInfo.isDepartedLeft) {
         driveState.isGoing = false;
         driveState.isTurningRight = true;
