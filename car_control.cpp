@@ -25,8 +25,8 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         return;
     }
     // White Line detect handling
-    if(sensorInfo.line) {
-        driveState.isWhiteLineDetected = true;
+    if( (sensorInfo.line & 0b00111110) != 0b00111110 ) {
+        data->requestDistance = true;
     }
 
     // Tunnel

@@ -47,22 +47,6 @@ void * sensingThread(void *arg);
 
 void printSensorInfo(struct thr_data *data);
 
-struct thr_data {
-    struct display *disp;
-    struct v4l2 *v4l2;
-    struct vpe *vpe;
-    struct buffer **input_bufs;
-    struct buffer *capt;
-    int index;
-
-    int msgq_id;
-    bool bfull_screen; // true : 480x272 disp 화면에 맞게 scale 그렇지 않을 경우 false.
-    bool bstream_start; // camera stream start 여부
-    pthread_t threads[4];
-
-    CVinfo cvResult;
-    SensorInfo sensorInfo;
-};
 struct v4l2 *v4l2;
 struct vpe *vpe;
 struct thr_data tdata;
@@ -185,6 +169,10 @@ void * sensingThread(void *arg)
 {
     while(1) {
         data->sensorInfo = sensor.getInfo();
+        if(data->requestDistance) {
+            data->requestDistance = false;
+            printf("\r\n--------------------requestDistance!\r\n\r\n");
+        }
     }
     return NULL;
 }
@@ -350,6 +338,9 @@ int main(int argc, char **argv)
     tdata.vpe = vpe;
     tdata.bfull_screen = true;
     tdata.bstream_start = false;
+
+    tdata.requestDistance = false;
+    tdata.travelDistance = 0;
 
     pexam_data = &tdata;
 

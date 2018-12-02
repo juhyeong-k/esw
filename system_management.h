@@ -13,6 +13,7 @@
 /**
   * @Brief
   */
+
 class System_resource
 {
 	public:
@@ -54,6 +55,25 @@ struct CVinfo {
 struct SensorInfo {
 	uint8_t line;
 	int distance[8];
+};
+struct thr_data {
+    struct display *disp;
+    struct v4l2 *v4l2;
+    struct vpe *vpe;
+    struct buffer **input_bufs;
+    struct buffer *capt;
+    int index;
+
+    int msgq_id;
+    bool bfull_screen; // true : 480x272 disp 화면에 맞게 scale 그렇지 않을 경우 false.
+    bool bstream_start; // camera stream start 여부
+    pthread_t threads[4];
+
+    CVinfo cvResult;
+    SensorInfo sensorInfo;
+
+    bool requestDistance;
+    int travelDistance;
 };
 /**
   * @Brief
