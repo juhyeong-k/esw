@@ -34,7 +34,8 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     cvInfo.isLeftReinstation = isLeftReinstation(yellow);
     cvInfo.isRightReinstation = isRightReinstation(yellow);
 
-    cvInfo.isRoadClose = isRoadClose(yellow);
+    cvInfo.isRoadClose = isRoadClose(yellow, ISROADCLOSE_DISTANCE);
+    cvInfo.isSideRoadClose = isRoadClose(yellow, IS_SIDE_ROADCLOSE_DISTANCE);
     cvInfo.isPathStraight = isPathStraight(yellow);
     cvInfo.isTunnelDetected = isTunnelDetected(display_buf);
     cvInfo.greenLightReply = greenLightReply(green);
@@ -67,13 +68,14 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     printf("isDepartedLeft\t\t%d\tisDepartedRight\t\t%d\r\n", cvInfo.isDepartedLeft, cvInfo.isDepartedRight);
     printf("isLeftReinstation\t%d\tisRightReinstation\t%d\r\n", cvInfo.isLeftReinstation, cvInfo.isRightReinstation);
     printf("RoadClose\t\t%d", cvInfo.isRoadClose);
-    printf("\tTunnelDetected\t\t%d\r\n", cvInfo.isTunnelDetected);
-    printf("greenLightReply\t\t%d", cvInfo.greenLightReply);
-    printf("\tSafezoneDetected\t%d\r\n", cvInfo.isSafezoneDetected);
-    printf("isEmergency\t\t%d", cvInfo.isEmergency);
-    printf("\tisForwadPathExist\t%d\r\n", cvInfo.isForwadPathExist);
-    printf("isPathStraight\t\t%d", cvInfo.isPathStraight);
-    printf("\tisCarinFront_CV\t\t%d\r\n", cvInfo.isCarinFront_CV);
+    printf("\tSideRoadClose\t\t%d\r\n", cvInfo.isSideRoadClose);
+    printf("TunnelDetected\t\t%d", cvInfo.isTunnelDetected);
+    printf("\tgreenLightReply\t\t%d\r\n", cvInfo.greenLightReply);
+    printf("SafezoneDetected\t%d", cvInfo.isSafezoneDetected);
+    printf("\tisEmergency\t\t%d\r\n", cvInfo.isEmergency);
+    printf("isForwadPathExist\t%d", cvInfo.isForwadPathExist);
+    printf("\tisPathStraight\t\t%d\r\n", cvInfo.isPathStraight);
+    printf("isCarinFront_CV\t\t%d\r\n", cvInfo.isCarinFront_CV);
 
     return cvInfo;
 }
@@ -332,7 +334,7 @@ float Navigator::getRoadDiff(Point current, Point last)
 /**
  *  Check state
  */
-bool Navigator::isRoadClose(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+bool Navigator::isRoadClose(uint8_t src[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t distance)
 {
     uint8_t y,i,temp;
     temp = 0;
@@ -342,7 +344,7 @@ bool Navigator::isRoadClose(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
                 if( src[y-i][159][0] ) temp++;
             }
             if( temp >  ISROADCLOSE_THRESHOLD ) {
-                if( y > (179 - ISROADCLOSE_DISTANCE) ) return true;
+                if( y > (179 - distance) ) return true;
             }
         }
     }

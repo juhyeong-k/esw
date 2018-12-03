@@ -59,8 +59,12 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
     /**
      *  Passing
      */
-    if(cvInfo.isCarinFront_CV & (sensorInfo.distance[1] > 700 ))
-        data->passRequest = true;
+    if( cvInfo.isCarinFront_CV & (sensorInfo.distance[1] > 600 ) )
+        if( (1400 < cvInfo.direction) && (cvInfo.direction < 1600) ) {
+            data->passRequest = true;
+        }
+    if( cvInfo.isCarinFront_CV & (sensorInfo.distance[1] > 800 ) )
+            data->passRequest = true;
     /**
      *  Tunnel
      */
@@ -202,13 +206,19 @@ void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
             DesireSpeed_Write(100);
             break;
         case 1 :
-            if(cvInfo.isRoadClose) {
+            if(cvInfo.isSideRoadClose) {
                 passStage++;
+                Steering_Write(2000);
+                DesireSpeed_Write(100);
             }
             break;
         case 2 :
-            Steering_Write(1500);
-            DesireSpeed_Write(0);
+            if(cvInfo.direction < 1500) {
+                passStage++;
+                Steering_Write(1500);
+                DesireSpeed_Write(0);
+                CarLight_Write(ALL_ON);
+            }
             break;
         case 3 :
             break;

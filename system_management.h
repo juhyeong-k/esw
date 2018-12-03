@@ -40,6 +40,7 @@ struct CVinfo {
 	bool isPathLeft;
 	bool isPathRight;
 	bool isRoadClose;
+	bool isSideRoadClose;
 
 	bool isTunnelDetected;
 	bool isSafezoneDetected;
@@ -164,6 +165,8 @@ struct thr_data {
 
 #define ISROADCLOSE_DISTANCE			40
 #define ISROADCLOSE_THRESHOLD			5
+
+#define IS_SIDE_ROADCLOSE_DISTANCE		70
 
 #define FOWARD_PATH_EXIST_DISTANCE		80
 #define FOWARD_PATH_EXIST_THRESHOLD	ISROADCLOSE_THRESHOLD
