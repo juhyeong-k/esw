@@ -28,6 +28,8 @@ class Driver
         };
         struct ParkingState {
             uint8_t stage[4];
+            struct timeval startTime;
+            struct timeval endTime;
         };
         DriveState driveState;
         ParkingState parkingState;
@@ -41,7 +43,7 @@ class Driver
         bool LineDetected(CVinfo cvInfo);
 
         bool isWhiteLineDetected(SensorInfo sensorInfo);
-        void updatePakingState(SensorInfo sensorInfo, ParkingState *parkingState);
+        void updateParkingState(struct thr_data *data, SensorInfo sensorInfo, ParkingState *parkingState);
         void resetParkingState(ParkingState *parkingState);
         void requestHorizonParking(struct thr_data *data);
 

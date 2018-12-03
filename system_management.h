@@ -57,6 +57,8 @@ struct SensorInfo {
 	int distance[7];
 };
 struct thr_data {
+    struct timeval systemTime;
+
     struct display *disp;
     struct v4l2 *v4l2;
     struct vpe *vpe;
@@ -140,7 +142,7 @@ struct thr_data {
 #define white_SAT_MAX    70
 #define white_SAT_MIN    0
 #define white_VAL_MAX    255
-#define white_VAL_MIN    220
+#define white_VAL_MIN    200
 /**
   * @Brief
   */

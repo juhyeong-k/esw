@@ -1,4 +1,5 @@
 #include "system_management.h"
+#include <sys/time.h>
 #include "car_control.h"
 
 Driver::Driver()
@@ -35,7 +36,7 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         resetParkingState(&parkingState);
         requestHorizonParking(data);
     }
-    updatePakingState(sensorInfo, &parkingState);
+    updateParkingState(data, sensorInfo, &parkingState);
     // Tunnel
     if(cvInfo.isTunnelDetected) {
         //goTunnel();
@@ -109,11 +110,15 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         }
     }
 }
-void Driver::updatePakingState(SensorInfo sensorInfo, ParkingState *parkingState)
+void Driver::updateParkingState(struct thr_data *data, SensorInfo sensorInfo, ParkingState *parkingState)
 {
+    gettimeofday(&parkingState->endTime, NULL);
+    uint32_t optime = ((parkingState->endTime.tv_sec - parkingState->startTime.tv_sec)*1000) 
+                + ((int)parkingState->endTime.tv_usec/1000 - (int)parkingState->startTime.tv_usec/1000);
     //R front detected
     if(sensorInfo.distance[2] > 750) {
         parkingState->stage[0] = 1;
+        gettimeofday(&parkingState->startTime, NULL);
     }
     //R back only detected
     if( parkingState->stage[0] ) {
