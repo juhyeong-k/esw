@@ -25,6 +25,8 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
 
     cvInfo.isLeftDetected = isLeftDetected(yellow);
     cvInfo.isRightDetected = isRightDetected(yellow);
+    if( !cvInfo.isLeftDetected && !cvInfo.isRightDetected)
+        cvInfo.direction = getDirection(white);
 
     cvInfo.isDepartedLeft = isDepartedLeft(yellow);
     cvInfo.isDepartedRight = isDepartedRight(yellow);
