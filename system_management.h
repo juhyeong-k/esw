@@ -140,7 +140,7 @@ struct thr_data {
 #define white_SAT_MAX    70
 #define white_SAT_MIN    0
 #define white_VAL_MAX    255
-#define white_VAL_MIN    225
+#define white_VAL_MIN    220
 /**
   * @Brief
   */
