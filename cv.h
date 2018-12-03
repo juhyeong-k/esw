@@ -16,8 +16,6 @@ class Navigator
         CVinfo getInfo(uint8_t display_buf[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3],
         uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
 
-        /**/
-        /**/
 	private:
         /* Structures */
         struct Point {
@@ -37,7 +35,27 @@ class Navigator
         Point startingPoint;
         DepartedFlag departedFlag;
 
-        /* Get information */
+        /* Emergency */
+        bool isEmergency(uint8_t red[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        /* Passing */
+        bool isCarinFront_CV(uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        /* Tunnel */
+        bool isTunnelDetected(uint8_t src[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        /* Safezone */
+        bool isSafezoneDetected(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        /* GreenLight */
+        int greenLightReply(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        int getGreenHeight(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        uint16_t getGreenUp(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t greenHeight, Point leftPoint, Point rightPoint);
+        uint16_t getGreenDown(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t greenHeight, Point leftPoint, Point rightPoint);
+        Point getLeftGreenPoint(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t greenHeight);
+        Point getRightGreenPoint(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t greenHeight);
+
+        bool isGreenLightReliable(uint16_t y_down, uint16_t y_up, uint16_t greenHeight);
+
+        /**
+         * Normal Drive
+         */
         Point getStartingPoint(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]); // for loop control
         Point getRoadCenter(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
         Point getRoadPoint(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
@@ -45,41 +63,18 @@ class Navigator
         Point getLeftPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
         float getRoadDiff(Point current, Point last);
         uint16_t getDirection(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
-
-        int greenLightReply(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
-        int getGreenHeight(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
-
-        // Traffic lights
-        Point getLeftGreenPoint(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t greenHeight);
-        Point getRightGreenPoint(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t greenHeight);
-        uint16_t getGreenUp(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t greenHeight, Point leftPoint, Point rightPoint);
-        uint16_t getGreenDown(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t greenHeight, Point leftPoint, Point rightPoint);
-
-        /* Status Check */
         // before using isRoadEndDetected() function, confirm the last.roadCenter has been updated.
         bool isRoadEndDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y);
-
         bool isRightDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         bool isLeftDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
-
         bool isPathRight(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         bool isPathLeft(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         bool isPathStraight(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
-
         bool isRoadClose(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
-
         bool isDepartedRight(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         bool isDepartedLeft(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         bool isLeftReinstation(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         bool isRightReinstation(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
-
-        bool isGreenLightReliable(uint16_t y_down, uint16_t y_up, uint16_t greenHeight);
-
-        bool isSafezoneDetected(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
-        bool isTunnelDetected(uint8_t src[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
-
-        bool isEmergency(uint8_t red[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
-
         bool isForwadPathExist(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
 
         /* Functions for CV class */

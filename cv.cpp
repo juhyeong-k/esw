@@ -41,6 +41,7 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     cvInfo.isSafezoneDetected = isSafezoneDetected(yellow, white);
     cvInfo.isEmergency = isEmergency(red);
     cvInfo.isForwadPathExist = isForwadPathExist(yellow);
+    cvInfo.isCarinFront_CV = isCarinFront_CV(white);
 
     // Depart handling
     if(cvInfo.isDepartedLeft)            departedFlag.isDepartedLeft = true;
@@ -71,7 +72,8 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     printf("\tSafezoneDetected\t%d\r\n", cvInfo.isSafezoneDetected);
     printf("isEmergency\t\t%d", cvInfo.isEmergency);
     printf("\tisForwadPathExist\t%d\r\n", cvInfo.isForwadPathExist);
-    printf("isPathStraight\t\t%d\r\n", cvInfo.isPathStraight);
+    printf("isPathStraight\t\t%d", cvInfo.isPathStraight);
+    printf("\tisCarinFront_CV\t\t%d\r\n", cvInfo.isCarinFront_CV);
 
     return cvInfo;
 }
@@ -466,7 +468,7 @@ bool Navigator::isPathStraight(uint8_t src[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     lastPoint = startingPoint;
 
     if(((float)i/j)*100 > threshold) slope = (totalRoadDiff / i)/2;
-    else slope = 0;
+    else return false;
 
     if(abs(slope) < 0.3)  return true;
     else                   return false;
@@ -477,6 +479,19 @@ bool Navigator::isDifferentType(Point first, Point second)
     else if(first.isRightPoint & second.isRightPoint) return false;
     else if(first.isLeftPoint & second.isLeftPoint) return false;
     else return true;
+}
+bool Navigator::isCarinFront_CV(uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint16_t x,y;
+    int temp = 0;
+    for(x = 0; x < VPE_OUTPUT_W; x++) {
+        for(y = 0; y < PASSING_WHITE_DETECT_HEIGHT; y++) {
+            if(white[y][x][0]) temp++;
+        }
+    }
+    printf("\r\n\r\n white : %d\r\n", temp);
+    if(temp > PASSING_WHITE_DETECT_THRESHOLD) return true;
+    else return false;
 }
 /**
  *  Draw functions 

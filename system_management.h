@@ -43,6 +43,7 @@ struct CVinfo {
 
 	bool isTunnelDetected;
 	bool isSafezoneDetected;
+	bool isCarinFront_CV;
 
 	bool isDepartedLeft;
 	bool isDepartedRight;
@@ -150,7 +151,7 @@ struct thr_data {
   */
 #define lineDectectTHRESHOLD 7
 #define colorDetectTHRESHOLD 700
-#define LINE_DIVIDE_FACTOR	  2.2
+#define LINE_DIVIDE_FACTOR	  2
 
 /* CV.cpp */
 #define ROAD_END_DETCTED_THRESHOLD		3
@@ -191,3 +192,9 @@ struct thr_data {
  *  Parking
  */
 #define PARKING_DETECT_TIMEOUT			3000
+
+/**
+ *	Passing
+ */
+#define PASSING_WHITE_DETECT_HEIGHT		79    // FRONT_UP
+#define PASSING_WHITE_DETECT_THRESHOLD	200    // FRONT_UP
