@@ -161,7 +161,10 @@ void * main_thread(void *arg)
 
         printSensorInfo(data);
         if(data->horizonParkingRequest) {
-            driver.horizonPark(data->sensorInfo);
+            driver.horizonPark(data, data->sensorInfo);
+        }
+        else if(data->verticalParkingRequest) {
+            driver.verticalPark(data, data->sensorInfo);
         }
         else driver.drive(&tdata, data->cvResult, data->sensorInfo);
 
@@ -340,6 +343,7 @@ int main(int argc, char **argv)
     tdata.bstream_start = false;
 
     tdata.horizonParkingRequest = false;
+    tdata.verticalParkingRequest = false;
 
     pexam_data = &tdata;
 

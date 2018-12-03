@@ -14,7 +14,8 @@ class Driver
     public:
     	Driver();
         void drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo);
-        void horizonPark(SensorInfo sensorInfo);
+        void horizonPark(struct thr_data *data, SensorInfo sensorInfo);
+        void verticalPark(struct thr_data *data, SensorInfo sensorInfo);
         void goTunnel();
         void waitStartSignal();
     private:
@@ -40,6 +41,7 @@ class Driver
         float prev_error;
         uint8_t emergencyTimeout;
         uint8_t horizonParkingStage;
+        uint8_t verticalParkingStage;
 
         bool TurnDetected(CVinfo cvInfo);
         bool LineDetected(CVinfo cvInfo);
@@ -48,6 +50,7 @@ class Driver
         void updateParkingState(struct thr_data *data, SensorInfo sensorInfo, ParkingState *parkingState);
         void resetParkingState(ParkingState *parkingState);
         void requestHorizonParking(struct thr_data *data);
+        void requestVerticalParking(struct thr_data *data);
 
         bool Turning(DriveState driveState);
         void StateisEnteringCurve(struct DriveState *driveState);

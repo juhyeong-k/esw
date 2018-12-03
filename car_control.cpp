@@ -11,6 +11,7 @@ Driver::Driver()
     prev_error = 0;
     emergencyTimeout = 0;
     horizonParkingStage = 0;
+    verticalParkingStage = 0;
     gettimeofday(&parkingState.startTime, NULL);
 }
 void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
@@ -35,7 +36,12 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
 
     if(parkingState.stage[3]) {
         resetParkingState(&parkingState);
-        requestHorizonParking(data);
+        if(parkingState.horizontalDetected)     {
+            requestHorizonParking(data);
+        }
+        else if(parkingState.verticalDetected)  {
+            requestVerticalParking(data);
+        }
     }
     updateParkingState(data, sensorInfo, &parkingState);
     // Tunnel
@@ -51,7 +57,7 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
     // Normal Driving
     if(cvInfo.isPathStraight) DesireSpeed_Write(NORMAL_SPEED);
     else DesireSpeed_Write(SLOW_SPEED);
-    
+
     if(cvInfo.isDepartedLeft) {
         driveState.isGoing = false;
         driveState.isTurningRight = true;
@@ -123,22 +129,32 @@ void Driver::updateParkingState(struct thr_data *data, SensorInfo sensorInfo, Pa
     printf("Parking timeout : %dms\r\n", optime);
     if(optime > PARKING_DETECT_TIMEOUT) {
         for(i = 0; i < 4; i++) parkingState->stage[i] = 0;
+        DesireSpeed_Write(NORMAL_SPEED);
     }
     //R front detected
-    if(sensorInfo.distance[2] > 750) {
+    if(sensorInfo.distance[2] > 650) {
+        DesireSpeed_Write(SLOW_SPEED);
         parkingState->stage[0] = 1;
         gettimeofday(&parkingState->startTime, NULL);
     }
     //R back only detected
     if( parkingState->stage[0] ) {
-        if( (sensorInfo.distance[2] < 400) && (sensorInfo.distance[3] > 750) ) {
+        if( sensorInfo.distance[3] > 650 ) {
+            if( sensorInfo.distance[2] > 650 ) {
+                parkingState->horizontalDetected = true;
+                parkingState->verticalDetected = false;
+            }
+            else {
+                parkingState->horizontalDetected = false;
+                parkingState->verticalDetected = true;
+            }
             parkingState->stage[0] = 0;
             parkingState->stage[1] = 1;
         }
     }
     //R front only detected
     if( parkingState->stage[1] ) {
-        if( (sensorInfo.distance[2] > 750) && (sensorInfo.distance[3] < 750) ) {
+        if( (sensorInfo.distance[2] > 650) && (sensorInfo.distance[3] < 650) ) {
             parkingState->stage[1] = 0;
             parkingState->stage[2] = 1;
         }
@@ -155,12 +171,16 @@ void Driver::requestHorizonParking(struct thr_data *data)
 {
     data->horizonParkingRequest = true;
 }
+void Driver::requestVerticalParking(struct thr_data *data)
+{
+    data->verticalParkingRequest = true;
+}
 void Driver::resetParkingState(ParkingState *parkingState)
 {
     int i;
     for(i=0; i<4; i++) parkingState->stage[i] = 0;
 }
-void Driver::horizonPark(SensorInfo sensorInfo)
+void Driver::horizonPark(struct thr_data *data, SensorInfo sensorInfo)
 {
     switch(horizonParkingStage)
     {
@@ -196,34 +216,94 @@ void Driver::horizonPark(SensorInfo sensorInfo)
                 Steering_Write(2000);
                 DesireSpeed_Write(-100);
             }
-        break;
+            break;
         case 5 : 
-            if(sensorInfo.distance[4] > 2000) {
+            if(sensorInfo.distance[4] > 2200) {
                 horizonParkingStage++;
                 Steering_Write(1000);
                 DesireSpeed_Write(100);
             }
-        break;
+            break;
         case 6 :
             if(sensorInfo.distance[1] > 2500) {
                 horizonParkingStage++;
                 Steering_Write(1500);
                 DesireSpeed_Write(-100);
             }
+            break;
         case 7 :
             if(sensorInfo.distance[4] > 2500) {
                 horizonParkingStage++;
-                DesireSpeed_Write(0);
-                Alarm_Write(ON);
-                CarLight_Write(ALL_ON);
+                Steering_Write(2000);
+                DesireSpeed_Write(100);
             }
+            break;
         /**
          *
          */
-        /*
-        case 7 :
-        */ 
-        case 8 : break;
+        case 8 :
+            if(sensorInfo.distance[2] < 300) {
+                horizonParkingStage++;
+                Steering_Write(1000);
+                DesireSpeed_Write(100);
+            }
+            break;
+        case 9 :
+            horizonParkingStage = 0;
+            data->horizonParkingRequest = false;
+            break;
+    }
+}
+void Driver::verticalPark(struct thr_data *data, SensorInfo sensorInfo)
+{
+    switch(verticalParkingStage)
+    {
+        case 0 :
+            verticalParkingStage++;
+            Steering_Write(2000);
+            DesireSpeed_Write(100);
+            break;
+        case 1 :
+            if( sensorInfo.distance[3] < 300 ) {
+                verticalParkingStage++;
+                Steering_Write(1500);
+                DesireSpeed_Write(-100);
+            }
+            break;
+        case 2 :
+            if( sensorInfo.distance[3] > 750 ) {
+                verticalParkingStage++;
+                Steering_Write(1000);
+                DesireSpeed_Write(-100);
+            }
+            break;
+        case 3 :
+            if( sensorInfo.distance[3] > 2000 ) {
+                verticalParkingStage++;
+                Steering_Write(1500);
+                DesireSpeed_Write(-100);
+            }
+            break;
+        case 4 :
+            if( sensorInfo.distance[4] > 2500 ) {
+                verticalParkingStage++;
+                Steering_Write(1500);
+                DesireSpeed_Write(100);
+            }
+            break;
+        case 5 : //escape
+            if( sensorInfo.distance[2] < 300 ) {
+                verticalParkingStage++;
+                Steering_Write(1150);
+                DesireSpeed_Write(100);
+            }
+            break;
+        case 6 :
+            if( sensorInfo.distance[5] < 1000 ) {
+                verticalParkingStage = 0;
+                data->verticalParkingRequest = false;
+            }
+            break;
     }
 }
 bool Driver::isWhiteLineDetected(SensorInfo sensorInfo)
