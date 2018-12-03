@@ -10,7 +10,7 @@
 #include <sys/sysinfo.h>
 
 #define NORMAL_SPEED		130 // 130
-#define SLOW_SPEED		130 // 100
+#define SLOW_SPEED		100 // 100
 /**
   * @Brief
   */
@@ -78,6 +78,7 @@ struct thr_data {
 
     bool horizonParkingRequest;
     bool verticalParkingRequest;
+    bool passRequest;
 };
 /**
   * @Brief

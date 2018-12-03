@@ -14,6 +14,7 @@ class Driver
     public:
     	Driver();
         void drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo);
+        void pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo);
         void horizonPark(struct thr_data *data, SensorInfo sensorInfo);
         void verticalPark(struct thr_data *data, SensorInfo sensorInfo);
         void goTunnel();

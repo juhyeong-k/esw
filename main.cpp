@@ -166,6 +166,9 @@ void * main_thread(void *arg)
         else if(data->verticalParkingRequest) {
             driver.verticalPark(data, data->sensorInfo);
         }
+        else if(data->passRequest) {
+            driver.pass(data, data->cvResult, data->sensorInfo);
+        }
         else driver.drive(&tdata, data->cvResult, data->sensorInfo);
 
         get_result(optime, st, et);
@@ -344,6 +347,7 @@ int main(int argc, char **argv)
 
     tdata.horizonParkingRequest = false;
     tdata.verticalParkingRequest = false;
+    tdata.passRequest = false;
 
     pexam_data = &tdata;
 

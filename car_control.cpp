@@ -33,7 +33,6 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
     }
     else if(emergencyTimeout) {
         emergencyTimeout--;
-        if(emergencyTimeout == 0) DesireSpeed_Write(NORMAL_SPEED);
         return;
     }
     /**
@@ -60,7 +59,7 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
      *  Passing
      */
     if(cvInfo.isCarinFront_CV & (sensorInfo.distance[1] > 700 ))
-        printf("\r\n\r\nPassing request!!!!\r\n\r\n");
+        data->passRequest = true;
     /**
      *  Tunnel
      */
@@ -155,7 +154,6 @@ void Driver::updateParkingState(struct thr_data *data, SensorInfo sensorInfo, Pa
     printf("Parking timeout : %dms\r\n", optime);
     if(optime > PARKING_DETECT_TIMEOUT) {
         for(i = 0; i < 4; i++) parkingState->stage[i] = 0;
-        DesireSpeed_Write(NORMAL_SPEED);
     }
     //R front detected
     if(sensorInfo.distance[2] > 650) {
@@ -192,6 +190,11 @@ void Driver::updateParkingState(struct thr_data *data, SensorInfo sensorInfo, Pa
             parkingState->stage[3] = 1;
         }
     }
+}
+void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
+{
+    data->passRequest = false;
+    printf("\r\n\r\nReceived passRequest\r\n\r\n");
 }
 void Driver::requestHorizonParking(struct thr_data *data)
 {
