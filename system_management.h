@@ -86,7 +86,7 @@ struct thr_data {
   * @Brief
   */
 #define CAMERA_X_SERVO     1500
-#define CAMERA_Y_SERVO     1500 //1650
+#define CAMERA_Y_SERVO     1650
 
 #define FRONT_UP			79
 #define FRONT_DOWN		148

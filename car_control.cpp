@@ -222,12 +222,29 @@ void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         case 3 :
             Steering_Write(cvInfo.exitDirection);
             if( isWhiteLineDetected(sensorInfo) ) {
+                CameraYServoControl_Write(1550);
+                DesireSpeed_Write(0);
                 passStage++;
             }
             break;
         case 4 :
-            CameraYServoControl_Write(1500);
-            DesireSpeed_Write(0);
+            if(cvInfo.greenLightReply == 1) { // Left
+                passStage++;
+                Steering_Write(1500);
+                DesireSpeed_Write(80);
+            }
+            else if(cvInfo.greenLightReply == 2) { // Right
+                passStage++;
+                Steering_Write(1500);
+                DesireSpeed_Write(80);
+            }
+            break;
+        case 5 :
+            if(cvInfo.isRoadClose) {
+                passStage++;
+                DesireSpeed_Write(0);
+            }
+        case 6 :
             break;
     }
     //passStage = 0;
