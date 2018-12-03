@@ -17,8 +17,15 @@ Driver::Driver()
 void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
 {
     printf("Going %d Left %d Right %d EnteringCurve %d\r\n", driveState.isGoing, driveState.isTurningLeft, driveState.isTurningRight, driveState.isEnteringCurve);
+    
+    /**
+     *  Required speed determination function.
+     *  Structure required to indicate current state.
+     */
 
-    // Emergency
+    /**
+     *  Emergency
+     */
     if(cvInfo.isEmergency) {
         DesireSpeed_Write(0);
         emergencyTimeout = 100;
@@ -29,16 +36,18 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         if(emergencyTimeout == 0) DesireSpeed_Write(NORMAL_SPEED);
         return;
     }
-    // White Line detect handling
+
+    /**
+     *  White Line detect handling
+     */
     if( isWhiteLineDetected(sensorInfo) ) {
-        //request
+
     }
 
-    if( (sensorInfo.distance[1] > 2500) | (sensorInfo.distance[6] > 2500) ) {
-        DesireSpeed_Write(0);
-        return;
-    }
-
+    /**
+     *  Parking
+     */
+    // Safety equipment required -> Once the parking is complete, skip it.
     if(parkingState.stage[3]) {
         resetParkingState(&parkingState);
         if(parkingState.horizontalDetected)     {
@@ -49,7 +58,10 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         }
     }
     updateParkingState(data, sensorInfo, &parkingState);
-    // Tunnel
+
+    /**
+     *  Tunnel
+     */
     if(cvInfo.isTunnelDetected) {
         //goTunnel();
         //return;
@@ -59,8 +71,14 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         prev_error = 0;
     }
 
-    // Normal Driving
-    if(cvInfo.isPathStraight) DesireSpeed_Write(NORMAL_SPEED);
+    /**
+     *  Normal Driving
+     */
+    // Code Cleanup Required.
+    if( (sensorInfo.distance[1] > 2500) | (sensorInfo.distance[6] > 2500) ) {
+        DesireSpeed_Write(0);
+    }
+    else if(cvInfo.isPathStraight) DesireSpeed_Write(NORMAL_SPEED);
     else DesireSpeed_Write(SLOW_SPEED);
 
     if(cvInfo.isDepartedLeft) {

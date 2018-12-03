@@ -311,7 +311,7 @@ uint16_t Navigator::getDirection(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     }
     lastPoint = startingPoint;
 
-    if(((float)i/j)*100 > threshold) slope = (totalRoadDiff / i)/2;
+    if(((float)i/j)*100 > threshold) slope = (totalRoadDiff / i)/LINE_DIVIDE_FACTOR;
     else slope = 0;
     if(slope == 0)              direction = 1500;
     else if(slope > 1.11)      direction = 2000;    // Left

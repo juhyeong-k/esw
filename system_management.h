@@ -150,6 +150,7 @@ struct thr_data {
   */
 #define lineDectectTHRESHOLD 7
 #define colorDetectTHRESHOLD 700
+#define LINE_DIVIDE_FACTOR	  2.2
 
 /* CV.cpp */
 #define ROAD_END_DETCTED_THRESHOLD		3
@@ -159,7 +160,7 @@ struct thr_data {
 #define SIDE_DIRECTION_SIDE_UP			149 //90%
 #define SIDE_DIRECTION_SIDE_DOWN		179 //90%
 
-#define ISROADCLOSE_DISTANCE			35
+#define ISROADCLOSE_DISTANCE			40
 #define ISROADCLOSE_THRESHOLD			5
 
 #define FOWARD_PATH_EXIST_DISTANCE		80
