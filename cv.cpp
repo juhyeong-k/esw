@@ -489,7 +489,7 @@ bool Navigator::isCarinFront_CV(uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
             if(white[y][x][0]) temp++;
         }
     }
-    printf("\r\n\r\n white : %d\r\n", temp);
+    //printf("\r\n\r\n white : %d\r\n", temp);
     if(temp > PASSING_WHITE_DETECT_THRESHOLD) return true;
     else return false;
 }

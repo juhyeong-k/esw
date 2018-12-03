@@ -36,14 +36,12 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         if(emergencyTimeout == 0) DesireSpeed_Write(NORMAL_SPEED);
         return;
     }
-
     /**
      *  White Line detect handling
      */
     if( isWhiteLineDetected(sensorInfo) ) {
 
     }
-
     /**
      *  Parking
      */
@@ -58,7 +56,11 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         }
     }
     updateParkingState(data, sensorInfo, &parkingState);
-
+    /**
+     *  Passing
+     */
+    if(cvInfo.isCarinFront_CV & (sensorInfo.distance[1] > 700 ))
+        printf("\r\n\r\nPassing request!!!!\r\n\r\n");
     /**
      *  Tunnel
      */
@@ -75,10 +77,11 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
      *  Normal Driving
      */
     // Code Cleanup Required.
+    /*
     if( (sensorInfo.distance[1] > 2500) | (sensorInfo.distance[6] > 2500) ) {
         DesireSpeed_Write(0);
     }
-    else if(cvInfo.isPathStraight) DesireSpeed_Write(NORMAL_SPEED);
+    else */if(cvInfo.isPathStraight) DesireSpeed_Write(NORMAL_SPEED);
     else DesireSpeed_Write(SLOW_SPEED);
 
     if(cvInfo.isDepartedLeft) {
