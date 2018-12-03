@@ -36,6 +36,7 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
 
     cvInfo.isRoadClose = isRoadClose(yellow, ISROADCLOSE_DISTANCE);
     cvInfo.isSideRoadClose = isRoadClose(yellow, IS_SIDE_ROADCLOSE_DISTANCE);
+    cvInfo.isGreenLightRoadClose = isRoadClose(yellow, IS_SIDE_ROADCLOSE_DISTANCE);
     cvInfo.isPathStraight = isPathStraight(yellow);
     cvInfo.isTunnelDetected = isTunnelDetected(display_buf);
     cvInfo.greenLightReply = greenLightReply(green);
@@ -44,6 +45,7 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     cvInfo.isForwadPathExist = isForwadPathExist(yellow);
     cvInfo.isCarinFront_CV = isCarinFront_CV(white);
     cvInfo.exitDirection = getExitDirection(yellow);
+    cvInfo.isTrafficLightsGreen = isTrafficLightsGreen(green);
 
     // Depart handling
     if(cvInfo.isDepartedLeft)            departedFlag.isDepartedLeft = true;
@@ -76,7 +78,9 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     printf("\tisEmergency\t\t%d\r\n", cvInfo.isEmergency);
     printf("isForwadPathExist\t%d", cvInfo.isForwadPathExist);
     printf("\tisPathStraight\t\t%d\r\n", cvInfo.isPathStraight);
-    printf("isCarinFront_CV\t\t%d\r\n", cvInfo.isCarinFront_CV);
+    printf("isCarinFront_CV\t\t%d", cvInfo.isCarinFront_CV);
+    printf("\tisGreenLightRoadClose\t%d\r\n", cvInfo.isGreenLightRoadClose);
+    printf("isTrafficLightsGreen\t%d\r\n", cvInfo.isTrafficLightsGreen);
 
     return cvInfo;
 }
@@ -469,7 +473,6 @@ bool Navigator::isPathStraight(uint8_t src[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     i = j = 0;
     uint8_t threshold = ( (double)(FRONT_DOWN - FRONT_UP)*((double)GET_DIRECTION_THRESHOLD/100) );
     float totalRoadDiff = 0;
-    uint16_t direction = 1500;
     float slope;
     Point lastRoadPoint = {0,};
     Point roadPoint = {0,};
@@ -590,6 +593,7 @@ bool Navigator::isRoadEndDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], 
   * @ Traffic Lights
   *
   */
+/*
 uint8_t Navigator::isTrafficLightsGreen(uint8_t (green)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (yellow)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (red)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     uint16_t i,j,temp;
@@ -619,9 +623,24 @@ uint8_t Navigator::isTrafficLightsGreen(uint8_t (green)[VPE_OUTPUT_H][VPE_OUTPUT
 
     return 3;
 }
-int Navigator::greenLightReply(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+*/
+bool Navigator::isTrafficLightsGreen(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
-    uint16_t x,y;
+    uint16_t i,j,temp;
+    temp = 0;
+    for(i=0; i<VPE_OUTPUT_H/2; i++) {
+        for(j=0; j<VPE_OUTPUT_W; j++) {
+            if( green[i][j][0] ) temp++;
+        }
+    }
+    printf("\r\n%d\r\n", temp);
+    if(temp > GREEN_DETECT_PIXEL_THRESHOLD)    return true;
+    else return false;
+}
+uint8_t Navigator::greenLightReply(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint16_t y;
+    uint16_t temp = 0;
 
     /* Green Light information */
     uint16_t greenHeight;
@@ -641,27 +660,12 @@ int Navigator::greenLightReply(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
             y_up = getGreenUp(green, greenHeight, leftPoint, rightPoint);
             y_down = getGreenDown(green, greenHeight, leftPoint, rightPoint);
             if( isGreenLightReliable(y_down, y_up, greenHeight) ) {
-                int leftNumber = 0;
-                int rightNumber = 0;
-                for(x = leftPoint.x; x <= greenCenter; x++) {
-                    for(y = y_down; y >= y_up; y--) {
-                        if( green[y][x][0] ) leftNumber++;
-                    }
+                for(y = y_down; y > y_up; y--) {
+                    if(green[y][greenCenter][0]) temp++;
                 }
-                for(x = greenCenter; x <= rightPoint.x; x++) {
-                    for(y = y_down; y >= y_up; y--) {
-                        if( green[y][x][0] ) rightNumber++;
-                    }
-                }
-                if(leftNumber < rightNumber) {
-                    return 2;
-                }
-                else if( (int)(((float)leftNumber/rightNumber - (int)(float)leftNumber/rightNumber)*100) > 6 ) {
-                    return 1;
-                }
-                else {
-                    return 2;
-                }
+                //printf("\r\n\r\n%d  %d  %d\r\n\r\n", temp, y_down, y_up);
+                if(temp < (y_down - y_up - 2) ) return 1;
+                else return 2;
             }
         }
     }
@@ -820,3 +824,108 @@ bool Navigator::isTunnelDetected(uint8_t src[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     if(temp > TUNNEL_DETECT_THRESHOLD) return true;
     else return false;
 }
+
+
+
+
+
+/*
+uint8_t Navigator::greenLightReply_2(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint16_t greenTop_x;
+
+    // Green Light information
+    uint16_t greenHeight;
+    uint16_t greenCenter;
+
+    greenHeight = getGreenHeight(green);
+    if(greenHeight) {
+
+        Point leftPoint = getLeftGreenPoint(green, greenHeight);
+        Point rightPoint = getRightGreenPoint(green, greenHeight);
+
+        if(leftPoint.x & rightPoint.x) {
+            greenCenter = (leftPoint.x + rightPoint.x)/2;
+            uint16_t y_up = greenHeight;
+            uint16_t y_down = greenHeight;
+            greenTop_x = getGreenTop_x(green, greenHeight, leftPoint, rightPoint);
+            if(greenTop_x < (greenCenter - 1)) return 1;
+            else return 2;
+        }
+    }
+    return 0;
+}
+uint16_t Navigator::getGreenTop_x(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], 
+                                            uint16_t greenHeight, Point leftPoint, Point rightPoint) 
+{
+    uint16_t y,x,i,temp;
+    uint16_t y_up = greenHeight;
+    uint16_t GreenTop_x = 0;
+    for(x = leftPoint.x; x < rightPoint.x; x++) {
+        for(y = greenHeight; y > 5; y--) {
+            temp = 0;
+            if(green[y][x][0]) {
+                for(i = 1; i < 4; i++) {
+                    if(!green[y-i][x][0]) temp++;
+                }
+                if(temp == 3) {
+                    if(y < y_up)  {
+                        y_up = y;
+                        GreenTop_x = x;
+                    }
+                }
+            }
+        }
+    }
+    return GreenTop_x;
+}
+int Navigator::greenLightReply(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint16_t x,y;
+
+    // Green Light information
+    uint16_t greenHeight;
+    uint16_t greenCenter;
+
+    greenHeight = getGreenHeight(green);
+    if(greenHeight) {
+
+        Point leftPoint = getLeftGreenPoint(green, greenHeight);
+        Point rightPoint = getRightGreenPoint(green, greenHeight);
+
+        if(leftPoint.x & rightPoint.x) {
+            greenCenter = (leftPoint.x + rightPoint.x)/2;
+            uint16_t y_up = greenHeight;
+            uint16_t y_down = greenHeight;
+
+            y_up = getGreenUp(green, greenHeight, leftPoint, rightPoint);
+            y_down = getGreenDown(green, greenHeight, leftPoint, rightPoint);
+            if( isGreenLightReliable(y_down, y_up, greenHeight) ) {
+                int leftNumber = 0;
+                int rightNumber = 0;
+                for(x = leftPoint.x; x <= greenCenter; x++) {
+                    for(y = y_down; y >= y_up; y--) {
+                        if( green[y][x][0] ) leftNumber++;
+                    }
+                }
+                for(x = greenCenter; x <= rightPoint.x; x++) {
+                    for(y = y_down; y >= y_up; y--) {
+                        if( green[y][x][0] ) rightNumber++;
+                    }
+                }
+                printf("\r\n\r\n%d\r\n\r\n", (int)( ((float)leftNumber/rightNumber - (int)(float)leftNumber/rightNumber) * 100));
+                if(leftNumber < rightNumber + 5) {
+                    return 2;
+                }
+                else if( (int)( ((float)leftNumber/rightNumber - (int)(float)leftNumber/rightNumber) * 100) > 12 ) {
+                    return 1;
+                }
+                else {
+                    return 2;
+                }
+            }
+        }
+    }
+    return 0;
+}
+*/

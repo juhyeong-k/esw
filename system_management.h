@@ -42,6 +42,7 @@ struct CVinfo {
 	bool isPathRight;
 	bool isRoadClose;
 	bool isSideRoadClose;
+	bool isGreenLightRoadClose;
 
 	bool isTunnelDetected;
 	bool isSafezoneDetected;
@@ -54,6 +55,7 @@ struct CVinfo {
 	bool isEmergency;
 	bool isForwadPathExist;
 
+	bool isTrafficLightsGreen;
 	uint8_t greenLightReply;
 };
 struct SensorInfo {
@@ -135,10 +137,10 @@ struct thr_data {
 
 
 #define GREEN 2
-#define green_HUE_MAX    80
+#define green_HUE_MAX    90
 #define green_HUE_MIN    45
 #define green_SAT_MAX    255
-#define green_SAT_MIN    100
+#define green_SAT_MIN    60
 #define green_VAL_MAX    255
 #define green_VAL_MIN    10
 
@@ -148,12 +150,12 @@ struct thr_data {
 #define white_SAT_MAX    70
 #define white_SAT_MIN    0
 #define white_VAL_MAX    255
-#define white_VAL_MIN    200
+#define white_VAL_MIN    190
 /**
   * @Brief
   */
 #define lineDectectTHRESHOLD 7
-#define colorDetectTHRESHOLD 700
+#define colorDetectTHRESHOLD 700 //trash
 #define LINE_DIVIDE_FACTOR	  2
 
 /* CV.cpp */
@@ -167,12 +169,14 @@ struct thr_data {
 #define ISROADCLOSE_DISTANCE			40
 #define ISROADCLOSE_THRESHOLD			5
 
-#define IS_SIDE_ROADCLOSE_DISTANCE		70
+#define IS_SIDE_ROADCLOSE_DISTANCE		70	   // Bigger than ISROADCLOSE_THRESHOLD
+
+#define IS_GREENLIGHT_ROADCLOSE_DISTANCE	120 // Bigger than ISROADCLOSE_THRESHOLD
 
 #define FOWARD_PATH_EXIST_DISTANCE		80
 #define FOWARD_PATH_EXIST_THRESHOLD	ISROADCLOSE_THRESHOLD
 
-#define IS_SAFEZONE_CLOSE_THRESHOLD	3
+#define IS_SAFEZONE_CLOSE_THRESHOLD	9
 #define SAFEZONE_CLOSE_UPLINE			129
 
 #define REINSTATION_WIDTH				80
@@ -185,7 +189,8 @@ struct thr_data {
  *  Traffic Lights
  */
 #define GREENLIGHT_WIDTH_THRESHOLD			10 // High -> sensitive
-#define GREENLIGHT_DETECTED_THRESHOLD		20 // Low -> sensitive
+#define GREENLIGHT_DETECTED_THRESHOLD		5 // Low -> sensitive
+#define GREEN_DETECT_PIXEL_THRESHOLD      80
 
 /**
  *  Tunnel

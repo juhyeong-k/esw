@@ -7,7 +7,6 @@ class Navigator
 {
 	public:
 		Navigator();
-        uint8_t isTrafficLightsGreen(uint8_t (green)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (yellow)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (red)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         bool waitGreenLights(uint8_t (green)[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
 
         /* for drawPath */
@@ -45,8 +44,12 @@ class Navigator
         /* Safezone */
         bool isSafezoneDetected(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         /* GreenLight */
-        int greenLightReply(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        bool isTrafficLightsGreen(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        uint8_t greenLightReply(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        uint8_t greenLightReply_2(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        uint8_t greenLightReply_3(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         int getGreenHeight(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        uint16_t getGreenTop_x(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t greenHeight, Point leftPoint, Point rightPoint);
         uint16_t getGreenUp(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t greenHeight, Point leftPoint, Point rightPoint);
         uint16_t getGreenDown(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t greenHeight, Point leftPoint, Point rightPoint);
         Point getLeftGreenPoint(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t greenHeight);

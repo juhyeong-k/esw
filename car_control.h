@@ -41,10 +41,11 @@ class Driver
         float I_term;
         float prev_error;
         uint8_t emergencyTimeout;
-        uint8_t globalDelay;
+        uint16_t globalDelay;
         uint8_t horizonParkingStage;
         uint8_t verticalParkingStage;
         uint8_t passStage;
+        uint8_t greenLightDirection;
 
         bool TurnDetected(CVinfo cvInfo);
         bool LineDetected(CVinfo cvInfo);

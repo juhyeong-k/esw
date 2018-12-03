@@ -14,6 +14,7 @@ Driver::Driver()
     horizonParkingStage = 0;
     verticalParkingStage = 0;
     passStage = 0;
+    greenLightDirection = 0;
     gettimeofday(&parkingState.startTime, NULL);
 }
 void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
@@ -222,30 +223,127 @@ void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         case 3 :
             Steering_Write(cvInfo.exitDirection);
             if( isWhiteLineDetected(sensorInfo) ) {
+                Alarm_Write(ON);
                 CameraYServoControl_Write(1550);
                 DesireSpeed_Write(0);
                 passStage++;
+                globalDelay = 0;
             }
             break;
         case 4 :
-            if(cvInfo.greenLightReply == 1) { // Left
+            globalDelay++;
+            if(globalDelay == 50) {
+                globalDelay = 0;
                 passStage++;
-                Steering_Write(1500);
-                DesireSpeed_Write(80);
-            }
-            else if(cvInfo.greenLightReply == 2) { // Right
-                passStage++;
-                Steering_Write(1500);
-                DesireSpeed_Write(80);
+                Alarm_Write(OFF);
             }
             break;
         case 5 :
-            if(cvInfo.isRoadClose) {
+            if(cvInfo.isTrafficLightsGreen) {
+                globalDelay = 0;
+                passStage++;
+            }
+            break;
+        case 6 :
+            globalDelay++;
+            if(globalDelay == 150) {
+                globalDelay = 0;
+                passStage++;
+            }
+            break;
+        case 7 :
+            greenLightDirection = cvInfo.greenLightReply;
+            if(greenLightDirection == 1) { // Left
+                CameraYServoControl_Write(1650);
+                Steering_Write(1500);
+                passStage++;
+            }
+            else if(greenLightDirection == 2) { // Right
+                CameraYServoControl_Write(1650);
+                Steering_Write(1500);
+                passStage++;
+            }
+            globalDelay = 0;
+            break;
+        case 8 :
+            globalDelay++;
+            if(globalDelay == 30) {
+                DesireSpeed_Write(100);
+                globalDelay = 0;
+                passStage++;
+            }
+            break;
+        case 9 :
+            if(cvInfo.isGreenLightRoadClose) {
+                if(greenLightDirection == 1) {
+                    Steering_Write(2000);
+                    passStage++;
+                }
+                else if(greenLightDirection == 2) {
+                    Steering_Write(1000);
+                    passStage++;
+                }
+            }
+            break;
+        case 10 :
+            if(cvInfo.isSafezoneDetected) {
+                passStage++;
+                Steering_Write(1500);
+                DesireSpeed_Write(100);
+            }
+            break;
+        case 11 :
+            if(!cvInfo.isSafezoneDetected) {
                 passStage++;
                 DesireSpeed_Write(0);
             }
-        case 6 :
             break;
+        case 12 :
+            break;
+            /*
+        case 4 :
+            greenLightDirection = cvInfo.greenLightReply;
+            if(greenLightDirection == 1) { // Left
+                CameraYServoControl_Write(1650);
+                Winker_Write(LEFT_ON);
+                Steering_Write(1500);
+            }
+            else if(greenLightDirection == 2) { // Right
+                CameraYServoControl_Write(1650);
+                Winker_Write(RIGHT_ON);
+                Steering_Write(1500);
+            }
+            globalDelay = 0;
+            break;
+        case 5 :
+            globalDelay++;
+            if(globalDelay == 30) {
+                DesireSpeed_Write(90);
+                globalDelay = 0;
+                passStage++;
+            }
+            break;
+        case 6 :
+            if(cvInfo.isGreenLightRoadClose) {
+                if(greenLightDirection == 1) {
+                    Steering_Write(2000);
+                    passStage++;
+                }
+                else if(greenLightDirection == 2) {
+                    Steering_Write(1000);
+                    passStage++;
+                }
+            }
+            break;
+        case 7 :
+            if(cvInfo.isSafezoneDetected) {
+                passStage++;
+                DesireSpeed_Write(0);
+            }
+            break;
+        case 8 :
+            break;
+            */
     }
     //passStage = 0;
     //data->passRequest = false;
