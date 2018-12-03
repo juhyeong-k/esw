@@ -136,11 +136,11 @@ struct thr_data {
 
 #define WHITE 3
 #define white_HUE_MAX    255
-#define white_HUE_MIN    100
-#define white_SAT_MAX    50
+#define white_HUE_MIN    90
+#define white_SAT_MAX    70
 #define white_SAT_MIN    0
 #define white_VAL_MAX    255
-#define white_VAL_MIN    150
+#define white_VAL_MIN    225
 /**
   * @Brief
   */
