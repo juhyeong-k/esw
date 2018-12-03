@@ -12,6 +12,7 @@ Driver::Driver()
     emergencyTimeout = 0;
     horizonParkingStage = 0;
     verticalParkingStage = 0;
+    passStage = 0;
     gettimeofday(&parkingState.startTime, NULL);
 }
 void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
@@ -193,8 +194,28 @@ void Driver::updateParkingState(struct thr_data *data, SensorInfo sensorInfo, Pa
 }
 void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
 {
-    data->passRequest = false;
-    printf("\r\n\r\nReceived passRequest\r\n\r\n");
+    switch(passStage)
+    {
+        case 0 :
+            passStage++;
+            Steering_Write(1000);
+            DesireSpeed_Write(100);
+            break;
+        case 1 :
+            if(cvInfo.isRoadClose) {
+                passStage++;
+            }
+            break;
+        case 2 :
+            Steering_Write(1500);
+            DesireSpeed_Write(0);
+            break;
+        case 3 :
+            break;
+    }
+    printf("\r\n\r\npassStage %d\r\n\r\n", passStage);
+    //passStage = 0;
+    //data->passRequest = false;
 }
 void Driver::requestHorizonParking(struct thr_data *data)
 {

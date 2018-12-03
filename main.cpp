@@ -160,16 +160,10 @@ void * main_thread(void *arg)
         pthread_join(tdata.threads[1], NULL);
 
         printSensorInfo(data);
-        if(data->horizonParkingRequest) {
-            driver.horizonPark(data, data->sensorInfo);
-        }
-        else if(data->verticalParkingRequest) {
-            driver.verticalPark(data, data->sensorInfo);
-        }
-        else if(data->passRequest) {
-            driver.pass(data, data->cvResult, data->sensorInfo);
-        }
-        else driver.drive(&tdata, data->cvResult, data->sensorInfo);
+        if(data->horizonParkingRequest)          driver.horizonPark(data, data->sensorInfo);
+        else if(data->verticalParkingRequest)   driver.verticalPark(data, data->sensorInfo);
+        else if(data->passRequest)                driver.pass(data, data->cvResult, data->sensorInfo);
+        else                                         driver.drive(&tdata, data->cvResult, data->sensorInfo);
 
         get_result(optime, st, et);
     }

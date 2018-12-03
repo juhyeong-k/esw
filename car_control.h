@@ -43,6 +43,7 @@ class Driver
         uint8_t emergencyTimeout;
         uint8_t horizonParkingStage;
         uint8_t verticalParkingStage;
+        uint8_t passStage;
 
         bool TurnDetected(CVinfo cvInfo);
         bool LineDetected(CVinfo cvInfo);
