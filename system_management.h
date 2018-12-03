@@ -32,6 +32,7 @@ class System_resource
 };
 struct CVinfo {
 	uint16_t direction;
+	uint16_t exitDirection;
 	bool isLeftTurnDetected;
 	bool isRightTurnDetected;
 	bool isLeftDetected;
@@ -85,7 +86,7 @@ struct thr_data {
   * @Brief
   */
 #define CAMERA_X_SERVO     1500
-#define CAMERA_Y_SERVO     1650
+#define CAMERA_Y_SERVO     1500 //1650
 
 #define FRONT_UP			79
 #define FRONT_DOWN		148
@@ -183,9 +184,8 @@ struct thr_data {
 /**
  *  Traffic Lights
  */
-#define GREENLIGHT_WIDTH_THRESHOLD		30
-#define GREENLIGHT_DETECTED_THRESHOLD		10
-#define GREENLIGHT_LEFT_THRESHOLD		    20
+#define GREENLIGHT_WIDTH_THRESHOLD			10 // High -> sensitive
+#define GREENLIGHT_DETECTED_THRESHOLD		20 // Low -> sensitive
 
 /**
  *  Tunnel
@@ -202,3 +202,6 @@ struct thr_data {
  */
 #define PASSING_WHITE_DETECT_HEIGHT		79    // FRONT_UP
 #define PASSING_WHITE_DETECT_THRESHOLD	200    // FRONT_UP
+
+#define FIND_EXIT_FRONT_UP					78
+#define FIND_EXIT_FRONT_DOWN				179

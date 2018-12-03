@@ -43,6 +43,7 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     cvInfo.isEmergency = isEmergency(red);
     cvInfo.isForwadPathExist = isForwadPathExist(yellow);
     cvInfo.isCarinFront_CV = isCarinFront_CV(white);
+    cvInfo.exitDirection = getExitDirection(yellow);
 
     // Depart handling
     if(cvInfo.isDepartedLeft)            departedFlag.isDepartedLeft = true;
@@ -78,6 +79,37 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     printf("isCarinFront_CV\t\t%d\r\n", cvInfo.isCarinFront_CV);
 
     return cvInfo;
+}
+uint16_t Navigator::getExitDirection(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint16_t x,y,i;
+    int temp = 0;
+    int number = 0;
+    int x_sum = 0;
+    int min = FIND_EXIT_FRONT_UP;
+    int exitDirection = 1500;
+    for(x = 0; x < VPE_OUTPUT_W; x++) {
+        for(y = FIND_EXIT_FRONT_DOWN; y > FIND_EXIT_FRONT_UP; y--) {
+            if(yellow[y][x][0]) {
+                temp = 0;
+                for(i = 0; i < 3; i++) {
+                    if(yellow[y-i][x][0]) temp++;
+                }
+                if(temp == 3) {
+                    if(y < min) min = y;
+                    break;
+                }
+            }
+        }
+        if( y < min + 2) {
+            x_sum += x;
+            number++;
+        }
+    }
+    if(number == 0) return 1500;
+    exitDirection = x_sum / number;
+    exitDirection = 1500 + (160 - exitDirection)*3;
+    return exitDirection;
 }
 bool Navigator::isDepartedRight(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {

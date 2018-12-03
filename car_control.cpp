@@ -10,6 +10,7 @@ Driver::Driver()
     I_term = 0;
     prev_error = 0;
     emergencyTimeout = 0;
+    globalDelay = 0;
     horizonParkingStage = 0;
     verticalParkingStage = 0;
     passStage = 0;
@@ -215,15 +216,20 @@ void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         case 2 :
             if(cvInfo.direction < 1500) {
                 passStage++;
-                Steering_Write(1500);
-                DesireSpeed_Write(0);
-                CarLight_Write(ALL_ON);
+                DesireSpeed_Write(80);
             }
             break;
         case 3 :
+            Steering_Write(cvInfo.exitDirection);
+            if( isWhiteLineDetected(sensorInfo) ) {
+                passStage++;
+            }
+            break;
+        case 4 :
+            CameraYServoControl_Write(1500);
+            DesireSpeed_Write(0);
             break;
     }
-    printf("\r\n\r\npassStage %d\r\n\r\n", passStage);
     //passStage = 0;
     //data->passRequest = false;
 }

@@ -39,6 +39,7 @@ class Navigator
         bool isEmergency(uint8_t red[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         /* Passing */
         bool isCarinFront_CV(uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        uint16_t getExitDirection(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         /* Tunnel */
         bool isTunnelDetected(uint8_t src[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         /* Safezone */
