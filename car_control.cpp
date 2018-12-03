@@ -34,6 +34,11 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         //request
     }
 
+    if( (sensorInfo.distance[1] > 2500) | (sensorInfo.distance[6] > 2500) ) {
+        DesireSpeed_Write(0);
+        return;
+    }
+
     if(parkingState.stage[3]) {
         resetParkingState(&parkingState);
         if(parkingState.horizontalDetected)     {

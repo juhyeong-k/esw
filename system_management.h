@@ -10,7 +10,7 @@
 #include <sys/sysinfo.h>
 
 #define NORMAL_SPEED		130 // 130
-#define SLOW_SPEED		100 // 100
+#define SLOW_SPEED		130 // 100
 /**
   * @Brief
   */
@@ -189,4 +189,4 @@ struct thr_data {
 /**
  *  Parking
  */
-#define PARKING_DETECT_TIMEOUT			5000
+#define PARKING_DETECT_TIMEOUT			3000
