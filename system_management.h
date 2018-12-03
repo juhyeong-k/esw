@@ -9,7 +9,8 @@
 #include <sys/types.h>
 #include <sys/sysinfo.h>
 
-#define DRIVE_SPEED		100
+#define NORMAL_SPEED		130
+#define SLOW_SPEED		100
 /**
   * @Brief
   */

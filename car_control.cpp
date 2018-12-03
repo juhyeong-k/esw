@@ -25,11 +25,9 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
     }
     else if(emergencyTimeout) {
         emergencyTimeout--;
-        if(emergencyTimeout == 0) DesireSpeed_Write(DRIVE_SPEED);
+        if(emergencyTimeout == 0) DesireSpeed_Write(NORMAL_SPEED);
         return;
     }
-    if(cvInfo.isPathStraight) DesireSpeed_Write(150);
-    else DesireSpeed_Write(80);
     // White Line detect handling
     if( isWhiteLineDetected(sensorInfo) ) {
         //request
@@ -51,6 +49,9 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
     }
 
     // Normal Driving
+    if(cvInfo.isPathStraight) DesireSpeed_Write(NORMAL_SPEED);
+    else DesireSpeed_Write(SLOW_SPEED);
+    
     if(cvInfo.isDepartedLeft) {
         driveState.isGoing = false;
         driveState.isTurningRight = true;

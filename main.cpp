@@ -139,7 +139,7 @@ void * main_thread(void *arg)
 
     PositionControlOnOff_Write(UNCONTROL);
     SpeedControlOnOff_Write(CONTROL);
-    DesireSpeed_Write(DRIVE_SPEED);
+    DesireSpeed_Write(NORMAL_SPEED);
 
     Driver driver;
     data->cvResult = {1500,0,};
