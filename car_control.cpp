@@ -28,6 +28,8 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         if(emergencyTimeout == 0) DesireSpeed_Write(DRIVE_SPEED);
         return;
     }
+    if(cvInfo.isPathStraight) DesireSpeed_Write(150);
+    else DesireSpeed_Write(80);
     // White Line detect handling
     if( isWhiteLineDetected(sensorInfo) ) {
         //request

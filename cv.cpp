@@ -35,6 +35,7 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     cvInfo.isRightReinstation = isRightReinstation(yellow);
 
     cvInfo.isRoadClose = isRoadClose(yellow);
+    cvInfo.isPathStraight = isPathStraight(yellow);
     cvInfo.isTunnelDetected = isTunnelDetected(display_buf);
     cvInfo.greenLightReply = greenLightReply(green);
     cvInfo.isSafezoneDetected = isSafezoneDetected(yellow, white);
@@ -70,6 +71,7 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     printf("\tSafezoneDetected\t%d\r\n", cvInfo.isSafezoneDetected);
     printf("isEmergency\t\t%d", cvInfo.isEmergency);
     printf("\tisForwadPathExist\t%d\r\n", cvInfo.isForwadPathExist);
+    printf("isPathStraight\t\t%d\r\n", cvInfo.isPathStraight);
 
     return cvInfo;
 }
@@ -424,19 +426,51 @@ bool Navigator::isLeftDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     if(i > threshold) return true;
     else return false;
 }
-/*
-bool Navigator::isPathStraight(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+bool Navigator::isPathStraight(uint8_t src[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     uint8_t y;
-    int x_Variation = 0;
-    int y_Variation = 0;
-    Point last;
-    Point current;
+    uint8_t i,j;
+    i = j = 0;
+    uint8_t threshold = ( (double)(FRONT_DOWN - FRONT_UP)*((double)GET_DIRECTION_THRESHOLD/100) );
+    float totalRoadDiff = 0;
+    uint16_t direction = 1500;
+    float slope;
+    Point lastRoadPoint = {0,};
+    Point roadPoint = {0,};
+    Point roadCenter = {0,};
     for(y=FRONT_DOWN; y > FRONT_UP; y--) {
-        getRoadPoint(src,y);
+        roadCenter = getRoadCenter(src, y);
+        roadPoint = getRoadPoint(src, y);
+        if(roadPoint.detected) {
+            i++;
+            lastRoadPoint = roadPoint;
+            lastPoint = roadCenter;
+            break;
+        }
+        j++;
     }
+    for(y--; y > FRONT_UP; y--) {
+        roadCenter = getRoadCenter(src, y);
+        roadPoint = getRoadPoint(src, y);
+        if(roadPoint.detected) {
+            if( !isDifferentType(roadPoint, lastRoadPoint) ) {
+                totalRoadDiff += getRoadDiff(roadPoint, lastRoadPoint);
+                lastRoadPoint = roadPoint;
+                lastPoint = roadCenter;
+            }
+            i++;
+            if(isRoadEndDetected(src, y)) break;
+        }
+        j++;
+    }
+    lastPoint = startingPoint;
+
+    if(((float)i/j)*100 > threshold) slope = (totalRoadDiff / i)/2;
+    else slope = 0;
+
+    if(abs(slope) < 0.3)  return true;
+    else                   return false;
 }
-*/
 bool Navigator::isDifferentType(Point first, Point second)
 {
     if(first.isCenterPoint & second.isCenterPoint) return false;

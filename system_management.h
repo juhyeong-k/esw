@@ -185,6 +185,6 @@ struct thr_data {
 #define TUNNEL_DETECT_THRESHOLD			3500
 
 /**
- *
+ *  Parking
  */
 #define PARKING_DETECT_TIMEOUT			5000

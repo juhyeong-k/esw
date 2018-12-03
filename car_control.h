@@ -28,6 +28,8 @@ class Driver
         };
         struct ParkingState {
             uint8_t stage[4];
+            bool horizontalDetected;
+            bool verticalDetected;
             struct timeval startTime;
             struct timeval endTime;
         };
