@@ -4,11 +4,12 @@
 Driver::Driver()
 {
     int i;
-    for(i=0; i<7; i++) parkingState.stage[i] = 0;
+    for(i=0; i<4; i++) parkingState.stage[i] = 0;
     driveState = {1,0,};
     I_term = 0;
     prev_error = 0;
     emergencyTimeout = 0;
+    horizonParkingStage = 0;
 }
 void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
 {
@@ -29,8 +30,12 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
     if( isWhiteLineDetected(sensorInfo) ) {
         //request
     }
+
+    if(parkingState.stage[3]) {
+        resetParkingState(&parkingState);
+        requestHorizonParking(data);
+    }
     updatePakingState(sensorInfo, &parkingState);
-    return;
     // Tunnel
     if(cvInfo.isTunnelDetected) {
         //goTunnel();
@@ -129,8 +134,82 @@ void Driver::updatePakingState(SensorInfo sensorInfo, ParkingState *parkingState
         if( sensorInfo.distance[2] < 400 ) {
             parkingState->stage[2] = 0;
             parkingState->stage[3] = 1;
-            DesireSpeed_Write(0);
         }
+    }
+}
+void Driver::requestHorizonParking(struct thr_data *data)
+{
+    data->horizonParkingRequest = true;
+}
+void Driver::resetParkingState(ParkingState *parkingState)
+{
+    int i;
+    for(i=0; i<4; i++) parkingState->stage[i] = 0;
+}
+void Driver::horizonPark(SensorInfo sensorInfo)
+{
+    switch(horizonParkingStage)
+    {
+        case 0 :
+            Steering_Write(2000);
+            DesireSpeed_Write(100);
+            horizonParkingStage++;
+            break;
+        case 1 :
+            if(sensorInfo.distance[3] < 200) {
+                horizonParkingStage++;
+                Steering_Write(1500);
+                DesireSpeed_Write(-100);
+            }
+            break;
+        case 2 :
+            if(sensorInfo.distance[2] > 500) {
+                horizonParkingStage++;
+                Steering_Write(2000);
+                DesireSpeed_Write(100);
+            }
+            break;
+        case 3 :
+            if(sensorInfo.distance[3] < 200) {
+                horizonParkingStage++;
+                Steering_Write(1500);
+                DesireSpeed_Write(-100);
+            }
+            break;
+        case 4 : 
+            if(sensorInfo.distance[2] > 1500) {
+                horizonParkingStage++;
+                Steering_Write(2000);
+                DesireSpeed_Write(-100);
+            }
+        break;
+        case 5 : 
+            if(sensorInfo.distance[4] > 2000) {
+                horizonParkingStage++;
+                Steering_Write(1000);
+                DesireSpeed_Write(100);
+            }
+        break;
+        case 6 :
+            if(sensorInfo.distance[1] > 2500) {
+                horizonParkingStage++;
+                Steering_Write(1500);
+                DesireSpeed_Write(-100);
+            }
+        case 7 :
+            if(sensorInfo.distance[4] > 2500) {
+                horizonParkingStage++;
+                DesireSpeed_Write(0);
+                Alarm_Write(ON);
+                CarLight_Write(ALL_ON);
+            }
+        /**
+         *
+         */
+        /*
+        case 7 :
+        */ 
+        case 8 : break;
     }
 }
 bool Driver::isWhiteLineDetected(SensorInfo sensorInfo)

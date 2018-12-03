@@ -9,7 +9,7 @@
 #include <sys/types.h>
 #include <sys/sysinfo.h>
 
-#define DRIVE_SPEED		75
+#define DRIVE_SPEED		100
 /**
   * @Brief
   */
@@ -71,6 +71,8 @@ struct thr_data {
 
     CVinfo cvResult;
     SensorInfo sensorInfo;
+
+    bool horizonParkingRequest;
 };
 /**
   * @Brief

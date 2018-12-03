@@ -159,7 +159,10 @@ void * main_thread(void *arg)
         pthread_join(tdata.threads[1], NULL);
 
         printSensorInfo(data);
-        driver.drive(&tdata, data->cvResult, data->sensorInfo);
+        if(data->horizonParkingRequest) {
+            driver.horizonPark(data->sensorInfo);
+        }
+        else driver.drive(&tdata, data->cvResult, data->sensorInfo);
 
         get_result(optime, st, et);
     }
@@ -334,6 +337,8 @@ int main(int argc, char **argv)
     tdata.vpe = vpe;
     tdata.bfull_screen = true;
     tdata.bstream_start = false;
+
+    tdata.horizonParkingRequest = false;
 
     pexam_data = &tdata;
 
