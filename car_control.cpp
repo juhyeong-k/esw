@@ -11,6 +11,7 @@ Driver::Driver()
     prev_error = 0;
     emergencyTimeout = 0;
     horizonParkingStage = 0;
+    gettimeofday(&parkingState.startTime, NULL);
 }
 void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
 {
@@ -112,9 +113,14 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
 }
 void Driver::updateParkingState(struct thr_data *data, SensorInfo sensorInfo, ParkingState *parkingState)
 {
+    uint8_t i;
     gettimeofday(&parkingState->endTime, NULL);
     uint32_t optime = ((parkingState->endTime.tv_sec - parkingState->startTime.tv_sec)*1000) 
                 + ((int)parkingState->endTime.tv_usec/1000 - (int)parkingState->startTime.tv_usec/1000);
+    printf("Parking timeout : %dms\r\n", optime);
+    if(optime > PARKING_DETECT_TIMEOUT) {
+        for(i = 0; i < 4; i++) parkingState->stage[i] = 0;
+    }
     //R front detected
     if(sensorInfo.distance[2] > 750) {
         parkingState->stage[0] = 1;
