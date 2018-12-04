@@ -31,8 +31,10 @@ class System_resource
 		long long physMemUsed;
 };
 struct CVinfo {
+	/**
+	 *  Normal Drive
+	 */
 	uint16_t direction;
-	uint16_t exitDirection;
 	bool isLeftTurnDetected;
 	bool isRightTurnDetected;
 	bool isLeftDetected;
@@ -41,23 +43,34 @@ struct CVinfo {
 	bool isPathLeft;
 	bool isPathRight;
 	bool isRoadClose;
-	bool isSideRoadClose;
-	bool isGreenLightRoadClose;
-
-	bool isTunnelDetected;
-	bool isUpperSafezoneDetected;
-	bool isLowerSafezoneDetected;
-	bool isCarinFront_CV;
-
 	bool isDepartedLeft;
 	bool isDepartedRight;
 	bool isLeftReinstation;
 	bool isRightReinstation;
-	bool isEmergency;
 	bool isForwadPathExist;
-
+	/**
+	 *  Emergency
+	 */
+	bool isEmergency;
+	/**
+	 *  Passing
+	 */
+	bool isCarinFront_CV;
+	bool isSideRoadClose;
+	uint16_t exitDirection;
+	/**
+	 *  Traffic Lights
+	 */
 	bool isTrafficLightsGreen;
 	uint8_t greenLightReply;
+	bool isGreenLightRoadClose;
+    /**
+     *  Tunnel
+     */
+	bool isTunnelDetected;
+	bool isUpperSafezoneDetected;
+	bool isLowerSafezoneDetected;
+
 };
 struct SensorInfo {
 	uint8_t line;
