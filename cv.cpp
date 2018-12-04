@@ -35,12 +35,13 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     cvInfo.isRightReinstation = isRightReinstation(yellow);
 
     cvInfo.isRoadClose = isRoadClose(yellow, ISROADCLOSE_DISTANCE);
-    cvInfo.isSideRoadClose = isRoadClose(yellow, IS_SIDE_ROADCLOSE_DISTANCE);
+    cvInfo.isSideRoadClose = isRoadClose(yellow, IS_GREENLIGHT_ROADCLOSE_DISTANCE);
     cvInfo.isGreenLightRoadClose = isRoadClose(yellow, IS_SIDE_ROADCLOSE_DISTANCE);
     cvInfo.isPathStraight = isPathStraight(yellow);
     cvInfo.isTunnelDetected = isTunnelDetected(display_buf);
     cvInfo.greenLightReply = greenLightReply(green);
-    cvInfo.isSafezoneDetected = isSafezoneDetected(yellow, white);
+    cvInfo.isUpperSafezoneDetected = isSafezoneDetected(yellow, white, SAFEZONE_UPLINE);
+    cvInfo.isLowerSafezoneDetected = isSafezoneDetected(yellow, white, SAFEZONE_DOWNLINE);
     cvInfo.isEmergency = isEmergency(red);
     cvInfo.isForwadPathExist = isForwadPathExist(yellow);
     cvInfo.isCarinFront_CV = isCarinFront_CV(white);
@@ -74,13 +75,14 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     printf("\tSideRoadClose\t\t%d\r\n", cvInfo.isSideRoadClose);
     printf("TunnelDetected\t\t%d", cvInfo.isTunnelDetected);
     printf("\tgreenLightReply\t\t%d\r\n", cvInfo.greenLightReply);
-    printf("SafezoneDetected\t%d", cvInfo.isSafezoneDetected);
+    printf("SafezoneDetected\t%d", cvInfo.isUpperSafezoneDetected);
     printf("\tisEmergency\t\t%d\r\n", cvInfo.isEmergency);
     printf("isForwadPathExist\t%d", cvInfo.isForwadPathExist);
     printf("\tisPathStraight\t\t%d\r\n", cvInfo.isPathStraight);
     printf("isCarinFront_CV\t\t%d", cvInfo.isCarinFront_CV);
     printf("\tisGreenLightRoadClose\t%d\r\n", cvInfo.isGreenLightRoadClose);
     printf("isTrafficLightsGreen\t%d\r\n", cvInfo.isTrafficLightsGreen);
+    printf("LowerSafezoneDetected\t%d\r\n", cvInfo.isLowerSafezoneDetected);
 
     return cvInfo;
 }
@@ -173,7 +175,7 @@ bool Navigator::isEmergency(uint8_t red[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     if(temp > EMERGENCY_THRESHOLD) return true;
     else return false;
 }
-bool Navigator::isSafezoneDetected(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+bool Navigator::isSafezoneDetected(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t line)
 {
     int x,y,temp;
     bool yellowDetected = false;
@@ -181,7 +183,7 @@ bool Navigator::isSafezoneDetected(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3]
     uint8_t threshold = IS_SAFEZONE_CLOSE_THRESHOLD;
     temp = 0;
 
-    for( y = SIDE_DIRECTION_SIDE_UP; y < 179; y++ ) {
+    for( y = line; y < 179; y++ ) {
         for( x = 0; x < 319; x++)
         {
             if( whiteDetected ) {

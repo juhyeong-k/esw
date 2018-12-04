@@ -45,7 +45,8 @@ struct CVinfo {
 	bool isGreenLightRoadClose;
 
 	bool isTunnelDetected;
-	bool isSafezoneDetected;
+	bool isUpperSafezoneDetected;
+	bool isLowerSafezoneDetected;
 	bool isCarinFront_CV;
 
 	bool isDepartedLeft;
@@ -171,13 +172,14 @@ struct thr_data {
 
 #define IS_SIDE_ROADCLOSE_DISTANCE		70	   // Bigger than ISROADCLOSE_THRESHOLD
 
-#define IS_GREENLIGHT_ROADCLOSE_DISTANCE	120 // Bigger than ISROADCLOSE_THRESHOLD
+#define IS_GREENLIGHT_ROADCLOSE_DISTANCE	90 // Bigger than ISROADCLOSE_THRESHOLD
 
 #define FOWARD_PATH_EXIST_DISTANCE		80
 #define FOWARD_PATH_EXIST_THRESHOLD	ISROADCLOSE_THRESHOLD
 
-#define IS_SAFEZONE_CLOSE_THRESHOLD	9
-#define SAFEZONE_CLOSE_UPLINE			129
+#define IS_SAFEZONE_CLOSE_THRESHOLD	10
+#define SAFEZONE_UPLINE					79
+#define SAFEZONE_DOWNLINE				169
 
 #define REINSTATION_WIDTH				80
 

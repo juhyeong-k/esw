@@ -286,64 +286,20 @@ void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
             }
             break;
         case 10 :
-            if(cvInfo.isSafezoneDetected) {
+            if(cvInfo.isUpperSafezoneDetected) {
                 passStage++;
                 Steering_Write(1500);
                 DesireSpeed_Write(100);
             }
             break;
         case 11 :
-            if(!cvInfo.isSafezoneDetected) {
+            if(!cvInfo.isUpperSafezoneDetected) {
                 passStage++;
                 DesireSpeed_Write(0);
             }
             break;
         case 12 :
             break;
-            /*
-        case 4 :
-            greenLightDirection = cvInfo.greenLightReply;
-            if(greenLightDirection == 1) { // Left
-                CameraYServoControl_Write(1650);
-                Winker_Write(LEFT_ON);
-                Steering_Write(1500);
-            }
-            else if(greenLightDirection == 2) { // Right
-                CameraYServoControl_Write(1650);
-                Winker_Write(RIGHT_ON);
-                Steering_Write(1500);
-            }
-            globalDelay = 0;
-            break;
-        case 5 :
-            globalDelay++;
-            if(globalDelay == 30) {
-                DesireSpeed_Write(90);
-                globalDelay = 0;
-                passStage++;
-            }
-            break;
-        case 6 :
-            if(cvInfo.isGreenLightRoadClose) {
-                if(greenLightDirection == 1) {
-                    Steering_Write(2000);
-                    passStage++;
-                }
-                else if(greenLightDirection == 2) {
-                    Steering_Write(1000);
-                    passStage++;
-                }
-            }
-            break;
-        case 7 :
-            if(cvInfo.isSafezoneDetected) {
-                passStage++;
-                DesireSpeed_Write(0);
-            }
-            break;
-        case 8 :
-            break;
-            */
     }
     //passStage = 0;
     //data->passRequest = false;
