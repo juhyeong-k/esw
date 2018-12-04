@@ -42,6 +42,7 @@ class Driver
         struct Pass {
             struct timeval startTime;
             struct timeval endTime;
+            bool direction;
         };
         DriveState driveState;
         ParkingState parkingState;

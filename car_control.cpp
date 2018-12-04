@@ -281,7 +281,7 @@ void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
             Steering_Write(1000);
             DesireSpeed_Write(100);
             break;
-        case 1 : // When SideRoad is close, go Front Left.
+        case 1 : // When SideRoad is close, go Front Right.
             if(cvInfo.isSideRoadClose) {
                 passStage++;
                 Steering_Write(2000);
@@ -623,6 +623,7 @@ void Driver::waitStartSignal()
     usleep(500000);
     CarLight_Write(ALL_OFF);
     Alarm_Write(OFF);
+    usleep(500000);
 }
 void Driver::goTunnel() {
     uint16_t leftSensor, rightSensor;

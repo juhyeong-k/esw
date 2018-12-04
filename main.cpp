@@ -139,7 +139,6 @@ void * main_thread(void *arg)
 
     PositionControlOnOff_Write(UNCONTROL);
     SpeedControlOnOff_Write(CONTROL);
-    DesireSpeed_Write(NORMAL_SPEED);
 
     Driver driver;
     data->cvResult = {1500,0,};
@@ -148,10 +147,16 @@ void * main_thread(void *arg)
     struct timeval et;
     data->sensorInfo = sensor.getInfo(); //Init sensorInfo
 
+    driver.waitStartSignal();
+    DesireSpeed_Write(50);
+    sleep(1);
+    DesireSpeed_Write(NORMAL_SPEED);
+
     pthread_create(&tdata.threads[3], NULL, sensingThread, &tdata);
     pthread_detach(tdata.threads[3]);
 
     gettimeofday(&data->systemTime, NULL);
+
     while(1)
     {
         gettimeofday(&st, NULL);
