@@ -13,12 +13,12 @@ class Driver
 {
     public:
     	Driver();
+        void waitStartSignal();
         void drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo);
         void pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo);
         void horizonPark(struct thr_data *data, SensorInfo sensorInfo);
         void verticalPark(struct thr_data *data, SensorInfo sensorInfo);
         void goTunnel();
-        void waitStartSignal();
     private:
         struct DriveState {
         	bool isGoing;
@@ -37,28 +37,33 @@ class Driver
         };
         DriveState driveState;
         ParkingState parkingState;
-
+        // Tunnel PID
         float I_term;
         float prev_error;
+        // Emergency delay
         uint8_t emergencyTimeout;
+        // global delay
         uint16_t globalDelay;
+        // Mission Stage
         uint8_t horizonParkingStage;
         uint8_t verticalParkingStage;
         uint8_t passStage;
+        // Green Light -> 1 : Left, 2 : Right
         uint8_t greenLightDirection;
 
-        bool TurnDetected(CVinfo cvInfo);
-        bool LineDetected(CVinfo cvInfo);
-
         bool isWhiteLineDetected(SensorInfo sensorInfo);
+        // Parking
         void updateParkingState(struct thr_data *data, SensorInfo sensorInfo, ParkingState *parkingState);
         void resetParkingState(ParkingState *parkingState);
         void requestHorizonParking(struct thr_data *data);
         void requestVerticalParking(struct thr_data *data);
 
+        // Normal Drive
         bool Turning(DriveState driveState);
         void StateisEnteringCurve(struct DriveState *driveState);
         void StateisGoing(struct DriveState *driveState);
+        bool TurnDetected(CVinfo cvInfo);
+        bool LineDetected(CVinfo cvInfo);
 };
 class Sensor
 {
