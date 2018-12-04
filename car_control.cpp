@@ -17,8 +17,6 @@ Driver::Driver()
     passStage = 0;
     roundaboutStage = 0;
 
-    roundaboutState.isEnd = false;
-
     greenLightDirection = 0;
 
     gettimeofday(&parkingState.startTime, NULL);
@@ -50,10 +48,12 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
     /**
      *  Tunnel
      */
-    if( (216 < sensorInfo.distance[2]) & (749 < sensorInfo.distance[6]) )
+    /*
+    if( (1000 < sensorInfo.distance[2]) && (1200 < sensorInfo.distance[6]) )
         CarLight_Write(ALL_ON);
     else
         CarLight_Write(ALL_OFF);
+    */
     if(cvInfo.isTunnelDetected) {
         //goTunnel();
         //return;
@@ -110,14 +110,6 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
                 data->passRequest = true;
         }
     }
-    /*
-    if( cvInfo.isCarinFront_CV & (sensorInfo.distance[1] > 800 ) )
-            data->passRequest = true;
-    if( cvInfo.isCarinFront_CV & (sensorInfo.distance[1] > 600 ) ) {
-        if( (1400 < cvInfo.direction) && (cvInfo.direction < 1600) )
-            data->passRequest = true;
-    }
-    */
     /**
      *  Normal Driving
      */
@@ -275,6 +267,7 @@ void Driver::roundabout(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorI
             }
             break;
         case 5 :
+            data->mission.isRoundaboutEnd = true;
             data->roundaboutRequest = false;
             break;
     }
@@ -292,16 +285,66 @@ void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
             if(cvInfo.isSideRoadClose) {
                 passStage++;
                 Steering_Write(2000);
-                DesireSpeed_Write(100);
             }
             break;
         case 2 : // When road direction < 1500, Hand over.
             if(cvInfo.direction < 1500) {
                 passStage++;
-                DesireSpeed_Write(80);
             }
             break;
         case 3 : // When white line detected, Alarm ON. Wait traffic lights.
+            Steering_Write(2000);
+            if(1200 < sensorInfo.distance[6]) {
+                passStage++;
+                globalDelay = 0;
+            }
+            break;
+        case 4 :
+            globalDelay++;
+            if(globalDelay == 20) {
+                globalDelay = 0;
+                passStage++;
+            }
+            break;
+        case 5 :
+            Steering_Write(1500);
+            if( msDelay(100) ) passStage++;
+            break;
+        case 6 :
+            Steering_Write(cvInfo.direction);
+            if( isWhiteLineDetected(sensorInfo) )   passStage++;
+            break;
+        case 7 :
+            DesireSpeed_Write(0);
+            Alarm_Write(ON);
+            CameraYServoControl_Write(1550);
+            if( msDelay(1000) ) passStage++;
+            break;
+        case 8 :
+            Alarm_Write(OFF);
+            if( cvInfo.isTrafficLightsGreen )   passStage++;
+            break;
+        case 9 :
+            if( msDelay(4000) ) passStage++;
+            break;
+        case 10 :
+            greenLightDirection = cvInfo.greenLightReply;
+            if(greenLightDirection == 1) { // Left
+                CameraYServoControl_Write(1650);
+                Steering_Write(1500);
+                Winker_Write(LEFT_ON);
+                passStage++;
+            }
+            else if(greenLightDirection == 2) { // Right
+                CameraYServoControl_Write(1650);
+                Steering_Write(1500);
+                Winker_Write(RIGHT_ON);
+                passStage++;
+            }
+            break;
+        case 11 :
+            break;
+        /*
             Steering_Write(cvInfo.exitDirection);
             if( isWhiteLineDetected(sensorInfo) ) {
                 Alarm_Write(ON);
@@ -381,6 +424,7 @@ void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
             break;
         case 12 :
             break;
+    */
     }
     //passStage = 0;
     //data->passRequest = false;
@@ -463,7 +507,7 @@ void Driver::horizonPark(struct thr_data *data, SensorInfo sensorInfo)
             break;
         case 9 : 
             /****************************************************/
-            horizonParkingStage = 0;
+            data->mission.isHorizontalEnd = true;
             data->horizonParkingRequest = false;
             break;
     }
@@ -514,7 +558,7 @@ void Driver::verticalPark(struct thr_data *data, SensorInfo sensorInfo)
             break;
         case 6 : // Untill LB not detected
             if( sensorInfo.distance[5] < 1000 ) {
-                verticalParkingStage = 0;
+                data->mission.isHorizontalEnd = true;
                 data->verticalParkingRequest = false;
             }
             break;
@@ -590,8 +634,15 @@ void Driver::goTunnel() {
 
     Steering_Write(direction);
 }
-
-
+bool Driver::msDelay(uint16_t mstime)
+{
+    globalDelay++;
+    if(globalDelay == mstime*3/100) {
+        globalDelay = 0;
+        return true;
+    }
+    else return false;
+}
 /**
  *
  */

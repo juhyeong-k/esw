@@ -160,19 +160,20 @@ void * main_thread(void *arg)
         pthread_join(tdata.threads[1], NULL);
 
         printSensorInfo(data);
-        if(data->roundaboutRequest) {
+
+        if(data->roundaboutRequest && !data->mission.isRoundaboutEnd) {
             printf("\r\nMission - roundabout\r\n");
             driver.roundabout(data, data->cvResult, data->sensorInfo);
         }
-        else if(data->horizonParkingRequest) {
+        else if(data->horizonParkingRequest && !data->mission.isHorizontalEnd) {
             printf("\r\nMission - horizonParking\r\n");
             driver.horizonPark(data, data->sensorInfo);
         }
-        else if(data->verticalParkingRequest) {
+        else if(data->verticalParkingRequest && !data->mission.isVerticalEnd) {
             printf("\r\nMission - verticalParking\r\n");
             driver.verticalPark(data, data->sensorInfo);
         }
-        else if(data->passRequest) {
+        else if(data->passRequest && !data->mission.isPassEnd) {
             printf("\r\nMission - pass\r\n");
             driver.pass(data, data->cvResult, data->sensorInfo);
         }
@@ -358,10 +359,20 @@ int main(int argc, char **argv)
     tdata.bfull_screen = true;
     tdata.bstream_start = false;
 
+    /**
+     *  Init missionRequest
+     */
     tdata.horizonParkingRequest = false;
     tdata.verticalParkingRequest = false;
     tdata.passRequest = false;
     tdata.roundaboutRequest = false;
+    /**
+     *  Init isEnd
+     */
+    tdata.mission.isRoundaboutEnd = false;
+    tdata.mission.isHorizontalEnd = false;
+    tdata.mission.isVerticalEnd = false;
+    tdata.mission.isPassEnd = false;
 
     pexam_data = &tdata;
 

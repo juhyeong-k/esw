@@ -76,6 +76,12 @@ struct CVinfo {
 	 */
 	bool isWhiteRightDetected;
 };
+struct Mission {
+	bool isRoundaboutEnd;
+	bool isHorizontalEnd;
+	bool isVerticalEnd;
+	bool isPassEnd;
+};
 struct SensorInfo {
 	uint8_t line;
 	int distance[7];
@@ -97,6 +103,7 @@ struct thr_data {
 
     CVinfo cvResult;
     SensorInfo sensorInfo;
+    Mission mission;
 
     bool horizonParkingRequest;
     bool verticalParkingRequest;

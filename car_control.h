@@ -38,7 +38,6 @@ class Driver
         struct RoundaboutState {
             struct timeval startTime;
             struct timeval endTime;
-            bool isEnd;
         };
         struct Pass {
             struct timeval startTime;
@@ -79,6 +78,8 @@ class Driver
         bool LineDetected(CVinfo cvInfo);
 
         uint32_t getOptime(struct timeval startTime, struct timeval endTime);
+
+        bool msDelay(uint16_t mstime);
 };
 class Sensor
 {
