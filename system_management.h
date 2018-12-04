@@ -97,6 +97,7 @@ struct thr_data {
     bool horizonParkingRequest;
     bool verticalParkingRequest;
     bool passRequest;
+    bool roundaboutRequest;
 };
 
 /**
@@ -113,7 +114,7 @@ struct thr_data {
 #define LINE_DETECT_THRESHOLD 			7
 #define SLOPE_DIVIDE_FACTOR	  			2
 
-#define ISROADCLOSE_DISTANCE			40
+#define ISROADCLOSE_DISTANCE			60
 #define ISROADCLOSE_THRESHOLD			5
 
 #define FOWARD_PATH_EXIST_DISTANCE		80

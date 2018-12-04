@@ -15,6 +15,7 @@ class Driver
     	Driver();
         void waitStartSignal();
         void drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo);
+        void roundabout(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo);
         void pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo);
         void horizonPark(struct thr_data *data, SensorInfo sensorInfo);
         void verticalPark(struct thr_data *data, SensorInfo sensorInfo);
@@ -35,8 +36,14 @@ class Driver
             struct timeval startTime;
             struct timeval endTime;
         };
+        struct Roundabout {
+            struct timeval startTime;
+            struct timeval endTime;
+            bool isEnd;
+        };
         DriveState driveState;
         ParkingState parkingState;
+        Roundabout roundaboutState;
         // Tunnel PID
         float I_term;
         float prev_error;
@@ -64,6 +71,8 @@ class Driver
         void StateisGoing(struct DriveState *driveState);
         bool TurnDetected(CVinfo cvInfo);
         bool LineDetected(CVinfo cvInfo);
+
+        uint32_t getOptime(struct timeval startTime, struct timeval endTime);
 };
 class Sensor
 {

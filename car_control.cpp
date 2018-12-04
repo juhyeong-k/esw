@@ -15,7 +15,11 @@ Driver::Driver()
     verticalParkingStage = 0;
     passStage = 0;
     greenLightDirection = 0;
+
+    roundaboutState.isEnd = false;
+
     gettimeofday(&parkingState.startTime, NULL);
+    gettimeofday(&roundaboutState.startTime, NULL);
 }
 void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
 {
@@ -44,6 +48,20 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
      */
     if( isWhiteLineDetected(sensorInfo) ) {
 
+    }
+    /**
+     *  Roundabout
+     */
+    if( cvInfo.isWhiteLineDetected_CV ) {
+        gettimeofday(&roundaboutState.startTime, NULL);
+    }
+    if( isWhiteLineDetected(sensorInfo) ) {
+        gettimeofday(&roundaboutState.endTime, NULL);
+        uint32_t optime = getOptime(roundaboutState.startTime, roundaboutState.endTime);
+        if(optime < 7000) {
+            if(!cvInfo.isLeftDetected && !cvInfo.isRightDetected)
+                data->roundaboutRequest = true;
+        }
     }
     /**
      *  Parking
@@ -153,6 +171,12 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         }
     }
 }
+uint32_t Driver::getOptime(struct timeval startTime, struct timeval endTime)
+{
+    uint32_t optime = ((endTime.tv_sec - startTime.tv_sec)*1000) 
+                + ((int)endTime.tv_usec/1000 - (int)startTime.tv_usec/1000);
+    return optime;
+}
 void Driver::updateParkingState(struct thr_data *data, SensorInfo sensorInfo, ParkingState *parkingState)
 {
     uint8_t i;
@@ -198,6 +222,11 @@ void Driver::updateParkingState(struct thr_data *data, SensorInfo sensorInfo, Pa
             parkingState->stage[3] = 1;
         }
     }
+}
+void Driver::roundabout(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
+{
+    DesireSpeed_Write(0);
+    CarLight_Write(ALL_OFF);
 }
 void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
 {
@@ -286,7 +315,7 @@ void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
                 }
             }
             break;
-        case 10 :
+        case 10 : // Go foward
             if(cvInfo.isUpperSafezoneDetected) {
                 passStage++;
                 Steering_Write(1500);

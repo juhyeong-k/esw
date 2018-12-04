@@ -146,10 +146,10 @@ void * main_thread(void *arg)
     uint32_t optime = 0;
     struct timeval st;
     struct timeval et;
-    //data->sensorInfo = sensor.getInfo(); //Init sensorInfo
+    data->sensorInfo = sensor.getInfo(); //Init sensorInfo
 
-    //pthread_create(&tdata.threads[3], NULL, sensingThread, &tdata);
-    //pthread_detach(tdata.threads[3]);
+    pthread_create(&tdata.threads[3], NULL, sensingThread, &tdata);
+    pthread_detach(tdata.threads[3]);
 
     gettimeofday(&data->systemTime, NULL);
     while(1)
@@ -159,8 +159,9 @@ void * main_thread(void *arg)
 
         pthread_join(tdata.threads[1], NULL);
 
-        //printSensorInfo(data);
-        if(data->horizonParkingRequest)          driver.horizonPark(data, data->sensorInfo);
+        printSensorInfo(data);
+        if(data->roundaboutRequest)               driver.roundabout(data, data->cvResult, data->sensorInfo);
+        else if(data->horizonParkingRequest)    driver.horizonPark(data, data->sensorInfo);
         else if(data->verticalParkingRequest)   driver.verticalPark(data, data->sensorInfo);
         else if(data->passRequest)                driver.pass(data, data->cvResult, data->sensorInfo);
         else                                         driver.drive(&tdata, data->cvResult, data->sensorInfo);
@@ -343,6 +344,7 @@ int main(int argc, char **argv)
     tdata.horizonParkingRequest = false;
     tdata.verticalParkingRequest = false;
     tdata.passRequest = false;
+    tdata.roundaboutRequest = false;
 
     pexam_data = &tdata;
 
