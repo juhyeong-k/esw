@@ -9,8 +9,8 @@
 #include <sys/types.h>
 #include <sys/sysinfo.h>
 
-#define NORMAL_SPEED		130 // 130
-#define SLOW_SPEED		100 // 100
+#define NORMAL_SPEED		150 // 130
+#define SLOW_SPEED		120 // 100
 /**
   * @Brief
   */
@@ -127,7 +127,7 @@ struct thr_data {
 #define REINSTATION_WIDTH				80
 
 #define WHITELINE_DETECT_THRESHOLD_CV	10
-#define WHITELINE_DETECT_THRESHOLD		3 // Low -> sensetive
+#define WHITELINE_DETECT_THRESHOLD		6 // Low -> sensetive
 /**
  *  Emergency
  */

@@ -30,20 +30,24 @@ class Driver
             bool isWhiteLineDetected;
         };
         struct ParkingState {
-            uint8_t stage[4];
             bool horizontalDetected;
             bool verticalDetected;
             struct timeval startTime;
             struct timeval endTime;
         };
-        struct Roundabout {
+        struct RoundaboutState {
             struct timeval startTime;
             struct timeval endTime;
             bool isEnd;
         };
+        struct Pass {
+            struct timeval startTime;
+            struct timeval endTime;
+        };
         DriveState driveState;
         ParkingState parkingState;
-        Roundabout roundaboutState;
+        RoundaboutState roundaboutState;
+        Pass passState;
         // Tunnel PID
         float I_term;
         float prev_error;
@@ -52,6 +56,7 @@ class Driver
         // global delay
         uint16_t globalDelay;
         // Mission Stage
+        uint8_t parkingStage;
         uint8_t horizonParkingStage;
         uint8_t verticalParkingStage;
         uint8_t passStage;

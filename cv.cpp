@@ -46,7 +46,7 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     /**
      *  Passing
      */
-    cvInfo.isCarinFront_CV = isCarinFront_CV(white);
+    cvInfo.isCarinFront_CV = ( isLeftDetected(white) | isRightDetected(white) );
     cvInfo.isSideRoadClose = isRoadClose(yellow, IS_GREENLIGHT_ROADCLOSE_DISTANCE);
     cvInfo.exitDirection = getExitDirection(yellow);
     /**
@@ -808,7 +808,7 @@ bool Navigator::isWhiteLineDetected_CV(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W
         }
     }
     lastPoint = startingPoint;
-    printf("\r\n\r\n%d\r\n\r\n", temp);
+    //printf("\r\n\r\n%d\r\n\r\n", temp);
     if(temp > WHITELINE_DETECT_THRESHOLD_CV) return true;
     else return false;
 }

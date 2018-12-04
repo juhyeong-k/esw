@@ -160,11 +160,26 @@ void * main_thread(void *arg)
         pthread_join(tdata.threads[1], NULL);
 
         printSensorInfo(data);
-        if(data->roundaboutRequest)               driver.roundabout(data, data->cvResult, data->sensorInfo);
-        else if(data->horizonParkingRequest)    driver.horizonPark(data, data->sensorInfo);
-        else if(data->verticalParkingRequest)   driver.verticalPark(data, data->sensorInfo);
-        else if(data->passRequest)                driver.pass(data, data->cvResult, data->sensorInfo);
-        else                                         driver.drive(&tdata, data->cvResult, data->sensorInfo);
+        if(data->roundaboutRequest) {
+            printf("\r\nMission - roundabout\r\n");
+            driver.roundabout(data, data->cvResult, data->sensorInfo);
+        }
+        else if(data->horizonParkingRequest) {
+            printf("\r\nMission - horizonParking\r\n");
+            driver.horizonPark(data, data->sensorInfo);
+        }
+        else if(data->verticalParkingRequest) {
+            printf("\r\nMission - verticalParking\r\n");
+            driver.verticalPark(data, data->sensorInfo);
+        }
+        else if(data->passRequest) {
+            printf("\r\nMission - pass\r\n");
+            driver.pass(data, data->cvResult, data->sensorInfo);
+        }
+        else {
+            printf("\r\nMission - drive\r\n");
+            driver.drive(&tdata, data->cvResult, data->sensorInfo);
+        }
 
         get_result(optime, st, et);
     }
@@ -288,7 +303,7 @@ int main(int argc, char **argv)
     int ret = 0;
 
     CarControlInit();
-    CarLight_Write(ALL_ON);
+    CarLight_Write(ALL_OFF);
     Winker_Write(ALL_OFF);
     CameraXServoControl_Write(CAMERA_X_SERVO);
     CameraYServoControl_Write(CAMERA_Y_SERVO);

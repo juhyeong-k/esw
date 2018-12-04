@@ -4,8 +4,6 @@
 
 Driver::Driver()
 {
-    int i;
-    for(i=0; i<4; i++) parkingState.stage[i] = 0;
     driveState = {1,0,};
     I_term = 0;
     prev_error = 0;
@@ -13,6 +11,7 @@ Driver::Driver()
     emergencyTimeout = 0;
     globalDelay = 0;
 
+    parkingStage = 0;
     horizonParkingStage = 0;
     verticalParkingStage = 0;
     passStage = 0;
@@ -24,6 +23,7 @@ Driver::Driver()
 
     gettimeofday(&parkingState.startTime, NULL);
     gettimeofday(&roundaboutState.startTime, NULL);
+    gettimeofday(&passState.startTime, NULL);
 }
 void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
 {
@@ -46,6 +46,21 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
     else if(emergencyTimeout) {
         emergencyTimeout--;
         return;
+    }
+    /**
+     *  Tunnel
+     */
+    if( (216 < sensorInfo.distance[2]) & (749 < sensorInfo.distance[6]) )
+        CarLight_Write(ALL_ON);
+    else
+        CarLight_Write(ALL_OFF);
+    if(cvInfo.isTunnelDetected) {
+        //goTunnel();
+        //return;
+    }
+    else {
+        I_term = 0;
+        prev_error = 0;
     }
     /**
      *  White Line detect handling
@@ -71,7 +86,7 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
      *  Parking
      */
     // Safety equipment required -> Once the parking is complete, skip it.
-    if(parkingState.stage[3]) {
+    if(parkingStage == 4) {
         resetParkingState(&parkingState);
         if(parkingState.horizontalDetected)     {
             requestHorizonParking(data);
@@ -84,34 +99,33 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
     /**
      *  Passing
      */
+    if(cvInfo.isCarinFront_CV) {
+        gettimeofday(&passState.startTime, NULL);
+    }
+    if( 627 < sensorInfo.distance[1] ) { //30cm
+        gettimeofday(&passState.endTime, NULL);
+        uint32_t optime = getOptime(passState.startTime, passState.endTime);
+        if(optime < 3000) {
+            if(!cvInfo.isLeftDetected && !cvInfo.isRightDetected)
+                data->passRequest = true;
+        }
+    }
+    /*
     if( cvInfo.isCarinFront_CV & (sensorInfo.distance[1] > 800 ) )
             data->passRequest = true;
     if( cvInfo.isCarinFront_CV & (sensorInfo.distance[1] > 600 ) ) {
         if( (1400 < cvInfo.direction) && (cvInfo.direction < 1600) )
             data->passRequest = true;
     }
-    /**
-     *  Tunnel
-     */
-    if(cvInfo.isTunnelDetected) {
-        //goTunnel();
-        //return;
-    }
-    else {
-        I_term = 0;
-        prev_error = 0;
-    }
-
+    */
     /**
      *  Normal Driving
      */
     // Code Cleanup Required.
-    /*
-    if( (sensorInfo.distance[1] > 2500) | (sensorInfo.distance[6] > 2500) ) {
-        DesireSpeed_Write(0);
+    if(!parkingStage) {
+        if(cvInfo.isPathStraight) DesireSpeed_Write(NORMAL_SPEED);
+        else DesireSpeed_Write(SLOW_SPEED);
     }
-    else */if(cvInfo.isPathStraight) DesireSpeed_Write(NORMAL_SPEED);
-    else DesireSpeed_Write(SLOW_SPEED);
 
     if(cvInfo.isDepartedLeft) {
         driveState.isGoing = false;
@@ -183,22 +197,21 @@ uint32_t Driver::getOptime(struct timeval startTime, struct timeval endTime)
 }
 void Driver::updateParkingState(struct thr_data *data, SensorInfo sensorInfo, ParkingState *parkingState)
 {
-    uint8_t i;
     gettimeofday(&parkingState->endTime, NULL);
     uint32_t optime = ((parkingState->endTime.tv_sec - parkingState->startTime.tv_sec)*1000) 
                 + ((int)parkingState->endTime.tv_usec/1000 - (int)parkingState->startTime.tv_usec/1000);
     //printf("Parking timeout : %dms\r\n", optime);
     if(optime > PARKING_DETECT_TIMEOUT) {
-        for(i = 0; i < 4; i++) parkingState->stage[i] = 0;
+        parkingStage = 0;
     }
     //R front detected
     if(sensorInfo.distance[2] > 650) {
         DesireSpeed_Write(SLOW_SPEED);
-        parkingState->stage[0] = 1;
         gettimeofday(&parkingState->startTime, NULL);
+        parkingStage = 1;
     }
     //R back only detected
-    if( parkingState->stage[0] ) {
+    if( parkingStage == 1 ) {
         if( sensorInfo.distance[3] > 650 ) {
             if( sensorInfo.distance[2] > 650 ) {
                 parkingState->horizontalDetected = true;
@@ -208,22 +221,19 @@ void Driver::updateParkingState(struct thr_data *data, SensorInfo sensorInfo, Pa
                 parkingState->horizontalDetected = false;
                 parkingState->verticalDetected = true;
             }
-            parkingState->stage[0] = 0;
-            parkingState->stage[1] = 1;
+            parkingStage = 2;
         }
     }
     //R front only detected
-    if( parkingState->stage[1] ) {
+    if( parkingStage == 2 ) {
         if( (sensorInfo.distance[2] > 650) && (sensorInfo.distance[3] < 650) ) {
-            parkingState->stage[1] = 0;
-            parkingState->stage[2] = 1;
+            parkingStage = 3;
         }
     }
     //R front not detected
-    if( parkingState->stage[2]) {
+    if( parkingStage == 3 ) {
         if( sensorInfo.distance[2] < 400 ) {
-            parkingState->stage[2] = 0;
-            parkingState->stage[3] = 1;
+            parkingStage = 4;
         }
     }
 }
@@ -383,8 +393,8 @@ void Driver::requestVerticalParking(struct thr_data *data) {
 }
 void Driver::resetParkingState(ParkingState *parkingState)
 {
-    int i;
-    for(i=0; i<4; i++) parkingState->stage[i] = 0;
+    if(parkingStage != 4)
+        parkingStage = 0;
 }
 void Driver::horizonPark(struct thr_data *data, SensorInfo sensorInfo)
 {
@@ -514,7 +524,7 @@ bool Driver::isWhiteLineDetected(SensorInfo sensorInfo)
 {
     uint8_t i,temp;
     temp = 0;
-    for(i = 1; i < 6; i++) {
+    for(i = 0; i < 7; i++) {
         if( ~sensorInfo.line & (1 << i) ) temp++;
     }
     if(temp > WHITELINE_DETECT_THRESHOLD) return true;
