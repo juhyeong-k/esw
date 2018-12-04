@@ -71,6 +71,10 @@ struct CVinfo {
 	bool isTunnelDetected;
 	bool isUpperSafezoneDetected;
 	bool isLowerSafezoneDetected;
+	/**
+	 *  Roundabout
+	 */
+	bool isWhiteRightDetected;
 };
 struct SensorInfo {
 	uint8_t line;
@@ -143,6 +147,10 @@ struct thr_data {
  *  Parking
  */
 #define PARKING_DETECT_TIMEOUT			3000
+/**
+ *  Roundabout
+ */
+#define ROUNDABOUT_TIMES					20
 /**
  *	Passing
  */

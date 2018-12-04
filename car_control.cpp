@@ -9,14 +9,18 @@ Driver::Driver()
     driveState = {1,0,};
     I_term = 0;
     prev_error = 0;
+
     emergencyTimeout = 0;
     globalDelay = 0;
+
     horizonParkingStage = 0;
     verticalParkingStage = 0;
     passStage = 0;
-    greenLightDirection = 0;
+    roundaboutStage = 0;
 
     roundaboutState.isEnd = false;
+
+    greenLightDirection = 0;
 
     gettimeofday(&parkingState.startTime, NULL);
     gettimeofday(&roundaboutState.startTime, NULL);
@@ -225,8 +229,45 @@ void Driver::updateParkingState(struct thr_data *data, SensorInfo sensorInfo, Pa
 }
 void Driver::roundabout(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
 {
-    DesireSpeed_Write(0);
-    CarLight_Write(ALL_OFF);
+    switch(roundaboutStage)
+    {
+        case 0 :
+            DesireSpeed_Write(0);
+            globalDelay = 0;
+            if( sensorInfo.distance[1] > 800 ) {
+                roundaboutStage++;
+            }
+            break;
+        case 1 :
+            globalDelay++;
+            if(globalDelay == 300) {
+                globalDelay = 0;
+                roundaboutStage++;
+            }
+            break;
+        case 2 :
+            drive(data, cvInfo, sensorInfo);
+            if(cvInfo.isLeftTurnDetected | ( sensorInfo.distance[1] > 2500 )) {
+                roundaboutStage++;
+            }
+            break;
+        case 3 :
+            DesireSpeed_Write(0);
+            if( sensorInfo.distance[4] > 700 ) {
+                roundaboutStage++;
+            }
+            break;
+        case 4 :
+            Steering_Write(cvInfo.direction);
+            DesireSpeed_Write(140);
+            if(cvInfo.isWhiteRightDetected) {
+                roundaboutStage++;
+            }
+            break;
+        case 5 :
+            data->roundaboutRequest = false;
+            break;
+    }
 }
 void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
 {

@@ -61,6 +61,10 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     cvInfo.isUpperSafezoneDetected = isSafezoneDetected(yellow, white, SAFEZONE_UPLINE);
     cvInfo.isLowerSafezoneDetected = isSafezoneDetected(yellow, white, SAFEZONE_DOWNLINE);
     /**
+     *  Roundabout
+     */
+    cvInfo.isWhiteRightDetected = isRightDetected(white);
+    /**
      *  Tunnel
      */
     cvInfo.isTunnelDetected = isTunnelDetected(display_buf);

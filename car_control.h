@@ -55,6 +55,7 @@ class Driver
         uint8_t horizonParkingStage;
         uint8_t verticalParkingStage;
         uint8_t passStage;
+        uint8_t roundaboutStage;
         // Green Light -> 1 : Left, 2 : Right
         uint8_t greenLightDirection;
 

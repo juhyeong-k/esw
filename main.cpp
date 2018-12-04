@@ -256,6 +256,8 @@ static struct thr_data* pexam_data = NULL;
 void signal_handler(int sig)
 {
     if(sig == SIGINT) {
+
+        CarLight_Write(ALL_OFF);
         pthread_cancel(pexam_data->threads[0]);
         pthread_cancel(pexam_data->threads[1]);
         
@@ -286,7 +288,7 @@ int main(int argc, char **argv)
     int ret = 0;
 
     CarControlInit();
-    CarLight_Write(ALL_OFF);
+    CarLight_Write(ALL_ON);
     Winker_Write(ALL_OFF);
     CameraXServoControl_Write(CAMERA_X_SERVO);
     CameraYServoControl_Write(CAMERA_Y_SERVO);
