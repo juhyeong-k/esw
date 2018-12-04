@@ -107,7 +107,7 @@ void get_result(uint32_t optime, struct timeval st, struct timeval et )
 {
     gettimeofday(&et, NULL);
     optime = ((et.tv_sec - st.tv_sec)*1000) + ((int)et.tv_usec/1000 - (int)st.tv_usec/1000);
-    printf("Operating time : %d.%dms\r\n", optime, abs((int)et.tv_usec%1000 - (int)st.tv_usec%1000));
+    printf("\r\n###### Operating time : %d.%dms\r\n", optime, abs((int)et.tv_usec%1000 - (int)st.tv_usec%1000));
 }
 void * main_thread(void *arg)
 {
@@ -210,10 +210,10 @@ void * CV_handlingThread(void *arg)
     draw.horizontal_line(bgr, SIDE_DOWN, 0, 320);
 
     /** HSV extract
-    */
     printf("H %d / S %d / V %d\r\n", image_buf[129][159][0], image_buf[129][159][1], image_buf[129][159][2]);
     draw.dot(bgr, 159, 129); draw.dot(bgr, 160, 129);
     draw.dot(bgr, 158, 129); draw.dot(bgr, 159, 130); draw.dot(bgr, 159, 128);
+    */
     memcpy(omap_bo_map(thread_disp->bo[0]), bgr, VPE_OUTPUT_IMG_SIZE);
     if (disp_post_vid_buffer(data->vpe->disp, thread_disp, 0, 0, data->vpe->dst.width, data->vpe->dst.height)) {
         ERROR("Post buffer failed");
@@ -368,14 +368,13 @@ void printSensorInfo(struct thr_data *data)
     int i;
     char byte = 0x80;
     char sensorResult = data->sensorInfo.line;
+    printf("\r\n--- Sensor info\r\n\t");
     for(i=0; i<8; i++)
     {
         if((sensorResult & byte)) printf("1");
         else printf("0");
         sensorResult = sensorResult << 1;
     }
-    printf("\r\n");
-
-    printf("%d\t%d\t%d\r\n", data->sensorInfo.distance[6], data->sensorInfo.distance[1], data->sensorInfo.distance[2]);
-    printf("%d\t%d\t%d\r\n", data->sensorInfo.distance[5], data->sensorInfo.distance[4], data->sensorInfo.distance[3]);
+    printf("\r\n\t%d\t%d\t%d\r\n", data->sensorInfo.distance[6], data->sensorInfo.distance[1], data->sensorInfo.distance[2]);
+    printf("\t%d\t%d\t%d\r\n", data->sensorInfo.distance[5], data->sensorInfo.distance[4], data->sensorInfo.distance[3]);
 }

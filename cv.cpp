@@ -81,24 +81,35 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     }
 
     // Print CV information
-    printf("*** CV ***\r\n");
-    printf("direction \t%d\r\n", cvInfo.direction);
-    printf("LeftTurnDetected\t%d\tRightTurnDetected\t%d\r\n", cvInfo.isLeftTurnDetected, cvInfo.isRightTurnDetected);
-    printf("LeftDetected\t\t%d\tRightDetected\t\t%d\r\n", cvInfo.isLeftDetected, cvInfo.isRightDetected);
-    printf("isDepartedLeft\t\t%d\tisDepartedRight\t\t%d\r\n", cvInfo.isDepartedLeft, cvInfo.isDepartedRight);
-    printf("isLeftReinstation\t%d\tisRightReinstation\t%d\r\n", cvInfo.isLeftReinstation, cvInfo.isRightReinstation);
-    printf("RoadClose\t\t%d", cvInfo.isRoadClose);
-    printf("\tSideRoadClose\t\t%d\r\n", cvInfo.isSideRoadClose);
-    printf("TunnelDetected\t\t%d", cvInfo.isTunnelDetected);
-    printf("\tgreenLightReply\t\t%d\r\n", cvInfo.greenLightReply);
-    printf("SafezoneDetected\t%d", cvInfo.isUpperSafezoneDetected);
+    /* Normal Drive */
+    printf("\r\n--- Normal Drive\r\n");
+    printf("\tdirection\t\t%d\r\n", cvInfo.direction);
+    printf("\tLeftDetected\t\t%d\tRightDetected\t\t%d\r\n", cvInfo.isLeftDetected, cvInfo.isRightDetected);
+    printf("\tLeftTurnDetected\t%d\tRightTurnDetected\t%d\r\n", cvInfo.isLeftTurnDetected, cvInfo.isRightTurnDetected);
+    printf("\tisDepartedLeft\t\t%d\tisDepartedRight\t\t%d\r\n", cvInfo.isDepartedLeft, cvInfo.isDepartedRight);
+    printf("\tisLeftReinstation\t%d\tisRightReinstation\t%d\r\n", cvInfo.isLeftReinstation, cvInfo.isRightReinstation);
+    printf("\tisForwadPathExist\t%d", cvInfo.isForwadPathExist);
+    printf("\tisPathStraight\t\t%d", cvInfo.isPathStraight);
+    printf("\tRoadClose\t\t%d\r\n", cvInfo.isRoadClose);
+    /* Emergency */
+    printf("\r\n--- Emergency\r\n");
     printf("\tisEmergency\t\t%d\r\n", cvInfo.isEmergency);
-    printf("isForwadPathExist\t%d", cvInfo.isForwadPathExist);
-    printf("\tisPathStraight\t\t%d\r\n", cvInfo.isPathStraight);
-    printf("isCarinFront_CV\t\t%d", cvInfo.isCarinFront_CV);
+    /* Passing */
+    printf("\r\n--- Passing\r\n");
+    printf("\tisCarinFront_CV\t\t%d", cvInfo.isCarinFront_CV);
+    printf("\tSideRoadClose\t\t%d\r\n", cvInfo.isSideRoadClose);
+    /* Traffic Light */
+    printf("\r\n--- Traffic Light\r\n");
+    printf("\tisTrafficLightsGreen\t%d", cvInfo.isTrafficLightsGreen);
+    printf("\tgreenLightReply\t\t%d", cvInfo.greenLightReply);
     printf("\tisGreenLightRoadClose\t%d\r\n", cvInfo.isGreenLightRoadClose);
-    printf("isTrafficLightsGreen\t%d\r\n", cvInfo.isTrafficLightsGreen);
-    printf("LowerSafezoneDetected\t%d\r\n", cvInfo.isLowerSafezoneDetected);
+    /* Safe Zone */
+    printf("\r\n--- Safe Zone\r\n");
+    printf("\tUpperSafezoneDetected\t%d", cvInfo.isUpperSafezoneDetected);
+    printf("\tLowerSafezoneDetected\t%d\r\n", cvInfo.isLowerSafezoneDetected);
+    /* Tunnel */
+    printf("\r\n--- Tunnel\r\n");
+    printf("\tTunnelDetected\t\t%d\r\n", cvInfo.isTunnelDetected);
 
     return cvInfo;
 }
@@ -218,7 +229,6 @@ bool Navigator::isSafezoneDetected(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3]
             }
         }
         if(temp > threshold) {
-            printf("IS_SAFEZONE_DETECTED\r\n");
             return true;
         }
         else temp = 0;
@@ -616,7 +626,7 @@ bool Navigator::isTrafficLightsGreen(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3
             if( green[i][j][0] ) temp++;
         }
     }
-    printf("\r\n%d\r\n", temp);
+    //printf("\r\n%d\r\n", temp);
     if(temp > GREEN_DETECT_PIXEL_THRESHOLD)    return true;
     else return false;
 }
@@ -772,7 +782,7 @@ bool Navigator::isTunnelDetected(uint8_t src[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
             if(src[y][x][2] < 50) temp++; 
         }
     }
-    printf("Value < 50 : %d\r\n", temp);
+    //printf("Value < 50 : %d\r\n", temp);
     if(temp > TUNNEL_DETECT_THRESHOLD) return true;
     else return false;
 }

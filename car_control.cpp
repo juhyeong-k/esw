@@ -19,7 +19,8 @@ Driver::Driver()
 }
 void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
 {
-    printf("Going %d Left %d Right %d EnteringCurve %d\r\n", driveState.isGoing, driveState.isTurningLeft, driveState.isTurningRight, driveState.isEnteringCurve);
+    printf("\r\n--- Drive state\r\n");
+    printf("\tGoing %d Left %d Right %d EnteringCurve %d\r\n", driveState.isGoing, driveState.isTurningLeft, driveState.isTurningRight, driveState.isEnteringCurve);
     
     /**
      *  Required speed determination function.
@@ -158,7 +159,7 @@ void Driver::updateParkingState(struct thr_data *data, SensorInfo sensorInfo, Pa
     gettimeofday(&parkingState->endTime, NULL);
     uint32_t optime = ((parkingState->endTime.tv_sec - parkingState->startTime.tv_sec)*1000) 
                 + ((int)parkingState->endTime.tv_usec/1000 - (int)parkingState->startTime.tv_usec/1000);
-    printf("Parking timeout : %dms\r\n", optime);
+    //printf("Parking timeout : %dms\r\n", optime);
     if(optime > PARKING_DETECT_TIMEOUT) {
         for(i = 0; i < 4; i++) parkingState->stage[i] = 0;
     }
