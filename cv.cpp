@@ -37,6 +37,7 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     cvInfo.isRoadClose = isRoadClose(yellow, ISROADCLOSE_DISTANCE);
     cvInfo.isPathStraight = isPathStraight(yellow);
     cvInfo.isForwadPathExist = isForwadPathExist(yellow);
+    cvInfo.isWhiteLineDetected = isWhiteLineDetected(yellow, white);
     /************************************************************************************/
     /**
      *  Emergency
@@ -91,6 +92,8 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     printf("\tisForwadPathExist\t%d", cvInfo.isForwadPathExist);
     printf("\tisPathStraight\t\t%d", cvInfo.isPathStraight);
     printf("\tRoadClose\t\t%d\r\n", cvInfo.isRoadClose);
+    printf("\tisWhiteLineDetected\t%d\r\n", cvInfo.isWhiteLineDetected);
+    
     /* Emergency */
     printf("\r\n--- Emergency\r\n");
     printf("\tisEmergency\t\t%d\r\n", cvInfo.isEmergency);
@@ -212,9 +215,6 @@ bool Navigator::isSafezoneDetected(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3]
     return false;
 }
 /**
- *  Get informations
- */
-/**
  *  Draw functions 
  */
 void Navigator::drawPath(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
@@ -222,7 +222,7 @@ void Navigator::drawPath(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (
     uint16_t y;
     Point roadCenter = {0,};
     for(y=VPE_OUTPUT_H-1; y > 0; y--) {
-        roadCenter = getRoadCenter(src, y);\
+        roadCenter = getRoadCenter(src, y);
         if(roadCenter.detected) {
             drawDot(des, roadCenter);
             drawDot(des, getRightPosition(src, y));
@@ -445,11 +445,10 @@ bool Navigator::isTunnelDetected(uint8_t src[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     if(temp > TUNNEL_DETECT_THRESHOLD) return true;
     else return false;
 }
-
 /**
  *  Normal Drive
  */
-uint16_t Navigator::getDirection(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+uint16_t Navigator::getDirection(uint8_t src[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     uint8_t y;
     uint8_t i,j;
@@ -791,6 +790,25 @@ bool Navigator::isPathStraight(uint8_t src[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 
     if(abs(slope) < 0.3)  return true;
     else                   return false;
+}
+bool Navigator::isWhiteLineDetected(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint16_t y;
+    int temp = 0;
+    Point roadCenter = {0,};
+    for(y=VPE_OUTPUT_H-1; y > 0; y--) {
+        roadCenter = getRoadCenter(yellow, y);
+        if(roadCenter.detected) {
+            if(white[roadCenter.y][roadCenter.x][0])
+                temp++;
+            lastPoint = roadCenter;
+            if(isRoadEndDetected(yellow, y)) break;
+        }
+    }
+    lastPoint = startingPoint;
+    printf("\r\n\r\n%d\r\n\r\n", temp);
+    if(temp > WHITE_LINE_DETECTED_THRESHOLD) return true;
+    else return false;
 }
 bool Navigator::isDifferentType(Point first, Point second)
 {

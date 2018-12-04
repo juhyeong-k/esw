@@ -48,6 +48,7 @@ struct CVinfo {
 	bool isLeftReinstation;
 	bool isRightReinstation;
 	bool isForwadPathExist;
+	bool isWhiteLineDetected;
 	/**
 	 *  Emergency
 	 */
@@ -70,7 +71,6 @@ struct CVinfo {
 	bool isTunnelDetected;
 	bool isUpperSafezoneDetected;
 	bool isLowerSafezoneDetected;
-
 };
 struct SensorInfo {
 	uint8_t line;
@@ -171,6 +171,8 @@ struct thr_data {
 #define lineDectectTHRESHOLD 7
 #define colorDetectTHRESHOLD 700 //trash
 #define LINE_DIVIDE_FACTOR	  2
+
+#define WHITE_LINE_DETECTED_THRESHOLD	10
 
 /* CV.cpp */
 #define ROAD_END_DETCTED_THRESHOLD		3

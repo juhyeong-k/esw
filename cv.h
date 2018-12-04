@@ -78,7 +78,7 @@ class Navigator
         bool isLeftReinstation(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         bool isRightReinstation(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         bool isForwadPathExist(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
-
+        bool isWhiteLineDetected(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         /* Functions for CV class */
         bool isDifferentType(Point first, Point second);
 
