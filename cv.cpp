@@ -113,6 +113,22 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
 
     return cvInfo;
 }
+/**
+ *  Passing
+ */
+bool Navigator::isCarinFront_CV(uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint16_t x,y;
+    int temp = 0;
+    for(x = 0; x < VPE_OUTPUT_W; x++) {
+        for(y = 0; y < PASSING_WHITE_DETECT_HEIGHT; y++) {
+            if(white[y][x][0]) temp++;
+        }
+    }
+    //printf("\r\n\r\n white : %d\r\n", temp);
+    if(temp > PASSING_WHITE_DETECT_THRESHOLD) return true;
+    else return false;
+}
 uint16_t Navigator::getExitDirection(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     uint16_t x,y,i;
@@ -144,52 +160,9 @@ uint16_t Navigator::getExitDirection(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][
     exitDirection = 1500 + (160 - exitDirection)*3;
     return exitDirection;
 }
-bool Navigator::isDepartedRight(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
-{
-    Point point = getRoadPoint(yellow, 179);
-    if(point.y) {
-        if(point.x < 2) return true;
-    }
-    return false;
-}
-bool Navigator::isDepartedLeft(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
-{
-    Point point = getRoadPoint(yellow, 179);
-    if(point.y) {
-        if(point.x > 317) return true;
-    }
-    return false;
-}
-bool Navigator::isLeftReinstation(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
-{
-    uint8_t i;
-    uint8_t temp = 0;
-    Point point = getRoadPoint(yellow, 179);
-    if(point.y) {
-        for(i=0; i<5; i++) {
-            if(!yellow[179][i][0]) temp++;
-        }
-        if(temp == 5) {
-            if(point.x < REINSTATION_WIDTH) return true;
-        }
-    }
-    return false;
-}
-bool Navigator::isRightReinstation(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
-{
-    uint8_t i;
-    uint8_t temp = 0;
-    Point point = getRoadPoint(yellow, 179);
-    if(point.y) {
-        for(i=0; i<5; i++) {
-            if(!yellow[179][319-i][0]) temp++;
-        }
-        if(temp == 5) {
-            if(point.x > 319 - REINSTATION_WIDTH) return true;
-        }
-    }
-    return false;
-}
+/**
+ *  Emergency
+ */
 bool Navigator::isEmergency(uint8_t red[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     uint16_t x,y;
@@ -202,6 +175,9 @@ bool Navigator::isEmergency(uint8_t red[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     if(temp > EMERGENCY_THRESHOLD) return true;
     else return false;
 }
+/**
+ *  Safe zone
+ */
 bool Navigator::isSafezoneDetected(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t line)
 {
     int x,y,temp;
@@ -238,326 +214,6 @@ bool Navigator::isSafezoneDetected(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3]
 /**
  *  Get informations
  */
-Navigator::Point Navigator::getStartingPoint(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
-{
-    uint8_t y;
-    Point roadCenter;
-    for(y=VPE_OUTPUT_H-1; y > 0; y--) {
-        roadCenter = getRoadCenter(src, y);
-        if(roadCenter.detected) {
-            return roadCenter;
-        }
-    }
-    return {(VPE_OUTPUT_W/2), VPE_OUTPUT_H, 0,};
-}
-Navigator::Point Navigator::getRoadCenter(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y)
-{
-    Point roadPoint = {0,};
-    Point right_point = getRightPosition(src,y);
-    Point left_point = getLeftPosition(src,y);
-    if(right_point.detected & left_point.detected) {
-        roadPoint.x = (right_point.x + left_point.x)/2;
-        roadPoint.y = (right_point.y + left_point.y)/2;
-        roadPoint.detected = true;
-    }
-    else if( right_point.detected ) {
-        roadPoint.x = right_point.x / 2;
-        roadPoint.y = right_point.y;
-        roadPoint.detected = true;
-    }
-    else if( left_point.detected ) {
-        roadPoint.x = left_point.x + (VPE_OUTPUT_W - left_point.x)/ 2;
-        roadPoint.y = left_point.y;
-        roadPoint.detected = true;
-    }
-    else roadPoint.detected = false;
-    return roadPoint;
-}
-Navigator::Point Navigator::getRoadPoint(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y)
-{
-    Point roadPoint = {0,};
-    Point right_point = getRightPosition(src,y);
-    Point left_point = getLeftPosition(src,y);
-    
-    if(right_point.detected & left_point.detected) {
-        roadPoint.x = (right_point.x + left_point.x)/2;
-        roadPoint.y = (right_point.y + left_point.y)/2;
-        roadPoint.detected = true;
-        roadPoint.isCenterPoint = true;
-    }
-    else if( right_point.detected ) {
-        roadPoint.x = right_point.x;
-        roadPoint.y = right_point.y;
-        roadPoint.detected = true;
-        roadPoint.isRightPoint = true;
-    }
-    else if( left_point.detected ) {
-        roadPoint.x = left_point.x;
-        roadPoint.y = left_point.y;
-        roadPoint.detected = true;
-        roadPoint.isLeftPoint = true;
-    }
-    else roadPoint.detected = false;
-    return roadPoint;
-}
-Navigator::Point Navigator::getRightPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y)
-{
-    uint16_t temp,i,j;
-    // detect direction from Right
-    temp = 0;
-    Point point = {0,};
-    for(i = lastPoint.x; i < VPE_OUTPUT_W; i++) {
-        if( src[y][i][0] )
-        {
-            for(j=1; j<11; j++) {
-                if( src[y][i+j][0] )    temp++;
-            }
-            if(temp > lineDectectTHRESHOLD) {
-                point = {i, y, true};
-                return point;
-            }
-        }
-    }
-    return point;
-}
-Navigator::Point Navigator::getLeftPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y)
-{
-    uint16_t temp,i,j;
-    // detect direction from Left
-    temp = 0;
-    Point point = {0,};
-    for(i = lastPoint.x; i > 0; i--) {
-        if( src[y][i][0] )
-        {
-            for(j=1; j<11; j++) {
-                if( src[y][i-j][0] )    temp++;
-            }
-            if(temp > lineDectectTHRESHOLD) {
-                point = {i, y, true};
-                return point;
-            }
-        }
-    }
-    return point;
-}
-uint16_t Navigator::getDirection(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
-{
-    uint8_t y;
-    uint8_t i,j;
-    i = j = 0;
-    uint8_t threshold = ( (double)(SIDE_DOWN - SIDE_UP)*((double)GET_DIRECTION_THRESHOLD/100) );
-    float totalRoadDiff = 0;
-    uint16_t direction = 1500;
-    float slope;
-    Point lastRoadPoint = {0,};
-    Point roadPoint = {0,};
-    Point roadCenter = {0,};
-    for(y=SIDE_DOWN; y > SIDE_UP; y--) {
-        roadCenter = getRoadCenter(src, y);
-        roadPoint = getRoadPoint(src, y);
-        if(roadPoint.detected) {
-            i++;
-            lastRoadPoint = roadPoint;
-            lastPoint = roadCenter;
-            break;
-        }
-        j++;
-    }
-    for(y--; y > SIDE_UP; y--) {
-        roadCenter = getRoadCenter(src, y);
-        roadPoint = getRoadPoint(src, y);
-        if(roadPoint.detected) {
-            if( !isDifferentType(roadPoint, lastRoadPoint) ) {
-                totalRoadDiff += getRoadDiff(roadPoint, lastRoadPoint);
-                lastRoadPoint = roadPoint;
-                lastPoint = roadCenter;
-            }
-            i++;
-            if(isRoadEndDetected(src, y)) break;
-        }
-        j++;
-    }
-    lastPoint = startingPoint;
-
-    if(((float)i/j)*100 > threshold) slope = (totalRoadDiff / i)/LINE_DIVIDE_FACTOR;
-    else slope = 0;
-    if(slope == 0)              direction = 1500;
-    else if(slope > 1.11)      direction = 2000;    // Left
-    else if (slope < -1.11)   direction = 1000;     // Right
-    else                        direction = (uint16_t)(1500 + 450 * slope);
-    return direction;
-}
-float Navigator::getRoadDiff(Point current, Point last)
-{
-    int x_Variation, y_Variation;
-    x_Variation = current.x - last.x;
-    y_Variation = current.y - last.y;
-    if( !(x_Variation && y_Variation) ) return 0;
-    else return (float)x_Variation / y_Variation;
-}
-/**
- *  Check state
- */
-bool Navigator::isRoadClose(uint8_t src[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t distance)
-{
-    uint8_t y,i,temp;
-    temp = 0;
-    for( y = 179; y > 100; y--) {
-        if( src[y][159][0] ) {
-            for(i=1; i<11; i++) {
-                if( src[y-i][159][0] ) temp++;
-            }
-            if( temp >  ISROADCLOSE_THRESHOLD ) {
-                if( y > (179 - distance) ) return true;
-            }
-        }
-    }
-    return false;
-}
-bool Navigator::isForwadPathExist(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
-{
-    uint8_t y,i,temp;
-    temp = 0;
-    for( y = 179; y > 179 - FOWARD_PATH_EXIST_DISTANCE; y--) {
-        if( yellow[y][159][0] ) {
-            for(i=1; i<11; i++) {
-                if( yellow[y-i][159][0] ) temp++;
-            }
-            if( temp >  FOWARD_PATH_EXIST_THRESHOLD )   return false;
-        }
-    }
-    return true;
-}
-bool Navigator::isRightDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
-{
-    uint8_t y;
-    uint8_t i = 0;
-    uint8_t threshold = SIDE_DIRECTION_THRESHOLD;
-    Point lastRoadPoint = {0,};
-    Point roadPoint = {0,};
-    Point roadCenter = {0,};
-    for(y=SIDE_DIRECTION_SIDE_DOWN; y > SIDE_DIRECTION_SIDE_UP; y--) {
-        roadCenter = getRoadCenter(src, y);
-        roadPoint = getRoadPoint(src, y);
-        if(roadPoint.isRightPoint | roadPoint.isCenterPoint) {
-            i++;
-            lastRoadPoint = roadPoint;
-            lastPoint = roadCenter;
-            break;
-        }
-    }
-    for(y--; y > SIDE_DIRECTION_SIDE_UP; y--) {
-        roadCenter = getRoadCenter(src, y);
-        roadPoint = getRoadPoint(src, y);
-        if(roadPoint.isRightPoint | roadPoint.isCenterPoint) {
-            lastRoadPoint = roadPoint;
-            lastPoint = roadCenter;
-            i++;
-            if(isRoadEndDetected(src, y)) return true;
-        }
-    }
-    lastPoint = startingPoint;
-
-    if(i > threshold) return true;
-    else return false;
-}
-bool Navigator::isLeftDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
-{
-    uint8_t y;
-    uint8_t i = 0;
-    uint8_t threshold = SIDE_DIRECTION_THRESHOLD;
-    Point lastRoadPoint = {0,};
-    Point roadPoint = {0,};
-    Point roadCenter = {0,};
-    for(y=SIDE_DIRECTION_SIDE_DOWN; y > SIDE_DIRECTION_SIDE_UP; y--) {
-        roadCenter = getRoadCenter(src, y);
-        roadPoint = getRoadPoint(src, y);
-        if(roadPoint.isLeftPoint | roadPoint.isCenterPoint) {
-            i++;
-            lastRoadPoint = roadPoint;
-            lastPoint = roadCenter;
-            break;
-        }
-    }
-    for(y--; y > SIDE_DIRECTION_SIDE_UP; y--) {
-        roadCenter = getRoadCenter(src, y);
-        roadPoint = getRoadPoint(src, y);
-        if(roadPoint.isLeftPoint | roadPoint.isCenterPoint) {
-            lastRoadPoint = roadPoint;
-            lastPoint = roadCenter;
-            i++;
-            if(isRoadEndDetected(src, y)) return true;
-        }
-    }
-    lastPoint = startingPoint;
-
-    if(i > threshold) return true;
-    else return false;
-}
-bool Navigator::isPathStraight(uint8_t src[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
-{
-    uint8_t y;
-    uint8_t i,j;
-    i = j = 0;
-    uint8_t threshold = ( (double)(FRONT_DOWN - FRONT_UP)*((double)GET_DIRECTION_THRESHOLD/100) );
-    float totalRoadDiff = 0;
-    float slope;
-    Point lastRoadPoint = {0,};
-    Point roadPoint = {0,};
-    Point roadCenter = {0,};
-    for(y=FRONT_DOWN; y > FRONT_UP; y--) {
-        roadCenter = getRoadCenter(src, y);
-        roadPoint = getRoadPoint(src, y);
-        if(roadPoint.detected) {
-            i++;
-            lastRoadPoint = roadPoint;
-            lastPoint = roadCenter;
-            break;
-        }
-        j++;
-    }
-    for(y--; y > FRONT_UP; y--) {
-        roadCenter = getRoadCenter(src, y);
-        roadPoint = getRoadPoint(src, y);
-        if(roadPoint.detected) {
-            if( !isDifferentType(roadPoint, lastRoadPoint) ) {
-                totalRoadDiff += getRoadDiff(roadPoint, lastRoadPoint);
-                lastRoadPoint = roadPoint;
-                lastPoint = roadCenter;
-            }
-            i++;
-            if(isRoadEndDetected(src, y)) break;
-        }
-        j++;
-    }
-    lastPoint = startingPoint;
-
-    if(((float)i/j)*100 > threshold) slope = (totalRoadDiff / i)/2;
-    else return false;
-
-    if(abs(slope) < 0.3)  return true;
-    else                   return false;
-}
-bool Navigator::isDifferentType(Point first, Point second)
-{
-    if(first.isCenterPoint & second.isCenterPoint) return false;
-    else if(first.isRightPoint & second.isRightPoint) return false;
-    else if(first.isLeftPoint & second.isLeftPoint) return false;
-    else return true;
-}
-bool Navigator::isCarinFront_CV(uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
-{
-    uint16_t x,y;
-    int temp = 0;
-    for(x = 0; x < VPE_OUTPUT_W; x++) {
-        for(y = 0; y < PASSING_WHITE_DETECT_HEIGHT; y++) {
-            if(white[y][x][0]) temp++;
-        }
-    }
-    //printf("\r\n\r\n white : %d\r\n", temp);
-    if(temp > PASSING_WHITE_DETECT_THRESHOLD) return true;
-    else return false;
-}
 /**
  *  Draw functions 
  */
@@ -617,6 +273,9 @@ bool Navigator::isRoadEndDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], 
     }
     return false;
 }
+/**
+ *  Traffic Lights.
+ */
 bool Navigator::isTrafficLightsGreen(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     uint16_t i,j,temp;
@@ -787,7 +446,359 @@ bool Navigator::isTunnelDetected(uint8_t src[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     else return false;
 }
 
+/**
+ *  Normal Drive
+ */
+uint16_t Navigator::getDirection(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint8_t y;
+    uint8_t i,j;
+    i = j = 0;
+    uint8_t threshold = ( (double)(SIDE_DOWN - SIDE_UP)*((double)GET_DIRECTION_THRESHOLD/100) );
+    float totalRoadDiff = 0;
+    uint16_t direction = 1500;
+    float slope;
+    Point lastRoadPoint = {0,};
+    Point roadPoint = {0,};
+    Point roadCenter = {0,};
+    for(y=SIDE_DOWN; y > SIDE_UP; y--) {
+        roadCenter = getRoadCenter(src, y);
+        roadPoint = getRoadPoint(src, y);
+        if(roadPoint.detected) {
+            i++;
+            lastRoadPoint = roadPoint;
+            lastPoint = roadCenter;
+            break;
+        }
+        j++;
+    }
+    for(y--; y > SIDE_UP; y--) {
+        roadCenter = getRoadCenter(src, y);
+        roadPoint = getRoadPoint(src, y);
+        if(roadPoint.detected) {
+            if( !isDifferentType(roadPoint, lastRoadPoint) ) {
+                totalRoadDiff += getRoadDiff(roadPoint, lastRoadPoint);
+                lastRoadPoint = roadPoint;
+                lastPoint = roadCenter;
+            }
+            i++;
+            if(isRoadEndDetected(src, y)) break;
+        }
+        j++;
+    }
+    lastPoint = startingPoint;
 
+    if(((float)i/j)*100 > threshold) slope = (totalRoadDiff / i)/LINE_DIVIDE_FACTOR;
+    else slope = 0;
+    if(slope == 0)              direction = 1500;
+    else if(slope > 1.11)      direction = 2000;    // Left
+    else if (slope < -1.11)   direction = 1000;     // Right
+    else                        direction = (uint16_t)(1500 + 450 * slope);
+    return direction;
+}
+Navigator::Point Navigator::getRoadCenter(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y)
+{
+    Point roadPoint = {0,};
+    Point right_point = getRightPosition(src,y);
+    Point left_point = getLeftPosition(src,y);
+    if(right_point.detected & left_point.detected) {
+        roadPoint.x = (right_point.x + left_point.x)/2;
+        roadPoint.y = (right_point.y + left_point.y)/2;
+        roadPoint.detected = true;
+    }
+    else if( right_point.detected ) {
+        roadPoint.x = right_point.x / 2;
+        roadPoint.y = right_point.y;
+        roadPoint.detected = true;
+    }
+    else if( left_point.detected ) {
+        roadPoint.x = left_point.x + (VPE_OUTPUT_W - left_point.x)/ 2;
+        roadPoint.y = left_point.y;
+        roadPoint.detected = true;
+    }
+    else roadPoint.detected = false;
+    return roadPoint;
+}
+Navigator::Point Navigator::getRoadPoint(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y)
+{
+    Point roadPoint = {0,};
+    Point right_point = getRightPosition(src,y);
+    Point left_point = getLeftPosition(src,y);
+    
+    if(right_point.detected & left_point.detected) {
+        roadPoint.x = (right_point.x + left_point.x)/2;
+        roadPoint.y = (right_point.y + left_point.y)/2;
+        roadPoint.detected = true;
+        roadPoint.isCenterPoint = true;
+    }
+    else if( right_point.detected ) {
+        roadPoint.x = right_point.x;
+        roadPoint.y = right_point.y;
+        roadPoint.detected = true;
+        roadPoint.isRightPoint = true;
+    }
+    else if( left_point.detected ) {
+        roadPoint.x = left_point.x;
+        roadPoint.y = left_point.y;
+        roadPoint.detected = true;
+        roadPoint.isLeftPoint = true;
+    }
+    else roadPoint.detected = false;
+    return roadPoint;
+}
+Navigator::Point Navigator::getRightPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y)
+{
+    uint16_t temp,i,j;
+    // detect direction from Right
+    temp = 0;
+    Point point = {0,};
+    for(i = lastPoint.x; i < VPE_OUTPUT_W; i++) {
+        if( src[y][i][0] )
+        {
+            for(j=1; j<11; j++) {
+                if( src[y][i+j][0] )    temp++;
+            }
+            if(temp > lineDectectTHRESHOLD) {
+                point = {i, y, true};
+                return point;
+            }
+        }
+    }
+    return point;
+}
+Navigator::Point Navigator::getLeftPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y)
+{
+    uint16_t temp,i,j;
+    // detect direction from Left
+    temp = 0;
+    Point point = {0,};
+    for(i = lastPoint.x; i > 0; i--) {
+        if( src[y][i][0] )
+        {
+            for(j=1; j<11; j++) {
+                if( src[y][i-j][0] )    temp++;
+            }
+            if(temp > lineDectectTHRESHOLD) {
+                point = {i, y, true};
+                return point;
+            }
+        }
+    }
+    return point;
+}
+Navigator::Point Navigator::getStartingPoint(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint8_t y;
+    Point roadCenter;
+    for(y=VPE_OUTPUT_H-1; y > 0; y--) {
+        roadCenter = getRoadCenter(src, y);
+        if(roadCenter.detected) {
+            return roadCenter;
+        }
+    }
+    return {(VPE_OUTPUT_W/2), VPE_OUTPUT_H, 0,};
+}
+float Navigator::getRoadDiff(Point current, Point last)
+{
+    int x_Variation, y_Variation;
+    x_Variation = current.x - last.x;
+    y_Variation = current.y - last.y;
+    if( !(x_Variation && y_Variation) ) return 0;
+    else return (float)x_Variation / y_Variation;
+}
+bool Navigator::isDepartedRight(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    Point point = getRoadPoint(yellow, 179);
+    if(point.y) {
+        if(point.x < 2) return true;
+    }
+    return false;
+}
+bool Navigator::isDepartedLeft(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    Point point = getRoadPoint(yellow, 179);
+    if(point.y) {
+        if(point.x > 317) return true;
+    }
+    return false;
+}
+bool Navigator::isLeftReinstation(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint8_t i;
+    uint8_t temp = 0;
+    Point point = getRoadPoint(yellow, 179);
+    if(point.y) {
+        for(i=0; i<5; i++) {
+            if(!yellow[179][i][0]) temp++;
+        }
+        if(temp == 5) {
+            if(point.x < REINSTATION_WIDTH) return true;
+        }
+    }
+    return false;
+}
+bool Navigator::isRightReinstation(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint8_t i;
+    uint8_t temp = 0;
+    Point point = getRoadPoint(yellow, 179);
+    if(point.y) {
+        for(i=0; i<5; i++) {
+            if(!yellow[179][319-i][0]) temp++;
+        }
+        if(temp == 5) {
+            if(point.x > 319 - REINSTATION_WIDTH) return true;
+        }
+    }
+    return false;
+}
+bool Navigator::isRoadClose(uint8_t src[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t distance)
+{
+    uint8_t y,i,temp;
+    temp = 0;
+    for( y = 179; y > 100; y--) {
+        if( src[y][159][0] ) {
+            for(i=1; i<11; i++) {
+                if( src[y-i][159][0] ) temp++;
+            }
+            if( temp >  ISROADCLOSE_THRESHOLD ) {
+                if( y > (179 - distance) ) return true;
+            }
+        }
+    }
+    return false;
+}
+bool Navigator::isForwadPathExist(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint8_t y,i,temp;
+    temp = 0;
+    for( y = 179; y > 179 - FOWARD_PATH_EXIST_DISTANCE; y--) {
+        if( yellow[y][159][0] ) {
+            for(i=1; i<11; i++) {
+                if( yellow[y-i][159][0] ) temp++;
+            }
+            if( temp >  FOWARD_PATH_EXIST_THRESHOLD )   return false;
+        }
+    }
+    return true;
+}
+bool Navigator::isRightDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint8_t y;
+    uint8_t i = 0;
+    uint8_t threshold = SIDE_DIRECTION_THRESHOLD;
+    Point lastRoadPoint = {0,};
+    Point roadPoint = {0,};
+    Point roadCenter = {0,};
+    for(y=SIDE_DIRECTION_SIDE_DOWN; y > SIDE_DIRECTION_SIDE_UP; y--) {
+        roadCenter = getRoadCenter(src, y);
+        roadPoint = getRoadPoint(src, y);
+        if(roadPoint.isRightPoint | roadPoint.isCenterPoint) {
+            i++;
+            lastRoadPoint = roadPoint;
+            lastPoint = roadCenter;
+            break;
+        }
+    }
+    for(y--; y > SIDE_DIRECTION_SIDE_UP; y--) {
+        roadCenter = getRoadCenter(src, y);
+        roadPoint = getRoadPoint(src, y);
+        if(roadPoint.isRightPoint | roadPoint.isCenterPoint) {
+            lastRoadPoint = roadPoint;
+            lastPoint = roadCenter;
+            i++;
+            if(isRoadEndDetected(src, y)) return true;
+        }
+    }
+    lastPoint = startingPoint;
+
+    if(i > threshold) return true;
+    else return false;
+}
+bool Navigator::isLeftDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint8_t y;
+    uint8_t i = 0;
+    uint8_t threshold = SIDE_DIRECTION_THRESHOLD;
+    Point lastRoadPoint = {0,};
+    Point roadPoint = {0,};
+    Point roadCenter = {0,};
+    for(y=SIDE_DIRECTION_SIDE_DOWN; y > SIDE_DIRECTION_SIDE_UP; y--) {
+        roadCenter = getRoadCenter(src, y);
+        roadPoint = getRoadPoint(src, y);
+        if(roadPoint.isLeftPoint | roadPoint.isCenterPoint) {
+            i++;
+            lastRoadPoint = roadPoint;
+            lastPoint = roadCenter;
+            break;
+        }
+    }
+    for(y--; y > SIDE_DIRECTION_SIDE_UP; y--) {
+        roadCenter = getRoadCenter(src, y);
+        roadPoint = getRoadPoint(src, y);
+        if(roadPoint.isLeftPoint | roadPoint.isCenterPoint) {
+            lastRoadPoint = roadPoint;
+            lastPoint = roadCenter;
+            i++;
+            if(isRoadEndDetected(src, y)) return true;
+        }
+    }
+    lastPoint = startingPoint;
+
+    if(i > threshold) return true;
+    else return false;
+}
+bool Navigator::isPathStraight(uint8_t src[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint8_t y;
+    uint8_t i,j;
+    i = j = 0;
+    uint8_t threshold = ( (double)(FRONT_DOWN - FRONT_UP)*((double)GET_DIRECTION_THRESHOLD/100) );
+    float totalRoadDiff = 0;
+    float slope;
+    Point lastRoadPoint = {0,};
+    Point roadPoint = {0,};
+    Point roadCenter = {0,};
+    for(y=FRONT_DOWN; y > FRONT_UP; y--) {
+        roadCenter = getRoadCenter(src, y);
+        roadPoint = getRoadPoint(src, y);
+        if(roadPoint.detected) {
+            i++;
+            lastRoadPoint = roadPoint;
+            lastPoint = roadCenter;
+            break;
+        }
+        j++;
+    }
+    for(y--; y > FRONT_UP; y--) {
+        roadCenter = getRoadCenter(src, y);
+        roadPoint = getRoadPoint(src, y);
+        if(roadPoint.detected) {
+            if( !isDifferentType(roadPoint, lastRoadPoint) ) {
+                totalRoadDiff += getRoadDiff(roadPoint, lastRoadPoint);
+                lastRoadPoint = roadPoint;
+                lastPoint = roadCenter;
+            }
+            i++;
+            if(isRoadEndDetected(src, y)) break;
+        }
+        j++;
+    }
+    lastPoint = startingPoint;
+
+    if(((float)i/j)*100 > threshold) slope = (totalRoadDiff / i)/2;
+    else return false;
+
+    if(abs(slope) < 0.3)  return true;
+    else                   return false;
+}
+bool Navigator::isDifferentType(Point first, Point second)
+{
+    if(first.isCenterPoint & second.isCenterPoint) return false;
+    else if(first.isRightPoint & second.isRightPoint) return false;
+    else if(first.isLeftPoint & second.isLeftPoint) return false;
+    else return true;
+}
 
 
 
