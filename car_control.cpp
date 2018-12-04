@@ -203,25 +203,25 @@ void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
 {
     switch(passStage)
     {
-        case 0 :
+        case 0 : // Front Right.
             passStage++;
             Steering_Write(1000);
             DesireSpeed_Write(100);
             break;
-        case 1 :
+        case 1 : // When SideRoad is close, go Front Left.
             if(cvInfo.isSideRoadClose) {
                 passStage++;
                 Steering_Write(2000);
                 DesireSpeed_Write(100);
             }
             break;
-        case 2 :
+        case 2 : // When road direction < 1500, Hand over.
             if(cvInfo.direction < 1500) {
                 passStage++;
                 DesireSpeed_Write(80);
             }
             break;
-        case 3 :
+        case 3 : // When white line detected, Alarm ON. Wait traffic lights.
             Steering_Write(cvInfo.exitDirection);
             if( isWhiteLineDetected(sensorInfo) ) {
                 Alarm_Write(ON);
@@ -231,7 +231,7 @@ void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
                 globalDelay = 0;
             }
             break;
-        case 4 :
+        case 4 : // Delay. Alram OFF.
             globalDelay++;
             if(globalDelay == 50) {
                 globalDelay = 0;
@@ -239,20 +239,20 @@ void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
                 Alarm_Write(OFF);
             }
             break;
-        case 5 :
+        case 5 : // Wait TrafficLightsGreen
             if(cvInfo.isTrafficLightsGreen) {
                 globalDelay = 0;
                 passStage++;
             }
             break;
-        case 6 :
+        case 6 : // Delay.
             globalDelay++;
             if(globalDelay == 150) {
                 globalDelay = 0;
                 passStage++;
             }
             break;
-        case 7 :
+        case 7 : // Judge the direction. Camera Y Servo adjustment.
             greenLightDirection = cvInfo.greenLightReply;
             if(greenLightDirection == 1) { // Left
                 CameraYServoControl_Write(1650);
@@ -266,7 +266,7 @@ void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
             }
             globalDelay = 0;
             break;
-        case 8 :
+        case 8 : // Delay.
             globalDelay++;
             if(globalDelay == 30) {
                 DesireSpeed_Write(100);
@@ -274,7 +274,7 @@ void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
                 passStage++;
             }
             break;
-        case 9 :
+        case 9 : // When green light road is close, turn. 
             if(cvInfo.isGreenLightRoadClose) {
                 if(greenLightDirection == 1) {
                     Steering_Write(2000);
