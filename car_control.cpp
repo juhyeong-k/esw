@@ -62,12 +62,12 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
     /**
      *  Passing
      */
-    if( cvInfo.isCarinFront_CV & (sensorInfo.distance[1] > 600 ) )
-        if( (1400 < cvInfo.direction) && (cvInfo.direction < 1600) ) {
-            data->passRequest = true;
-        }
     if( cvInfo.isCarinFront_CV & (sensorInfo.distance[1] > 800 ) )
             data->passRequest = true;
+    if( cvInfo.isCarinFront_CV & (sensorInfo.distance[1] > 600 ) ) {
+        if( (1400 < cvInfo.direction) && (cvInfo.direction < 1600) )
+            data->passRequest = true;
+    }
     /**
      *  Tunnel
      */
@@ -305,12 +305,10 @@ void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
     //passStage = 0;
     //data->passRequest = false;
 }
-void Driver::requestHorizonParking(struct thr_data *data)
-{
+void Driver::requestHorizonParking(struct thr_data *data) {
     data->horizonParkingRequest = true;
 }
-void Driver::requestVerticalParking(struct thr_data *data)
-{
+void Driver::requestVerticalParking(struct thr_data *data) {
     data->verticalParkingRequest = true;
 }
 void Driver::resetParkingState(ParkingState *parkingState)
@@ -322,71 +320,69 @@ void Driver::horizonPark(struct thr_data *data, SensorInfo sensorInfo)
 {
     switch(horizonParkingStage)
     {
-        case 0 :
+        case 0 : // Foward Left
             Steering_Write(2000);
             DesireSpeed_Write(100);
             horizonParkingStage++;
             break;
-        case 1 :
+        case 1 : // Backward
             if(sensorInfo.distance[3] < 200) {
-                horizonParkingStage++;
                 Steering_Write(1500);
                 DesireSpeed_Write(-100);
+                horizonParkingStage++;
             }
             break;
-        case 2 :
+        case 2 : // Foward Left
             if(sensorInfo.distance[2] > 500) {
-                horizonParkingStage++;
                 Steering_Write(2000);
                 DesireSpeed_Write(100);
+                horizonParkingStage++;
             }
             break;
-        case 3 :
+        case 3 : // Backward
             if(sensorInfo.distance[3] < 200) {
-                horizonParkingStage++;
                 Steering_Write(1500);
                 DesireSpeed_Write(-100);
+                horizonParkingStage++;
             }
             break;
-        case 4 : 
+        case 4 : // Backward Left
             if(sensorInfo.distance[2] > 1500) {
-                horizonParkingStage++;
                 Steering_Write(2000);
                 DesireSpeed_Write(-100);
+                horizonParkingStage++;
             }
             break;
-        case 5 : 
+        case 5 : // Foward Right
             if(sensorInfo.distance[4] > 2200) {
-                horizonParkingStage++;
                 Steering_Write(1000);
                 DesireSpeed_Write(100);
+                horizonParkingStage++;
             }
             break;
-        case 6 :
+        case 6 : // Backward
             if(sensorInfo.distance[1] > 2500) {
-                horizonParkingStage++;
                 Steering_Write(1500);
                 DesireSpeed_Write(-100);
+                horizonParkingStage++;
             }
             break;
-        case 7 :
+        case 7 : // Foward Left
             if(sensorInfo.distance[4] > 2500) {
-                horizonParkingStage++;
                 Steering_Write(2000);
                 DesireSpeed_Write(100);
+                horizonParkingStage++;
             }
             break;
-        /**
-         *
-         */
-        case 8 :
+        case 8 : // Foward Right
             if(sensorInfo.distance[2] < 300) {
-                horizonParkingStage++;
                 Steering_Write(1000);
                 DesireSpeed_Write(100);
+                horizonParkingStage++;
             }
             break;
-        case 9 :
+        case 9 : 
+            /****************************************************/
             horizonParkingStage = 0;
             data->horizonParkingRequest = false;
             break;
@@ -396,47 +392,47 @@ void Driver::verticalPark(struct thr_data *data, SensorInfo sensorInfo)
 {
     switch(verticalParkingStage)
     {
-        case 0 :
+        case 0 : // Foward Left
             verticalParkingStage++;
             Steering_Write(2000);
             DesireSpeed_Write(100);
             break;
-        case 1 :
+        case 1 : // Backward
             if( sensorInfo.distance[3] < 300 ) {
-                verticalParkingStage++;
                 Steering_Write(1500);
                 DesireSpeed_Write(-100);
+                verticalParkingStage++;
             }
             break;
-        case 2 :
+        case 2 : // Backward Right
             if( sensorInfo.distance[3] > 750 ) {
-                verticalParkingStage++;
                 Steering_Write(1000);
                 DesireSpeed_Write(-100);
+                verticalParkingStage++;
             }
             break;
-        case 3 :
+        case 3 : // Backward
             if( sensorInfo.distance[3] > 2000 ) {
-                verticalParkingStage++;
                 Steering_Write(1500);
                 DesireSpeed_Write(-100);
+                verticalParkingStage++;
             }
             break;
-        case 4 :
+        case 4 : // Foward
             if( sensorInfo.distance[4] > 2500 ) {
-                verticalParkingStage++;
                 Steering_Write(1500);
                 DesireSpeed_Write(100);
+                verticalParkingStage++;
             }
             break;
-        case 5 : //escape
+        case 5 : // Foward Right
             if( sensorInfo.distance[2] < 300 ) {
-                verticalParkingStage++;
                 Steering_Write(1150);
                 DesireSpeed_Write(100);
+                verticalParkingStage++;
             }
             break;
-        case 6 :
+        case 6 : // Untill LB not detected
             if( sensorInfo.distance[5] < 1000 ) {
                 verticalParkingStage = 0;
                 data->verticalParkingRequest = false;
@@ -451,7 +447,7 @@ bool Driver::isWhiteLineDetected(SensorInfo sensorInfo)
     for(i = 1; i < 6; i++) {
         if( ~sensorInfo.line & (1 << i) ) temp++;
     }
-    if(temp > 3) return true;
+    if(temp > WHITELINE_DETECT_THRESHOLD) return true;
     else return false;
 }
 bool Driver::TurnDetected(CVinfo cvInfo)
@@ -484,8 +480,7 @@ void Driver::StateisGoing(struct DriveState *driveState)
 void Driver::waitStartSignal()
 {
 	uint16_t fowardDistance;
-    while(1)
-    {
+    while(1) {
     	fowardDistance = DistanceSensor(1);
     	if(fowardDistance > 4000) break;
     	usleep(100000);
