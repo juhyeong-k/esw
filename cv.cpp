@@ -17,8 +17,9 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
 {
     startingPoint = getStartingPoint(yellow);
     CVinfo cvInfo = {1500, 0,};
-
-    // Update CV information
+    /**
+     *  Normal Drive
+     */
     cvInfo.direction = getDirection(yellow);
     if(cvInfo.direction == 2000)         cvInfo.isLeftTurnDetected = true;
     else if(cvInfo.direction == 1000)   cvInfo.isRightTurnDetected = true;
@@ -33,20 +34,35 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
 
     cvInfo.isLeftReinstation = isLeftReinstation(yellow);
     cvInfo.isRightReinstation = isRightReinstation(yellow);
-
     cvInfo.isRoadClose = isRoadClose(yellow, ISROADCLOSE_DISTANCE);
-    cvInfo.isSideRoadClose = isRoadClose(yellow, IS_GREENLIGHT_ROADCLOSE_DISTANCE);
-    cvInfo.isGreenLightRoadClose = isRoadClose(yellow, IS_SIDE_ROADCLOSE_DISTANCE);
     cvInfo.isPathStraight = isPathStraight(yellow);
-    cvInfo.isTunnelDetected = isTunnelDetected(display_buf);
+    cvInfo.isForwadPathExist = isForwadPathExist(yellow);
+    /************************************************************************************/
+    /**
+     *  Emergency
+     */
+    cvInfo.isEmergency = isEmergency(red);
+    /**
+     *  Passing
+     */
+    cvInfo.isCarinFront_CV = isCarinFront_CV(white);
+    cvInfo.isSideRoadClose = isRoadClose(yellow, IS_GREENLIGHT_ROADCLOSE_DISTANCE);
+    cvInfo.exitDirection = getExitDirection(yellow);
+    /**
+     *  Traffic Light
+     */
+    cvInfo.isTrafficLightsGreen = isTrafficLightsGreen(green);
     cvInfo.greenLightReply = greenLightReply(green);
+    cvInfo.isGreenLightRoadClose = isRoadClose(yellow, IS_SIDE_ROADCLOSE_DISTANCE);
+    /**
+     *  Safe Zone
+     */
     cvInfo.isUpperSafezoneDetected = isSafezoneDetected(yellow, white, SAFEZONE_UPLINE);
     cvInfo.isLowerSafezoneDetected = isSafezoneDetected(yellow, white, SAFEZONE_DOWNLINE);
-    cvInfo.isEmergency = isEmergency(red);
-    cvInfo.isForwadPathExist = isForwadPathExist(yellow);
-    cvInfo.isCarinFront_CV = isCarinFront_CV(white);
-    cvInfo.exitDirection = getExitDirection(yellow);
-    cvInfo.isTrafficLightsGreen = isTrafficLightsGreen(green);
+    /**
+     *  Tunnel
+     */
+    cvInfo.isTunnelDetected = isTunnelDetected(display_buf);
 
     // Depart handling
     if(cvInfo.isDepartedLeft)            departedFlag.isDepartedLeft = true;
@@ -591,41 +607,6 @@ bool Navigator::isRoadEndDetected(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], 
     }
     return false;
 }
-/**
-  * @ Traffic Lights
-  *
-  */
-/*
-uint8_t Navigator::isTrafficLightsGreen(uint8_t (green)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (yellow)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t (red)[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
-{
-    uint16_t i,j,temp;
-    temp = 0;
-    for(i=0; i<VPE_OUTPUT_H/2; i++) {
-        for(j=0; j<VPE_OUTPUT_W; j++) {
-            if( green[i][j][0] ) temp++;
-        }
-    }
-    if(temp > colorDetectTHRESHOLD)    return 1;
-
-    temp = 0;
-    for(i=0; i<VPE_OUTPUT_H/2; i++) {
-        for(j=0; j<VPE_OUTPUT_W; j++) {
-            if( yellow[i][j][0] ) temp++;
-        }
-    }
-    if(temp > colorDetectTHRESHOLD)    return 2;
-
-    temp = 0;
-    for(i=0; i<VPE_OUTPUT_H/2; i++) {
-        for(j=0; j<VPE_OUTPUT_W; j++) {
-            if( red[i][j][0] ) temp++;
-        }
-    }
-    if(temp > colorDetectTHRESHOLD)    return 2;
-
-    return 3;
-}
-*/
 bool Navigator::isTrafficLightsGreen(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     uint16_t i,j,temp;
@@ -782,37 +763,6 @@ bool Navigator::isGreenLightReliable(uint16_t y_down, uint16_t y_up, uint16_t gr
     if( (y_down + y_up - 2 * greenHeight) < GREENLIGHT_DETECTED_THRESHOLD) return true;
     else return false;
 }
-/*
-int Navigator::getFrontLineSlope()
-{
-
-}
-*/
-/*
-uint16_t Navigator::getGreenVerticalAxis()
-{
-    uint16_t y,x,i,temp;
-    uint16_t y_up = greenHeight;
-    uint16_t greenVerticalAxis = 0;
-    for(x = leftPoint.x; x < rightPoint.x; x++) {
-        for(y = greenHeight; y > 5; y--) {
-            temp = 0;
-            if(!green[y][x][0]) {
-                for(i = 1; i < 6; i++) {
-                    if(!green[y-i][x][0]) temp++;
-                }
-                if(temp == 5) {
-                    if(y < y_up)  {
-                        y_up = y;
-                        return y_up;
-                    }
-                }
-            }
-        }
-    }
-    return y_up;
-}
-*/
 bool Navigator::isTunnelDetected(uint8_t src[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
     uint16_t x,y;
@@ -826,6 +776,21 @@ bool Navigator::isTunnelDetected(uint8_t src[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     if(temp > TUNNEL_DETECT_THRESHOLD) return true;
     else return false;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

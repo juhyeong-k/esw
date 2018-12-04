@@ -46,8 +46,6 @@ class Navigator
         /* GreenLight */
         bool isTrafficLightsGreen(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         uint8_t greenLightReply(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
-        uint8_t greenLightReply_2(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
-        uint8_t greenLightReply_3(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         int getGreenHeight(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         uint16_t getGreenTop_x(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t greenHeight, Point leftPoint, Point rightPoint);
         uint16_t getGreenUp(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t greenHeight, Point leftPoint, Point rightPoint);
@@ -87,4 +85,7 @@ class Navigator
         /* Draw functions */
         void drawDot(uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], Point point);
         void drawBigdot(uint8_t (des)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], Point point);
+
+        //uint8_t greenLightReply_2(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        //uint8_t greenLightReply_3(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
 };
