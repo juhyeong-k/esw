@@ -294,17 +294,10 @@ void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
             break;
         case 3 : // When white line detected, Alarm ON. Wait traffic lights.
             Steering_Write(2000);
-            if(1200 < sensorInfo.distance[6]) {
-                passStage++;
-                globalDelay = 0;
-            }
+            if(1200 < sensorInfo.distance[6]) passStage++;
             break;
         case 4 :
-            globalDelay++;
-            if(globalDelay == 20) {
-                globalDelay = 0;
-                passStage++;
-            }
+            if( msDelay(660) ) passStage++;
             break;
         case 5 :
             Steering_Write(1500);
@@ -331,18 +324,34 @@ void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
             greenLightDirection = cvInfo.greenLightReply;
             if(greenLightDirection == 1) { // Left
                 CameraYServoControl_Write(1650);
-                Steering_Write(1500);
-                Winker_Write(LEFT_ON);
                 passStage++;
             }
             else if(greenLightDirection == 2) { // Right
                 CameraYServoControl_Write(1650);
-                Steering_Write(1500);
-                Winker_Write(RIGHT_ON);
                 passStage++;
             }
             break;
         case 11 :
+            if( msDelay(2000) ) passStage++;
+            break;
+        case 12 : // When green light road is close, turn. 
+            Steering_Write(1500);
+            DesireSpeed_Write(80);
+            if(cvInfo.isGreenLightRoadClose) {
+                if(greenLightDirection == 1)        Steering_Write(2000);
+                else if(greenLightDirection == 2)  Steering_Write(1000);
+                passStage++;
+            }
+            break;
+        case 13 :
+            if( msDelay(5000) ) passStage++;
+            break;
+        case 14 : // Go foward
+            Steering_Write(1500);
+            if( msDelay(3000) ) passStage++;
+            break;
+        case 15 :
+            DesireSpeed_Write(0);
             break;
         /*
             Steering_Write(cvInfo.exitDirection);

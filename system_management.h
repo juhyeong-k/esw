@@ -145,7 +145,7 @@ struct thr_data {
 #define GREENLIGHT_WIDTH_THRESHOLD			10 // High -> sensitive
 #define GREENLIGHT_DETECTED_THRESHOLD		5 // Low -> sensitive
 #define GREEN_DETECT_PIXEL_THRESHOLD      80
-#define IS_GREENLIGHT_ROADCLOSE_DISTANCE	90 // Bigger than ISROADCLOSE_THRESHOLD
+#define IS_GREENLIGHT_ROADCLOSE_DISTANCE	60 // Bigger than ISROADCLOSE_THRESHOLD
 /**
  *  Tunnel
  */

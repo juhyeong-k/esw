@@ -54,7 +54,7 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
      */
     cvInfo.isTrafficLightsGreen = isTrafficLightsGreen(green);
     cvInfo.greenLightReply = greenLightReply(green);
-    cvInfo.isGreenLightRoadClose = isRoadClose(yellow, IS_SIDE_ROADCLOSE_DISTANCE);
+    cvInfo.isGreenLightRoadClose = isRoadClose(yellow, IS_GREENLIGHT_ROADCLOSE_DISTANCE);
     /**
      *  Safe Zone
      */
