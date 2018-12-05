@@ -198,7 +198,7 @@ void Driver::updateParkingState(struct thr_data *data, SensorInfo sensorInfo, Pa
     }
     //R front detected
     if(parkingStage == 0) {
-        if(sensorInfo.distance[2] > 650) {
+        if(sensorInfo.distance[2] > 600) {
             DesireSpeed_Write(PARKING_SPEED);
             gettimeofday(&parkingState->startTime, NULL);
             parkingStage = 1;
@@ -206,8 +206,8 @@ void Driver::updateParkingState(struct thr_data *data, SensorInfo sensorInfo, Pa
     }
     //R back only detected
     if( parkingStage == 1 ) {
-        if( sensorInfo.distance[3] > 650 ) {
-            if( sensorInfo.distance[2] > 650 ) {
+        if( sensorInfo.distance[3] > 600 ) {
+            if( sensorInfo.distance[2] > 600 ) {
                 parkingState->horizontalDetected = true;
                 parkingState->verticalDetected = false;
             }
@@ -220,7 +220,7 @@ void Driver::updateParkingState(struct thr_data *data, SensorInfo sensorInfo, Pa
     }
     //R front only detected
     if( parkingStage == 2 ) {
-        if( (sensorInfo.distance[2] > 650) && (sensorInfo.distance[3] < 650) ) {
+        if( (sensorInfo.distance[2] > 560) && (sensorInfo.distance[3] < 560) ) {
             parkingStage = 3;
         }
     }
@@ -456,68 +456,75 @@ void Driver::horizonPark(struct thr_data *data, SensorInfo sensorInfo)
 {
     switch(horizonParkingStage)
     {
-        case 0 : // Foward Left
+        case 0 :
+            Steering_Write(1500);
+            DesireSpeed_Write(-100);
+            if( msDelay(700) ) horizonParkingStage++;
+            break;
+        case 1 : // Foward Left
             Steering_Write(2000);
             DesireSpeed_Write(100);
-            horizonParkingStage++;
+            if(sensorInfo.distance[3] < 200) horizonParkingStage++;
             break;
-        case 1 : // Backward
-            if(sensorInfo.distance[3] < 200) {
-                Steering_Write(1500);
-                DesireSpeed_Write(-100);
+        case 2 : // Backward
+            Steering_Write(1700);
+            DesireSpeed_Write(-100);
+            if(sensorInfo.distance[2] > 500) horizonParkingStage++;
+            break;
+        case 3 : // Foward Left
+            Steering_Write(2000);
+            DesireSpeed_Write(100);
+            if(sensorInfo.distance[3] < 200) horizonParkingStage++;
+            break;
+        case 4 : // Backward
+            Steering_Write(1500);
+            DesireSpeed_Write(-100);
+            if(sensorInfo.distance[2] > 1500) horizonParkingStage++;
+            break;
+        case 5 : // Backward Left
+            Steering_Write(2000);
+            DesireSpeed_Write(-100);
+            if(sensorInfo.distance[4] > 2200) horizonParkingStage++;
+            break;
+        case 6 : // Foward Right
+            Steering_Write(1000);
+            DesireSpeed_Write(100);
+            if(sensorInfo.distance[1] > 2500) horizonParkingStage++;
+            break;
+        case 7 : // Backward
+            Steering_Write(1500);
+            DesireSpeed_Write(-100);
+            if(sensorInfo.distance[4] > 2500) horizonParkingStage++;
+            break;
+        case 8 :
+            Alarm_Write(ON);
+            DesireSpeed_Write(0);
+            if( msDelay(1000) ) {
+                Alarm_Write(OFF);
                 horizonParkingStage++;
             }
             break;
-        case 2 : // Foward Left
-            if(sensorInfo.distance[2] > 500) {
-                Steering_Write(2000);
-                DesireSpeed_Write(100);
-                horizonParkingStage++;
-            }
+        case 9 : // Foward Left
+            Steering_Write(2000);
+            DesireSpeed_Write(100);
+            if( msDelay(500) ) horizonParkingStage++;
             break;
-        case 3 : // Backward
-            if(sensorInfo.distance[3] < 200) {
-                Steering_Write(1500);
-                DesireSpeed_Write(-100);
-                horizonParkingStage++;
-            }
+        case 10 :
+            Steering_Write(1500);
+            DesireSpeed_Write(-100);
+            if( msDelay(500) ) horizonParkingStage++;
             break;
-        case 4 : // Backward Left
-            if(sensorInfo.distance[2] > 1500) {
-                Steering_Write(2000);
-                DesireSpeed_Write(-100);
-                horizonParkingStage++;
-            }
+        case 11 : // Foward Left
+            Steering_Write(2000);
+            DesireSpeed_Write(100);
+            if( sensorInfo.distance[2] < 300 ) horizonParkingStage++;
             break;
-        case 5 : // Foward Right
-            if(sensorInfo.distance[4] > 2200) {
-                Steering_Write(1000);
-                DesireSpeed_Write(100);
-                horizonParkingStage++;
-            }
+        case 12 : // Foward Right
+            Steering_Write(1000);
+            DesireSpeed_Write(100);
+            if( msDelay(1500) ) horizonParkingStage++;
             break;
-        case 6 : // Backward
-            if(sensorInfo.distance[1] > 2500) {
-                Steering_Write(1500);
-                DesireSpeed_Write(-100);
-                horizonParkingStage++;
-            }
-            break;
-        case 7 : // Foward Left
-            if(sensorInfo.distance[4] > 2500) {
-                Steering_Write(2000);
-                DesireSpeed_Write(100);
-                horizonParkingStage++;
-            }
-            break;
-        case 8 : // Foward Right
-            if(sensorInfo.distance[2] < 300) {
-                Steering_Write(1000);
-                DesireSpeed_Write(100);
-                horizonParkingStage++;
-            }
-            break;
-        case 9 : 
+        case 13 :
             /****************************************************/
             data->mission.isHorizontalEnd = true;
             data->horizonParkingRequest = false;

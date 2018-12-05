@@ -11,7 +11,7 @@
 
 #define NORMAL_SPEED		130 // 130
 #define SLOW_SPEED		105 // 100
-#define PARKING_SPEED	100 // 100
+#define PARKING_SPEED	90 // 100
 
 /**
  *  Normal Drive
@@ -58,7 +58,7 @@
 /**
  *  Parking
  */
-#define PARKING_DETECT_TIMEOUT			5000
+#define PARKING_DETECT_TIMEOUT			7000
 /**
  *  Roundabout
  */
