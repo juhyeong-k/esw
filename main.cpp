@@ -145,12 +145,11 @@ void * main_thread(void *arg)
     uint32_t optime = 0;
     struct timeval st;
     struct timeval et;
-    data->sensorInfo = sensor.getInfo(); //Init sensorInfo
-
+    int xxx;
     driver.waitStartSignal();
-    DesireSpeed_Write(40);
+    DesireSpeed_Write(50);
     sleep(1);
-
+    data->sensorInfo.line = 0b01111111;
     pthread_create(&tdata.threads[3], NULL, sensingThread, &tdata);
     pthread_detach(tdata.threads[3]);
 
@@ -177,7 +176,8 @@ void * main_thread(void *arg)
             printf("\r\nMission - verticalParking\r\n");
             driver.verticalPark(data, data->sensorInfo);
         }
-        else if(data->passRequest && !data->mission.isPassEnd) {
+        else if(data->passRequest && !data->mission.isPassEnd && data->mission.isRoundaboutEnd
+            && data->mission.isHorizontalEnd && data->mission.isVerticalEnd) {
             printf("\r\nMission - pass\r\n");
             driver.pass(data, data->cvResult, data->sensorInfo);
         }

@@ -71,7 +71,7 @@ class Driver
 
         bool isWhiteLineDetected(SensorInfo sensorInfo);
         // Parking
-        void updateParkingState(struct thr_data *data, SensorInfo sensorInfo, ParkingState *parkingState);
+        void updateParkingState(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo, ParkingState *parkingState);
         void resetParkingState(ParkingState *parkingState);
         void requestHorizonParking(struct thr_data *data);
         void requestVerticalParking(struct thr_data *data);

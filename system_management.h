@@ -43,13 +43,14 @@
 /**
  *  Emergency
  */
-#define EMERGENCY_THRESHOLD				300
+#define EMERGENCY_THRESHOLD				700
 /**
  *  Traffic Lights
  */
 #define GREENLIGHT_WIDTH_THRESHOLD			10 // High -> sensitive
 #define GREENLIGHT_DETECTED_THRESHOLD		5 // Low -> sensitive
 #define GREEN_DETECT_PIXEL_THRESHOLD      80
+#define RED_DETECT_PIXEL_THRESHOLD      80
 #define IS_GREENLIGHT_ROADCLOSE_DISTANCE	60 // Bigger than ISROADCLOSE_THRESHOLD
 /**
  *  Tunnel
@@ -58,7 +59,7 @@
 /**
  *  Parking
  */
-#define PARKING_DETECT_TIMEOUT			10000
+#define PARKING_DETECT_TIMEOUT			30000
 /**
  *  Roundabout
  */
@@ -82,7 +83,7 @@
   */
 #define YELLOW 0
 #define yellow_HUE_MAX    45
-#define yellow_HUE_MIN    7
+#define yellow_HUE_MIN    0
 #define yellow_SAT_MAX    255
 #define yellow_SAT_MIN    30
 #define yellow_VAL_MAX    255
@@ -188,6 +189,7 @@ struct CVinfo {
 	 *  Traffic Lights
 	 */
 	bool isTrafficLightsGreen;
+	bool isTrafficLightsRed;
 	uint8_t greenLightReply;
 	bool isGreenLightRoadClose;
     /**

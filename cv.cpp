@@ -54,6 +54,7 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
      *  Traffic Light
      */
     cvInfo.isTrafficLightsGreen = isTrafficLightsGreen(green);
+    cvInfo.isTrafficLightsRed = isTrafficLightsRed(red);
     cvInfo.greenLightReply = greenLightReply(green);
     cvInfo.isGreenLightRoadClose = isRoadClose(yellow, IS_GREENLIGHT_ROADCLOSE_DISTANCE);
     /**
@@ -315,6 +316,19 @@ bool Navigator::isTrafficLightsGreen(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3
     }
     //printf("\r\n%d\r\n", temp);
     if(temp > GREEN_DETECT_PIXEL_THRESHOLD)    return true;
+    else return false;
+}
+bool Navigator::isTrafficLightsRed(uint8_t red[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint16_t i,j,temp;
+    temp = 0;
+    for(i=0; i<VPE_OUTPUT_H/2; i++) {
+        for(j=0; j<VPE_OUTPUT_W; j++) {
+            if( red[i][j][0] ) temp++;
+        }
+    }
+    //printf("\r\n%d\r\n", temp);
+    if(temp > RED_DETECT_PIXEL_THRESHOLD)    return true;
     else return false;
 }
 uint8_t Navigator::greenLightReply(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3])

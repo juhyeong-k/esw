@@ -46,6 +46,7 @@ class Navigator
         bool isSafezoneDetected(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t line);
         /* GreenLight */
         bool isTrafficLightsGreen(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
+        bool isTrafficLightsRed(uint8_t Red[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         uint8_t greenLightReply(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         int getGreenHeight(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3]);
         uint16_t getGreenTop_x(uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t greenHeight, Point leftPoint, Point rightPoint);
