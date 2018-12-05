@@ -70,6 +70,10 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
      *  Tunnel
      */
     cvInfo.isTunnelDetected = isTunnelDetected(display_buf);
+    /**
+     *  DownHill
+     */
+    cvInfo.isDownHillDetected = isDownHillDetected(display_buf);
 
     // Depart handling
     if(cvInfo.isDepartedLeft)            departedFlag.isDepartedLeft = true;
@@ -119,6 +123,8 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     /* Tunnel */
     printf("\r\n--- Tunnel\r\n");
     printf("\tTunnelDetected\t\t%d\r\n", cvInfo.isTunnelDetected);
+    /* Down Hill */
+    printf("cvInfo.isDownHillDetected : %d\r\n", cvInfo.isDownHillDetected);
 
     return cvInfo;
 }
@@ -590,6 +596,23 @@ Navigator::Point Navigator::getRoadPoint(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_
     }
     else roadPoint.detected = false;
     return roadPoint;
+}
+bool Navigator::isDownHillDetected(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    int y;
+    int temp = 0;
+    for(y = DOWNHILL_CHECK_DOWN; y > DOWNHILL_CHECK_UP; y--) {
+        if(isBothSideDetected(yellow, y)) temp++;
+    }
+    if(temp > DOWNHILL_DITECT_THRESHOLD) return true;
+    else return false;
+}
+bool Navigator::isBothSideDetected(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y)
+{
+    Point right_point = getRightPosition(yellow,y);
+    Point left_point = getLeftPosition(yellow,y);
+    if(right_point.detected & left_point.detected) return true;
+    else false;
 }
 Navigator::Point Navigator::getRightPosition(uint8_t (src)[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y)
 {

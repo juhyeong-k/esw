@@ -78,9 +78,15 @@
 #define IS_SAFEZONE_CLOSE_THRESHOLD	10
 #define SAFEZONE_UPLINE					79
 #define SAFEZONE_DOWNLINE				169
- /**
-  *  HSV
-  */
+/**
+ *  Down Hill
+ */
+#define DOWNHILL_CHECK_UP			79
+#define DOWNHILL_CHECK_DOWN			129
+#define DOWNHILL_DITECT_THRESHOLD	35
+/**
+*  HSV
+*/
 #define YELLOW 0
 #define yellow_HUE_MAX    45
 #define yellow_HUE_MIN    0
@@ -202,6 +208,10 @@ struct CVinfo {
 	 *  Roundabout
 	 */
 	bool isWhiteRightDetected;
+	/**
+	 *  Down Hill
+	 */
+	bool isDownHillDetected;
 };
 struct Mission {
 	bool isEmergencyEnd;
@@ -209,6 +219,7 @@ struct Mission {
 	bool isHorizontalEnd;
 	bool isVerticalEnd;
 	bool isPassEnd;
+	bool isDownHillEnd;
 };
 struct SensorInfo {
 	uint8_t line;
