@@ -259,11 +259,7 @@ void Driver::roundabout(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorI
             }
             break;
         case 1 :
-            globalDelay++;
-            if(globalDelay == 300) {
-                globalDelay = 0;
-                roundaboutStage++;
-            }
+            if( msDelay(5000) ) roundaboutStage++;
             break;
         case 2 :
             drive(data, cvInfo, sensorInfo);
@@ -279,7 +275,7 @@ void Driver::roundabout(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorI
             break;
         case 4 :
             Steering_Write(cvInfo.direction);
-            DesireSpeed_Write(140);
+            DesireSpeed_Write(150);
             if(cvInfo.isWhiteRightDetected) {
                 roundaboutStage++;
             }
