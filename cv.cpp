@@ -21,8 +21,8 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
      *  Normal Drive
      */
     cvInfo.direction = getDirection(yellow);
-    if(cvInfo.direction == 2000)         cvInfo.isLeftTurnDetected = true;
-    else if(cvInfo.direction == 1000)   cvInfo.isRightTurnDetected = true;
+    if(cvInfo.direction == MAX_DIRECTION)         cvInfo.isLeftTurnDetected = true;
+    else if(cvInfo.direction == MIN_DIRECTION)   cvInfo.isRightTurnDetected = true;
 
     cvInfo.isLeftDetected = isLeftDetected(yellow);
     cvInfo.isRightDetected = isRightDetected(yellow);
@@ -494,8 +494,12 @@ uint16_t Navigator::getDirection(uint8_t src[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     if(((float)i/j)*100 > threshold) slope = (totalRoadDiff / i)/SLOPE_DIVIDE_FACTOR;
     else slope = 0;
     if(slope == 0)              direction = 1500;
+    else if(slope > 1.11)      direction = MAX_DIRECTION;    // Left
+    else if (slope < -1.11)   direction = MIN_DIRECTION;     // Right
+    /*
     else if(slope > 1.11)      direction = 2000;    // Left
     else if (slope < -1.11)   direction = 1000;     // Right
+    */
     else                        direction = (uint16_t)(1500 + 450 * slope);
     return direction;
 }

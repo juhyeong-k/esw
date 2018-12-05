@@ -118,7 +118,6 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         if(cvInfo.isPathStraight) DesireSpeed_Write(NORMAL_SPEED);
         else DesireSpeed_Write(SLOW_SPEED);
     }
-
     if(cvInfo.isDepartedLeft) {
         driveState.isGoing = false;
         driveState.isTurningRight = true;
@@ -161,13 +160,13 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
             if(cvInfo.direction < 1500) {
                 driveState.isEnteringCurve = false;
                 driveState.isTurningRight = true;
-                Steering_Write(1000);
+                Steering_Write(MIN_DIRECTION);
                 return;
             }
             else if(cvInfo.direction > 1500) {
                 driveState.isEnteringCurve = false;
                 driveState.isTurningLeft = true;
-                Steering_Write(2000);
+                Steering_Write(MAX_DIRECTION);
                 return;
             }
             else {

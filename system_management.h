@@ -9,107 +9,8 @@
 #include <sys/types.h>
 #include <sys/sysinfo.h>
 
-#define NORMAL_SPEED		160 // 130
-#define SLOW_SPEED		120 // 100
-/**
-  * @Brief
-  */
-
-class System_resource
-{
-	public:
-		System_resource();
-		uint64_t getVirtualMemUsed();
-		uint64_t getTotalVirtualMem();
-		uint64_t getTotalPhysMem();
-		uint64_t getPhysMemUsed();
-	private:
-		struct sysinfo memInfo;
-		long long totalVirtualMem;
-		long long virtualMemUsed;
-		long long totalPhysMem;
-		long long physMemUsed;
-};
-struct CVinfo {
-	/**
-	 *  Normal Drive
-	 */
-	uint16_t direction;
-	bool isLeftTurnDetected;
-	bool isRightTurnDetected;
-	bool isLeftDetected;
-	bool isRightDetected;
-	bool isPathStraight;
-	bool isPathLeft;
-	bool isPathRight;
-	bool isRoadClose;
-	bool isDepartedLeft;
-	bool isDepartedRight;
-	bool isLeftReinstation;
-	bool isRightReinstation;
-	bool isForwadPathExist;
-	bool isWhiteLineDetected_CV;
-	/**
-	 *  Emergency
-	 */
-	bool isEmergency;
-	/**
-	 *  Passing
-	 */
-	bool isCarinFront_CV;
-	bool isSideRoadClose;
-	uint16_t exitDirection;
-	/**
-	 *  Traffic Lights
-	 */
-	bool isTrafficLightsGreen;
-	uint8_t greenLightReply;
-	bool isGreenLightRoadClose;
-    /**
-     *  Tunnel
-     */
-	bool isTunnelDetected;
-	bool isUpperSafezoneDetected;
-	bool isLowerSafezoneDetected;
-	/**
-	 *  Roundabout
-	 */
-	bool isWhiteRightDetected;
-};
-struct Mission {
-	bool isRoundaboutEnd;
-	bool isHorizontalEnd;
-	bool isVerticalEnd;
-	bool isPassEnd;
-};
-struct SensorInfo {
-	uint8_t line;
-	int distance[7];
-};
-struct thr_data {
-    struct timeval systemTime;
-
-    struct display *disp;
-    struct v4l2 *v4l2;
-    struct vpe *vpe;
-    struct buffer **input_bufs;
-    struct buffer *capt;
-    int index;
-
-    int msgq_id;
-    bool bfull_screen; // true : 480x272 disp 화면에 맞게 scale 그렇지 않을 경우 false.
-    bool bstream_start; // camera stream start 여부
-    pthread_t threads[4];
-
-    CVinfo cvResult;
-    SensorInfo sensorInfo;
-    Mission mission;
-
-    bool horizonParkingRequest;
-    bool verticalParkingRequest;
-    bool passRequest;
-    bool roundaboutRequest;
-};
+#define NORMAL_SPEED		130 // 130
+#define SLOW_SPEED		105 // 100
 
 /**
  *  Normal Drive
@@ -119,13 +20,16 @@ struct thr_data {
 #define SIDE_UP			149
 #define SIDE_DOWN			179
 
+#define MAX_DIRECTION 1997
+#define MIN_DIRECTION 1003
+
 #define SIDE_DIRECTION_THRESHOLD		8	//90%
 
 #define GET_DIRECTION_THRESHOLD			90 	//90%
 #define LINE_DETECT_THRESHOLD 			7
 #define SLOPE_DIVIDE_FACTOR	  			2
 
-#define ISROADCLOSE_DISTANCE			60
+#define ISROADCLOSE_DISTANCE			40
 #define ISROADCLOSE_THRESHOLD			5
 
 #define FOWARD_PATH_EXIST_DISTANCE		80
@@ -233,3 +137,99 @@ struct thr_data {
 // display output & dump  format: yuyv, w:320, h:180
 //#define VPE_OUTPUT_IMG_SIZE    (VPE_OUTPUT_W*VPE_OUTPUT_H*2)
 //#define VPE_OUTPUT_FORMAT       "yuyv"
+
+class System_resource
+{
+	public:
+		System_resource();
+		uint64_t getVirtualMemUsed();
+		uint64_t getTotalVirtualMem();
+		uint64_t getTotalPhysMem();
+		uint64_t getPhysMemUsed();
+	private:
+		struct sysinfo memInfo;
+		long long totalVirtualMem;
+		long long virtualMemUsed;
+		long long totalPhysMem;
+		long long physMemUsed;
+};
+struct CVinfo {
+	/**
+	 *  Normal Drive
+	 */
+	uint16_t direction;
+	bool isLeftTurnDetected;
+	bool isRightTurnDetected;
+	bool isLeftDetected;
+	bool isRightDetected;
+	bool isPathStraight;
+	bool isPathLeft;
+	bool isPathRight;
+	bool isRoadClose;
+	bool isDepartedLeft;
+	bool isDepartedRight;
+	bool isLeftReinstation;
+	bool isRightReinstation;
+	bool isForwadPathExist;
+	bool isWhiteLineDetected_CV;
+	/**
+	 *  Emergency
+	 */
+	bool isEmergency;
+	/**
+	 *  Passing
+	 */
+	bool isCarinFront_CV;
+	bool isSideRoadClose;
+	uint16_t exitDirection;
+	/**
+	 *  Traffic Lights
+	 */
+	bool isTrafficLightsGreen;
+	uint8_t greenLightReply;
+	bool isGreenLightRoadClose;
+    /**
+     *  Tunnel
+     */
+	bool isTunnelDetected;
+	bool isUpperSafezoneDetected;
+	bool isLowerSafezoneDetected;
+	/**
+	 *  Roundabout
+	 */
+	bool isWhiteRightDetected;
+};
+struct Mission {
+	bool isRoundaboutEnd;
+	bool isHorizontalEnd;
+	bool isVerticalEnd;
+	bool isPassEnd;
+};
+struct SensorInfo {
+	uint8_t line;
+	int distance[7];
+};
+struct thr_data {
+    struct timeval systemTime;
+
+    struct display *disp;
+    struct v4l2 *v4l2;
+    struct vpe *vpe;
+    struct buffer **input_bufs;
+    struct buffer *capt;
+    int index;
+
+    int msgq_id;
+    bool bfull_screen; // true : 480x272 disp 화면에 맞게 scale 그렇지 않을 경우 false.
+    bool bstream_start; // camera stream start 여부
+    pthread_t threads[4];
+
+    CVinfo cvResult;
+    SensorInfo sensorInfo;
+    Mission mission;
+
+    bool horizonParkingRequest;
+    bool verticalParkingRequest;
+    bool passRequest;
+    bool roundaboutRequest;
+};

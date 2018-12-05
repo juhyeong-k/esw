@@ -148,9 +148,8 @@ void * main_thread(void *arg)
     data->sensorInfo = sensor.getInfo(); //Init sensorInfo
 
     driver.waitStartSignal();
-    DesireSpeed_Write(50);
+    DesireSpeed_Write(40);
     sleep(1);
-    DesireSpeed_Write(NORMAL_SPEED);
 
     pthread_create(&tdata.threads[3], NULL, sensingThread, &tdata);
     pthread_detach(tdata.threads[3]);
