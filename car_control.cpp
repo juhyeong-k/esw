@@ -553,24 +553,19 @@ void Driver::verticalPark(struct thr_data *data, SensorInfo sensorInfo)
         case 0 :
             Steering_Write(1500);
             DesireSpeed_Write(90);
-            if( msDelay(750) )  verticalParkingStage++;
+            if( msDelay(700) )  verticalParkingStage++;
             break;
         case 1 : // Backward Right
             Steering_Write(1000);
             DesireSpeed_Write(-90);
-            if( 600 < sensorInfo.distance[4] ) verticalParkingStage++;
+            if( msDelay(5000) )  verticalParkingStage++;
             break;
-        case 2 :
-            Steering_Write(1100);
-            DesireSpeed_Write(-90);
-            if( 500 < abs(sensorInfo.distance[2] - sensorInfo.distance[3]) ) verticalParkingStage++;
-            break;
-        case 3 : // Backward
+        case 2 : // Backward
             Steering_Write(1500);
             DesireSpeed_Write(-90);
-            if( sensorInfo.distance[4] > 2700 ) verticalParkingStage++;
+            if( sensorInfo.distance[4] > 2000 ) verticalParkingStage++;
             break;
-        case 4 :
+        case 3 :
             DesireSpeed_Write(0);
             Alarm_Write(ON);
             if( msDelay(2000) ) {
@@ -578,15 +573,18 @@ void Driver::verticalPark(struct thr_data *data, SensorInfo sensorInfo)
                 verticalParkingStage++;
             }
             break;
-        case 5 : // Foward
+        case 4 : // Foward
             Steering_Write(1500);
             DesireSpeed_Write(90);
             if( sensorInfo.distance[2] < 300 ) verticalParkingStage++;
             break;
+        case 5 : // Foward Right
+            if( msDelay(400) )  verticalParkingStage++;
+            break;
         case 6 : // Foward Right
-            Steering_Write(1150);
+            Steering_Write(1000);
             DesireSpeed_Write(90);
-            if( sensorInfo.distance[5] < 1000 ) verticalParkingStage++;
+            if( msDelay(7000) )  verticalParkingStage++;
             break;
         case 7 : // Untill LB not detected
             data->mission.isHorizontalEnd = true;
