@@ -528,50 +528,38 @@ void Driver::verticalPark(struct thr_data *data, SensorInfo sensorInfo)
     switch(verticalParkingStage)
     {
         case 0 : // Foward Left
-            verticalParkingStage++;
             Steering_Write(2000);
             DesireSpeed_Write(100);
+            if( sensorInfo.distance[3] < 300 )  verticalParkingStage++;
             break;
         case 1 : // Backward
-            if( sensorInfo.distance[3] < 300 ) {
-                Steering_Write(1500);
-                DesireSpeed_Write(-100);
-                verticalParkingStage++;
-            }
+            Steering_Write(1500);
+            DesireSpeed_Write(-100);
+            if( sensorInfo.distance[3] > 750 ) verticalParkingStage++;
             break;
         case 2 : // Backward Right
-            if( sensorInfo.distance[3] > 750 ) {
-                Steering_Write(1000);
-                DesireSpeed_Write(-100);
-                verticalParkingStage++;
-            }
+            Steering_Write(1000);
+            DesireSpeed_Write(-100);
+            if( sensorInfo.distance[3] > 2000 ) verticalParkingStage++;
             break;
         case 3 : // Backward
-            if( sensorInfo.distance[3] > 2000 ) {
-                Steering_Write(1500);
-                DesireSpeed_Write(-100);
-                verticalParkingStage++;
-            }
+            Steering_Write(1500);
+            DesireSpeed_Write(-100);
+            if( sensorInfo.distance[4] > 2500 ) verticalParkingStage++;
             break;
         case 4 : // Foward
-            if( sensorInfo.distance[4] > 2500 ) {
-                Steering_Write(1500);
-                DesireSpeed_Write(100);
-                verticalParkingStage++;
-            }
+            Steering_Write(1500);
+            DesireSpeed_Write(100);
+            if( sensorInfo.distance[2] < 300 ) verticalParkingStage++;
             break;
         case 5 : // Foward Right
-            if( sensorInfo.distance[2] < 300 ) {
-                Steering_Write(1150);
-                DesireSpeed_Write(100);
-                verticalParkingStage++;
-            }
+            Steering_Write(1150);
+            DesireSpeed_Write(100);
+            if( sensorInfo.distance[5] < 1000 ) verticalParkingStage++;
             break;
         case 6 : // Untill LB not detected
-            if( sensorInfo.distance[5] < 1000 ) {
-                data->mission.isHorizontalEnd = true;
-                data->verticalParkingRequest = false;
-            }
+            data->mission.isHorizontalEnd = true;
+            data->verticalParkingRequest = false;
             break;
     }
 }
