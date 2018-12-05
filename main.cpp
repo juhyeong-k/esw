@@ -147,7 +147,7 @@ void * main_thread(void *arg)
     struct timeval et;
     data->sensorInfo = sensor.getInfo(); //Init sensorInfo
 
-    driver.waitStartSignal();
+    //driver.waitStartSignal();
     DesireSpeed_Write(40);
     sleep(1);
 

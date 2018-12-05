@@ -201,6 +201,7 @@ struct CVinfo {
 	bool isWhiteRightDetected;
 };
 struct Mission {
+	bool isEmergencyEnd;
 	bool isRoundaboutEnd;
 	bool isHorizontalEnd;
 	bool isVerticalEnd;
