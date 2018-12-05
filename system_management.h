@@ -58,7 +58,7 @@
 /**
  *  Parking
  */
-#define PARKING_DETECT_TIMEOUT			7000
+#define PARKING_DETECT_TIMEOUT			10000
 /**
  *  Roundabout
  */

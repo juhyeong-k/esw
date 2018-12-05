@@ -87,7 +87,7 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
      *  Parking
      */
     // Safety equipment required -> Once the parking is complete, skip it.
-    if(parkingStage == 4) {
+    if(parkingStage == 6) {
         resetParkingState(&parkingState);
         if(parkingState.horizontalDetected)     {
             requestHorizonParking(data);
@@ -207,6 +207,24 @@ void Driver::updateParkingState(struct thr_data *data, SensorInfo sensorInfo, Pa
     //R back only detected
     if( parkingStage == 1 ) {
         if( sensorInfo.distance[3] > 600 ) {
+            parkingStage = 2;
+        }
+    }
+    if( parkingStage == 2 ) {
+        if( (sensorInfo.distance[2] < 650) && (sensorInfo.distance[3] > 650) ) {
+            parkingStage = 3;
+        }
+    }  /*
+    
+    */
+    //R front only detected
+    if( parkingStage == 3 ) {
+        if( (sensorInfo.distance[2] > 650) && (sensorInfo.distance[3] < 650) ) {
+            parkingStage = 4;
+        }
+    }
+    if( parkingStage == 4 ) {
+        if( sensorInfo.distance[3] > 600 ) {
             if( sensorInfo.distance[2] > 600 ) {
                 parkingState->horizontalDetected = true;
                 parkingState->verticalDetected = false;
@@ -215,19 +233,13 @@ void Driver::updateParkingState(struct thr_data *data, SensorInfo sensorInfo, Pa
                 parkingState->horizontalDetected = false;
                 parkingState->verticalDetected = true;
             }
-            parkingStage = 2;
-        }
-    }
-    //R front only detected
-    if( parkingStage == 2 ) {
-        if( (sensorInfo.distance[2] > 650) && (sensorInfo.distance[3] < 650) ) {
-            parkingStage = 3;
+            parkingStage = 5;
         }
     }
     //R front not detected
-    if( parkingStage == 3 ) {
+    if( parkingStage == 5 ) {
         if( sensorInfo.distance[2] < 400 ) {
-            parkingStage = 4;
+            parkingStage = 6;
         }
     }
     printf("\r\nparkingStage : %d\r\n", parkingStage);
@@ -469,7 +481,7 @@ void Driver::horizonPark(struct thr_data *data, SensorInfo sensorInfo)
         case 2 : // Backward
             Steering_Write(1700);
             DesireSpeed_Write(-90);
-            if(sensorInfo.distance[2] > 500) horizonParkingStage++;
+            if(sensorInfo.distance[2] > 700) horizonParkingStage++;
             break;
         case 3 : // Foward Left
             Steering_Write(2000);
@@ -489,10 +501,10 @@ void Driver::horizonPark(struct thr_data *data, SensorInfo sensorInfo)
         case 6 : // Foward Right
             Steering_Write(1000);
             DesireSpeed_Write(90);
-            if(sensorInfo.distance[1] > 2500) horizonParkingStage++;
+            if(sensorInfo.distance[1] > 2700) horizonParkingStage++;
             break;
         case 7 : // Backward
-            Steering_Write(1500);
+            Steering_Write(1700);
             DesireSpeed_Write(-90);
             if(sensorInfo.distance[4] > 2500) horizonParkingStage++;
             break;
@@ -522,7 +534,7 @@ void Driver::horizonPark(struct thr_data *data, SensorInfo sensorInfo)
         case 12 : // Foward Right
             Steering_Write(1000);
             DesireSpeed_Write(90);
-            if( msDelay(1500) ) horizonParkingStage++;
+            if( msDelay(2500) ) horizonParkingStage++;
             break;
         case 13 :
             /****************************************************/
