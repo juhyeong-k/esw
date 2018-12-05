@@ -16,6 +16,7 @@ class Driver
         void waitStartSignal();
         void drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo);
         void roundabout(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo);
+        void pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo);
         void passLeft(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo);
         void passRight(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo);
         void horizonPark(struct thr_data *data, SensorInfo sensorInfo);
@@ -40,15 +41,17 @@ class Driver
             struct timeval startTime;
             struct timeval endTime;
         };
-        struct Pass {
+        struct PassState {
             struct timeval startTime;
             struct timeval endTime;
+            uint16_t leftNumber;
+            uint16_t rightNumber;
             bool direction;
         };
         DriveState driveState;
         ParkingState parkingState;
         RoundaboutState roundaboutState;
-        Pass passState;
+        PassState passState;
         // Tunnel PID
         float I_term;
         float prev_error;
@@ -61,6 +64,7 @@ class Driver
         uint8_t horizonParkingStage;
         uint8_t verticalParkingStage;
         uint8_t passStage;
+        uint8_t passEnteringStage;
         uint8_t roundaboutStage;
         // Green Light -> 1 : Left, 2 : Right
         uint8_t greenLightDirection;

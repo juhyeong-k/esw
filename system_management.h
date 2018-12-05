@@ -183,6 +183,7 @@ struct CVinfo {
 	bool isCarinFront_CV;
 	bool isSideRoadClose;
 	uint16_t exitDirection;
+	uint16_t passNumber;
 	/**
 	 *  Traffic Lights
 	 */

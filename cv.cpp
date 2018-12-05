@@ -49,6 +49,7 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     cvInfo.isCarinFront_CV = ( isLeftDetected(white) | isRightDetected(white) );
     cvInfo.isSideRoadClose = isRoadClose(yellow, IS_GREENLIGHT_ROADCLOSE_DISTANCE);
     cvInfo.exitDirection = getExitDirection(yellow);
+    cvInfo.passNumber = getWidePass(yellow);
     /**
      *  Traffic Light
      */
@@ -166,6 +167,29 @@ uint16_t Navigator::getExitDirection(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][
     exitDirection = x_sum / number;
     exitDirection = 1500 + (160 - exitDirection)*3;
     return exitDirection;
+}
+uint16_t Navigator::getWidePass(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+{
+    uint16_t x,y;
+    int i;
+    int temp;
+    int result = 0;
+    for(x = 0; x < VPE_OUTPUT_W; x++) {
+        for(y = 179; y > 0; y--) {
+            if(yellow[y][x][0]) {
+                temp = 0;
+                for(i = 0; i < 3; i++) {
+                    if(yellow[y-i][x][0]) temp++;
+                }
+                if(temp == 3) {
+                    result++;
+                    break;
+                }
+            }
+        }
+    }
+    //printf("\r\nresult : %d\r\n", result);
+    return result;
 }
 /**
  *  Emergency

@@ -14,6 +14,7 @@ Driver::Driver()
     parkingStage = 0;
     horizonParkingStage = 0;
     verticalParkingStage = 0;
+    passEnteringStage = 0;
     passStage = 0;
     roundaboutStage = 0;
 
@@ -104,6 +105,7 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         gettimeofday(&passState.startTime, NULL);
     }
     if( 627 < sensorInfo.distance[1] ) { //30cm
+        gettimeofday(&passState.startTime, NULL);
         gettimeofday(&passState.endTime, NULL);
         uint32_t optime = getOptime(passState.startTime, passState.endTime);
         if(optime < 3000) {
@@ -112,7 +114,6 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         }
     }
     /**
-     *  Normal Driving
      */
     // Code Cleanup Required.
     if(!parkingStage) {
@@ -286,6 +287,34 @@ void Driver::roundabout(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorI
             break;
     }
 }
+void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
+{
+    switch(passEnteringStage)
+    {
+        case 0 :
+            DesireSpeed_Write(0);
+            CameraXServoControl_Write(1300);
+            if( msDelay(1000) ) passEnteringStage++;
+            break;
+        case 1 :
+            passState.leftNumber = cvInfo.passNumber;
+            CameraXServoControl_Write(1700);
+            if( msDelay(1000) ) passEnteringStage++;
+            break;
+        case 2 :
+            passState.rightNumber = cvInfo.passNumber;
+            CameraXServoControl_Write(1500);
+            if( msDelay(1000) ) passEnteringStage++;
+            break;
+        case 3 :
+            passEnteringStage++;
+            break;
+        case 4 :
+            if(passState.leftNumber > passState.rightNumber)    passLeft(data, cvInfo, sensorInfo);
+            else                                                         passRight(data, cvInfo, sensorInfo);
+            break;
+    }
+}
 void Driver::passLeft(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
 {
     switch(passStage)
@@ -415,7 +444,7 @@ void Driver::passRight(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorIn
             if( cvInfo.isTrafficLightsGreen )   passStage++;
             break;
         case 9 :
-            if( msDelay(4000) ) passStage++;
+            if( msDelay(2000) ) passStage++;
             break;
         case 10 :
             greenLightDirection = cvInfo.greenLightReply;
