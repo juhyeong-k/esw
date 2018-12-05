@@ -81,9 +81,9 @@
 /**
  *  Down Hill
  */
-#define DOWNHILL_CHECK_UP			79
+#define DOWNHILL_CHECK_UP			49
 #define DOWNHILL_CHECK_DOWN			129
-#define DOWNHILL_DITECT_THRESHOLD	35
+#define DOWNHILL_DITECT_THRESHOLD	75
 /**
 *  HSV
 */

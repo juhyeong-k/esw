@@ -73,7 +73,7 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     /**
      *  DownHill
      */
-    cvInfo.isDownHillDetected = isDownHillDetected(display_buf);
+    cvInfo.isDownHillDetected = isDownHillDetected(yellow);
 
     // Depart handling
     if(cvInfo.isDepartedLeft)            departedFlag.isDepartedLeft = true;
@@ -124,7 +124,8 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     printf("\r\n--- Tunnel\r\n");
     printf("\tTunnelDetected\t\t%d\r\n", cvInfo.isTunnelDetected);
     /* Down Hill */
-    printf("cvInfo.isDownHillDetected : %d\r\n", cvInfo.isDownHillDetected);
+    printf("\r\n--- Down Hill\r\n");
+    printf("\tcvInfo.isDownHillDetected : %d\r\n", cvInfo.isDownHillDetected);
 
     return cvInfo;
 }

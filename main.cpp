@@ -229,7 +229,8 @@ void * CV_handlingThread(void *arg)
     draw.horizontal_line(bgr, FRONT_DOWN, 0, 320);
     draw.horizontal_line(bgr, SIDE_UP, 0, 320);
     draw.horizontal_line(bgr, SIDE_DOWN, 0, 320);
-
+    draw.horizontal_line(bgr, DOWNHILL_CHECK_UP, 20, 300);
+    draw.horizontal_line(bgr, DOWNHILL_CHECK_DOWN, 20, 300);
     /** HSV extract
     printf("H %d / S %d / V %d\r\n", image_buf[129][159][0], image_buf[129][159][1], image_buf[129][159][2]);
     draw.dot(bgr, 159, 129); draw.dot(bgr, 160, 129);
