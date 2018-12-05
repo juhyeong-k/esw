@@ -197,10 +197,13 @@ void Driver::updateParkingState(struct thr_data *data, SensorInfo sensorInfo, Pa
         parkingStage = 0;
     }
     //R front detected
+    if(sensorInfo.distance[2] > 600) {
+        gettimeofday(&parkingState->startTime, NULL);
+        if(!data->mission.isHorizontalEnd && !data->mission.isVerticalEnd)
+            DesireSpeed_Write(PARKING_SPEED);
+    }
     if(parkingStage == 0) {
         if(sensorInfo.distance[2] > 600) {
-            DesireSpeed_Write(PARKING_SPEED);
-            gettimeofday(&parkingState->startTime, NULL);
             parkingStage = 1;
         }
     }
@@ -511,7 +514,7 @@ void Driver::horizonPark(struct thr_data *data, SensorInfo sensorInfo)
         case 8 :
             Alarm_Write(ON);
             DesireSpeed_Write(0);
-            if( msDelay(1000) ) {
+            if( msDelay(2000) ) {
                 Alarm_Write(OFF);
                 horizonParkingStage++;
             }
@@ -549,40 +552,40 @@ void Driver::verticalPark(struct thr_data *data, SensorInfo sensorInfo)
     {
         case 0 :
             Steering_Write(1500);
-            DesireSpeed_Write(100);
-            if( msDelay(500) )  verticalParkingStage++;
+            DesireSpeed_Write(90);
+            if( msDelay(750) )  verticalParkingStage++;
             break;
-        case 1 : // Backward
-            Steering_Write(1500);
-            DesireSpeed_Write(-100);
-            if( sensorInfo.distance[3] > 750 ) verticalParkingStage++;
-            break;
-        case 2 : // Backward Right
+        case 1 : // Backward Right
             Steering_Write(1000);
-            DesireSpeed_Write(-100);
-            if( sensorInfo.distance[3] > 2400 ) verticalParkingStage++;
+            DesireSpeed_Write(-90);
+            if( 600 < sensorInfo.distance[4] ) verticalParkingStage++;
+            break;
+        case 2 :
+            Steering_Write(1100);
+            DesireSpeed_Write(-90);
+            if( 500 < abs(sensorInfo.distance[2] - sensorInfo.distance[3]) ) verticalParkingStage++;
             break;
         case 3 : // Backward
             Steering_Write(1500);
-            DesireSpeed_Write(-100);
-            if( sensorInfo.distance[4] > 2500 ) verticalParkingStage++;
+            DesireSpeed_Write(-90);
+            if( sensorInfo.distance[4] > 2700 ) verticalParkingStage++;
             break;
         case 4 :
             DesireSpeed_Write(0);
             Alarm_Write(ON);
-            if( msDelay(1000) ) {
+            if( msDelay(2000) ) {
                 Alarm_Write(OFF);
                 verticalParkingStage++;
             }
             break;
         case 5 : // Foward
             Steering_Write(1500);
-            DesireSpeed_Write(100);
+            DesireSpeed_Write(90);
             if( sensorInfo.distance[2] < 300 ) verticalParkingStage++;
             break;
         case 6 : // Foward Right
             Steering_Write(1150);
-            DesireSpeed_Write(100);
+            DesireSpeed_Write(90);
             if( sensorInfo.distance[5] < 1000 ) verticalParkingStage++;
             break;
         case 7 : // Untill LB not detected
