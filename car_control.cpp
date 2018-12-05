@@ -196,10 +196,12 @@ void Driver::updateParkingState(struct thr_data *data, SensorInfo sensorInfo, Pa
         parkingStage = 0;
     }
     //R front detected
-    if(sensorInfo.distance[2] > 650) {
-        DesireSpeed_Write(SLOW_SPEED);
-        gettimeofday(&parkingState->startTime, NULL);
-        parkingStage = 1;
+    if(parkingStage == 0) {
+        if(sensorInfo.distance[2] > 650) {
+            DesireSpeed_Write(PARKING_SPEED);
+            gettimeofday(&parkingState->startTime, NULL);
+            parkingStage = 1;
+        }
     }
     //R back only detected
     if( parkingStage == 1 ) {
@@ -227,6 +229,7 @@ void Driver::updateParkingState(struct thr_data *data, SensorInfo sensorInfo, Pa
             parkingStage = 4;
         }
     }
+    printf("\r\nparkingStage : %d\r\n", parkingStage);
 }
 void Driver::roundabout(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
 {
