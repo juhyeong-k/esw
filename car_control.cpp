@@ -333,7 +333,7 @@ void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
             break;
         case 6 :
             if(passState.leftNumber > passState.rightNumber)    passLeft(data, cvInfo, sensorInfo);
-            else                                                         passRight(data, cvInfo, sensorInfo);
+            else                                                       passRight(data, cvInfo, sensorInfo);
             break;
     }
 }
@@ -431,7 +431,7 @@ void Driver::passLeft(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInf
             break;
         case 18 : // Go foward
             Steering_Write(1500);
-            if( msDelay(3000) ) passStage++;
+            if( msDelay(2000) ) passStage++;
             break;
         case 19 :
             DesireSpeed_Write(0);
@@ -532,7 +532,7 @@ void Driver::Driver::passRight(struct thr_data *data, CVinfo cvInfo, SensorInfo 
             break;
         case 18 : // Go foward
             Steering_Write(1500);
-            if( msDelay(3000) ) passStage++;
+            if( msDelay(2000) ) passStage++;
             break;
         case 19 :
             DesireSpeed_Write(0);
