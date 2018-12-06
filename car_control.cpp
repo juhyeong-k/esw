@@ -37,6 +37,7 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
     /**
      *  Emergency
      */
+        data->mission.isEmergencyEnd = true;
     if(cvInfo.isEmergency && !data->mission.isEmergencyEnd) {
         DesireSpeed_Write(0);
         emergencyTimeout = 50;
@@ -145,7 +146,7 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         }
     }
     if(driveState.isTurningRight) {
-        if( !LineDetected(cvInfo) ) {
+        if( !LineDetected(cvInfo) | (sensorInfo.distance[2] > 4000) ) {
             StateisGoing(&driveState);
             return;
         }
@@ -271,26 +272,32 @@ void Driver::roundabout(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorI
             }
             break;
         case 3 :
+            Steering_Write(1000);
+            if( msDelay(300) ) roundaboutStage++;
+            break;
+        case 4 :
+            Steering_Write(2000);
             DesireSpeed_Write(0);
+            Steering_Write(cvInfo.direction);
             if( sensorInfo.distance[4] > 700 ) {
                 roundaboutStage++;
             }
             break;
-        case 4 :
+        case 5 :
             Steering_Write(cvInfo.direction);
             DesireSpeed_Write(140);
             if(cvInfo.isWhiteRightDetected) {
                 roundaboutStage++;
             }
             break;
-        case 5 :
+        case 6 :
+            Steering_Write(cvInfo.direction);
+            DesireSpeed_Write(120);
             if(!cvInfo.isWhiteRightDetected) {
                 roundaboutStage++;
             }
-            Steering_Write(cvInfo.direction);
-            DesireSpeed_Write(140);
             break;
-        case 6 :
+        case 7 :
             data->mission.isRoundaboutEnd = true;
             data->roundaboutRequest = false;
             break;

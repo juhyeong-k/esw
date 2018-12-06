@@ -290,13 +290,13 @@ void signal_handler(int sig)
         v4l2_streamoff(pexam_data->v4l2);
         vpe_stream_off(pexam_data->vpe->fd, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE);
         vpe_stream_off(pexam_data->vpe->fd, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
-        
-        disp_free_buffers(pexam_data->vpe->disp, NUMBUF);
-        free_input_buffers(pexam_data->input_bufs, NUMBUF, false);
-        
+
         disp_close(pexam_data->vpe->disp);
         vpe_close(pexam_data->vpe);
         v4l2_close(pexam_data->v4l2);
+        
+        disp_free_buffers(pexam_data->vpe->disp, NUMBUF);
+        free_input_buffers(pexam_data->input_bufs, NUMBUF, false);
         
         printf("-- Project End --\n");
     }
@@ -374,10 +374,10 @@ int main(int argc, char **argv)
     /**
      *  Init isEnd
      */
-    tdata.mission.isDownHillEnd = false;
+    tdata.mission.isDownHillEnd = true;
+    tdata.mission.isHorizontalEnd = true;
+    tdata.mission.isVerticalEnd = true;
     tdata.mission.isRoundaboutEnd = false;
-    tdata.mission.isHorizontalEnd = false;
-    tdata.mission.isVerticalEnd = false;
     tdata.mission.isPassEnd = false;
 
     pexam_data = &tdata;
