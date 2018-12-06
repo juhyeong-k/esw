@@ -43,7 +43,7 @@
 /**
  *  Emergency
  */
-#define EMERGENCY_THRESHOLD				700
+#define EMERGENCY_THRESHOLD				2600
 /**
  *  Traffic Lights
  */

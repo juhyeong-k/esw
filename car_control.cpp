@@ -39,14 +39,16 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
      */
     if(cvInfo.isEmergency && !data->mission.isEmergencyEnd) {
         DesireSpeed_Write(0);
-        emergencyTimeout = 100;
-        if(!cvInfo.isEmergency)
-            data->mission.isEmergencyEnd = true;
+        emergencyTimeout = 50;
+        return;
+    }
+    else if(emergencyTimeout == 1) {
+        data->mission.isEmergencyEnd = true;
+        DesireSpeed_Write(NORMAL_SPEED);
         return;
     }
     else if(emergencyTimeout) {
         emergencyTimeout--;
-        DesireSpeed_Write(NORMAL_SPEED);
         return;
     }
     /**
