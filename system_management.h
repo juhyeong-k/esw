@@ -72,6 +72,10 @@
 #define FIND_EXIT_FRONT_UP					78
 #define FIND_EXIT_FRONT_DOWN				179
 #define IS_SIDE_ROADCLOSE_DISTANCE		70	   // Bigger than ISROADCLOSE_THRESHOLD, for Passing
+
+#define isCarinFront_CV_UP				90
+#define isCarinFront_CV_DOWN			179
+#define isCarinFront_CV_THRESHOLD		5
 /**
  *  Safe Zone
  */
@@ -82,8 +86,8 @@
  *  Down Hill
  */
 #define DOWNHILL_CHECK_UP			49
-#define DOWNHILL_CHECK_DOWN			129
-#define DOWNHILL_DITECT_THRESHOLD	75
+#define DOWNHILL_CHECK_DOWN			179
+#define DOWNHILL_DITECT_THRESHOLD	125
 /**
 *  HSV
 */

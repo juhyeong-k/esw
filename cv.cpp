@@ -46,7 +46,7 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     /**
      *  Passing
      */
-    cvInfo.isCarinFront_CV = ( isLeftDetected(white) | isRightDetected(white) );
+    cvInfo.isCarinFront_CV = isCarinFront_CV(yellow);//( isLeftDetected(yellow) | isRightDetected(yellow) );
     cvInfo.isSideRoadClose = isRoadClose(yellow, IS_GREENLIGHT_ROADCLOSE_DISTANCE);
     cvInfo.exitDirection = getExitDirection(yellow);
     cvInfo.passNumber = getWidePass(yellow);
@@ -132,8 +132,70 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
 /**
  *  Passing
  */
-bool Navigator::isCarinFront_CV(uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
+bool Navigator::isCarinFront_CV(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
+    uint8_t y;
+    uint8_t i = 0;
+    uint8_t number = 0;
+    Point lastRoadPoint = {0,};
+    Point roadPoint = {0,};
+    Point roadCenter = {0,};
+    for(y=isCarinFront_CV_DOWN; y > isCarinFront_CV_UP; y--) {
+        roadCenter = getRoadCenter(yellow, y);
+        roadPoint = getRoadPoint(yellow, y);
+        if(roadPoint.isLeftPoint | roadPoint.isCenterPoint) {
+            i++;
+            lastRoadPoint = roadPoint;
+            lastPoint = roadCenter;
+            break;
+        }
+    }
+    for(y--; y > isCarinFront_CV_UP; y--) {
+        roadCenter = getRoadCenter(yellow, y);
+        roadPoint = getRoadPoint(yellow, y);
+        if(roadPoint.isLeftPoint | roadPoint.isCenterPoint) {
+            lastRoadPoint = roadPoint;
+            lastPoint = roadCenter;
+            i++;
+            if(isRoadEndDetected(yellow, y)) break;
+        }
+    }
+    lastPoint = startingPoint;
+
+    if(i < isCarinFront_CV_THRESHOLD) number++;
+
+    //////////////////////////////////////////////////////////////////////
+
+    i = 0;
+    lastRoadPoint = {0,};
+    roadPoint = {0,};
+    roadCenter = {0,};
+    for(y=SIDE_DOWN; y > SIDE_UP; y--) {
+        roadCenter = getRoadCenter(yellow, y);
+        roadPoint = getRoadPoint(yellow, y);
+        if(roadPoint.isRightPoint | roadPoint.isCenterPoint) {
+            i++;
+            lastRoadPoint = roadPoint;
+            lastPoint = roadCenter;
+            break;
+        }
+    }
+    for(y--; y > SIDE_UP; y--) {
+        roadCenter = getRoadCenter(yellow, y);
+        roadPoint = getRoadPoint(yellow, y);
+        if(roadPoint.isRightPoint | roadPoint.isCenterPoint) {
+            lastRoadPoint = roadPoint;
+            lastPoint = roadCenter;
+            i++;
+            if(isRoadEndDetected(yellow, y)) break;
+        }
+    }
+    lastPoint = startingPoint;
+
+    if(i < isCarinFront_CV_THRESHOLD) number++;
+    if(number == 2) return true;
+    else return false;
+    /*
     uint16_t x,y;
     int temp = 0;
     for(x = 0; x < VPE_OUTPUT_W; x++) {
@@ -144,6 +206,7 @@ bool Navigator::isCarinFront_CV(uint8_t white[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     //printf("\r\n\r\n white : %d\r\n", temp);
     if(temp > PASSING_WHITE_DETECT_THRESHOLD) return true;
     else return false;
+    */
 }
 uint16_t Navigator::getExitDirection(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
 {
@@ -603,9 +666,12 @@ bool Navigator::isDownHillDetected(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3]
     int y;
     int temp = 0;
     for(y = DOWNHILL_CHECK_DOWN; y > DOWNHILL_CHECK_UP; y--) {
-        if(isBothSideDetected(yellow, y)) temp++;
+        if(!isBothSideDetected(yellow, y)) break;
     }
-    if(temp > DOWNHILL_DITECT_THRESHOLD) return true;
+    Point right_point = getRightPosition(yellow,y);
+    Point left_point = getLeftPosition(yellow,y);
+
+    if( (right_point.x - left_point.x) < 45 ) return true;
     else return false;
 }
 bool Navigator::isBothSideDetected(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t y)

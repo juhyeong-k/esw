@@ -46,6 +46,7 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
     }
     else if(emergencyTimeout) {
         emergencyTimeout--;
+        DesireSpeed_Write(NORMAL_SPEED);
         return;
     }
     /**
@@ -105,12 +106,10 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         gettimeofday(&passState.startTime, NULL);
     }
     if( 627 < sensorInfo.distance[1] ) { //30cm
-        gettimeofday(&passState.startTime, NULL);
         gettimeofday(&passState.endTime, NULL);
         uint32_t optime = getOptime(passState.startTime, passState.endTime);
         if(optime < 3000) {
-            if(!cvInfo.isLeftDetected && !cvInfo.isRightDetected)
-                data->passRequest = true;
+            data->passRequest = true;
         }
     }
     /**
@@ -144,9 +143,8 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         }
     }
     if(driveState.isTurningRight) {
-        if(cvInfo.isDownHillDetected && !data->mission.isDownHillEnd) {
+        if(cvInfo.isDownHillDetected) {
             StateisGoing(&driveState);
-            data->mission.isDownHillEnd = true;
             return;
         }
         if( !LineDetected(cvInfo) ) {
@@ -156,9 +154,8 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         else return;
     }
     if(driveState.isTurningLeft) {
-        if(cvInfo.isDownHillDetected && !data->mission.isDownHillEnd) {
+        if(cvInfo.isDownHillDetected) {
             StateisGoing(&driveState);
-            data->mission.isDownHillEnd = true;
             return;
         }
         if( !LineDetected(cvInfo) ) {
