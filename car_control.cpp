@@ -76,7 +76,7 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
     if( cvInfo.isWhiteLineDetected_CV ) {
         gettimeofday(&roundaboutState.startTime, NULL);
     }
-    if( isWhiteLineDetected(sensorInfo) ) {
+    if( isWhiteLineDetected(sensorInfo) && data->mission.isEmergencyEnd ) {
         gettimeofday(&roundaboutState.endTime, NULL);
         uint32_t optime = getOptime(roundaboutState.startTime, roundaboutState.endTime);
         if(optime < 7000) {

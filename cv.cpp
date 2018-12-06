@@ -274,6 +274,7 @@ bool Navigator::isEmergency(uint8_t red[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
             if( red[y][x][0] ) temp++;
         }
     }
+    printf("temp : %d\r\n", temp);
     if(temp > EMERGENCY_THRESHOLD) return true;
     else return false;
 }
