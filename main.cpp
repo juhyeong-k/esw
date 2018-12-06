@@ -160,8 +160,6 @@ void * main_thread(void *arg)
         gettimeofday(&st, NULL);
         pthread_create(&tdata.threads[1], NULL, CV_thread, &tdata);
 
-        pthread_join(tdata.threads[1], NULL);
-
         printSensorInfo(data);
 
         if(data->roundaboutRequest && !data->mission.isRoundaboutEnd) {
@@ -185,7 +183,7 @@ void * main_thread(void *arg)
             printf("\r\nMission - drive\r\n");
             driver.drive(&tdata, data->cvResult, data->sensorInfo);
         }
-
+        pthread_join(tdata.threads[1], NULL);
         get_result(optime, st, et);
     }
     return NULL;
