@@ -303,25 +303,28 @@ void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
     switch(passEnteringStage)
     {
         case 0 :
-            DesireSpeed_Write(0);
+            Steering_Write(2000);
+            if( msDelay(300) ) passEnteringStage++;
+            break;
+        case 1 :
             break;
             CameraXServoControl_Write(1300);
             if( msDelay(2000) ) passEnteringStage++;
             break;
-        case 1 :
+        case 2 :
             passState.leftNumber = cvInfo.passNumber;
             CameraXServoControl_Write(1700);
             if( msDelay(2000) ) passEnteringStage++;
             break;
-        case 2 :
+        case 3 :
             passState.rightNumber = cvInfo.passNumber;
             CameraXServoControl_Write(1500);
             if( msDelay(2000) ) passEnteringStage++;
             break;
-        case 3 :
+        case 4 :
             passEnteringStage++;
             break;
-        case 4 :
+        case 5 :
             if(passState.leftNumber > passState.rightNumber)    passLeft(data, cvInfo, sensorInfo);
             else                                                         passRight(data, cvInfo, sensorInfo);
             break;
