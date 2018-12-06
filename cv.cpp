@@ -161,7 +161,7 @@ bool Navigator::isCarinFront_CV(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
         }
     }
     lastPoint = startingPoint;
-
+    printf("right : %d ",i);
     if(i < isCarinFront_CV_THRESHOLD) number++;
 
     //////////////////////////////////////////////////////////////////////
@@ -170,7 +170,7 @@ bool Navigator::isCarinFront_CV(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
     lastRoadPoint = {0,};
     roadPoint = {0,};
     roadCenter = {0,};
-    for(y=SIDE_DOWN; y > SIDE_UP; y--) {
+    for(y=isCarinFront_CV_DOWN; y > isCarinFront_CV_UP; y--) {
         roadCenter = getRoadCenter(yellow, y);
         roadPoint = getRoadPoint(yellow, y);
         if(roadPoint.isRightPoint | roadPoint.isCenterPoint) {
@@ -180,7 +180,7 @@ bool Navigator::isCarinFront_CV(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
             break;
         }
     }
-    for(y--; y > SIDE_UP; y--) {
+    for(y--; y > isCarinFront_CV_UP; y--) {
         roadCenter = getRoadCenter(yellow, y);
         roadPoint = getRoadPoint(yellow, y);
         if(roadPoint.isRightPoint | roadPoint.isCenterPoint) {
@@ -191,7 +191,7 @@ bool Navigator::isCarinFront_CV(uint8_t yellow[VPE_OUTPUT_H][VPE_OUTPUT_W][3])
         }
     }
     lastPoint = startingPoint;
-
+    printf("left : %d\r\n",i);
     if(i < isCarinFront_CV_THRESHOLD) number++;
     if(number == 2) return true;
     else return false;

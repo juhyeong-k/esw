@@ -106,14 +106,9 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
      *  Passing
      */
     if(cvInfo.isCarinFront_CV) {
-        gettimeofday(&passState.startTime, NULL);
-    }
-    if( 627 < sensorInfo.distance[1] ) { //30cm
-        gettimeofday(&passState.endTime, NULL);
-        uint32_t optime = getOptime(passState.startTime, passState.endTime);
-        if(optime < 3000) {
-            data->passRequest = true;
-        }
+        if( data->mission.isRoundaboutEnd && data->mission.isHorizontalEnd
+            && data->mission.isVerticalEnd && data->mission.isRoundaboutEnd)
+                data->passRequest = true;
     }
     /**
      */
@@ -309,6 +304,7 @@ void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
     {
         case 0 :
             DesireSpeed_Write(0);
+            break;
             CameraXServoControl_Write(1300);
             if( msDelay(2000) ) passEnteringStage++;
             break;

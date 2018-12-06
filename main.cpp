@@ -377,7 +377,7 @@ int main(int argc, char **argv)
     tdata.mission.isDownHillEnd = true;
     tdata.mission.isHorizontalEnd = true;
     tdata.mission.isVerticalEnd = true;
-    tdata.mission.isRoundaboutEnd = false;
+    tdata.mission.isRoundaboutEnd = true;
     tdata.mission.isPassEnd = false;
 
     pexam_data = &tdata;
