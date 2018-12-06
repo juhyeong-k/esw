@@ -307,24 +307,31 @@ void Driver::pass(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
             if( msDelay(300) ) passEnteringStage++;
             break;
         case 1 :
-            break;
-            CameraXServoControl_Write(1300);
-            if( msDelay(2000) ) passEnteringStage++;
+            Steering_Write(1500);
+            DesireSpeed_Write(0);
+            passEnteringStage++;
             break;
         case 2 :
-            passState.leftNumber = cvInfo.passNumber;
-            CameraXServoControl_Write(1700);
-            if( msDelay(2000) ) passEnteringStage++;
+            Steering_Write(1500);
+            DesireSpeed_Write(80);
+            if( msDelay(700) )passEnteringStage++;
             break;
         case 3 :
+            DesireSpeed_Write(0);
+            CameraXServoControl_Write(1300);
+            if( msDelay(3000) ) passEnteringStage++;
+            break;
+        case 4 :
+            passState.leftNumber = cvInfo.passNumber;
+            CameraXServoControl_Write(1700);
+            if( msDelay(3000) ) passEnteringStage++;
+            break;
+        case 5 :
             passState.rightNumber = cvInfo.passNumber;
             CameraXServoControl_Write(1500);
             if( msDelay(2000) ) passEnteringStage++;
             break;
-        case 4 :
-            passEnteringStage++;
-            break;
-        case 5 :
+        case 6 :
             if(passState.leftNumber > passState.rightNumber)    passLeft(data, cvInfo, sensorInfo);
             else                                                         passRight(data, cvInfo, sensorInfo);
             break;
@@ -335,53 +342,68 @@ void Driver::passLeft(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInf
     switch(passStage)
     {
         case 0 : // Front Left.
-            passStage++;
             Steering_Write(2000);
             DesireSpeed_Write(100);
+            if(msDelay(1500)) passStage++;
             break;
         case 1 : // When SideRoad is close, go Front Right.
-            if(cvInfo.isSideRoadClose) {
-                passStage++;
-                Steering_Write(1000);
-            }
+            Steering_Write(1500);
+            DesireSpeed_Write(70);
+            if(cvInfo.isSideRoadClose) passStage++;
             break;
         case 2 : // When road direction < 1500, Hand over.
-            if(cvInfo.direction > 1500) {
-                passStage++;
-            }
+            Steering_Write(1100);
+            DesireSpeed_Write(70);
+            if(cvInfo.direction >= 1500) passStage++;
             break;
         case 3 :
-            Steering_Write(1000);
-            if(1200 < sensorInfo.distance[6]) passStage++;
+            Steering_Write(1500);
+            DesireSpeed_Write(0);
+            if(msDelay(500)) passStage++;
             break;
         case 4 :
-            if( msDelay(660) ) passStage++;
+            Steering_Write(cvInfo.direction);
+            DesireSpeed_Write(70);
+            if(cvInfo.isSideRoadClose2) passStage++;
             break;
         case 5 :
-            Steering_Write(1500);
-            if( msDelay(100) ) passStage++;
+            Steering_Write(1000);
+            if( msDelay(2500) ) passStage++;
             break;
         case 6 :
+            Steering_Write(1500);
+            if( msDelay(500) ) passStage++;
+            break;
+        case 7 :
+            Steering_Write(1500);
+            DesireSpeed_Write(70);
+            if(cvInfo.isSideRoadClose) passStage++;
+            break;
+        case 8 :
+            Steering_Write(2000);
+            if( msDelay(2500) ) passStage++;
+            break;
+        case 9 :
             Steering_Write(cvInfo.direction);
             if( isWhiteLineDetected(sensorInfo) )   passStage++;
             break;
-        case 7 :
+        case 10 :
             DesireSpeed_Write(0);
             Alarm_Write(ON);
             CameraYServoControl_Write(1550);
             if( msDelay(1000) ) passStage++;
             break;
-        case 8 :
+        case 11 :
             Alarm_Write(OFF);
             if( cvInfo.isTrafficLightsRed ) passStage++;
             break;
-        case 9 :
+        case 12 :
             if( cvInfo.isTrafficLightsGreen )   passStage++;
             break;
-        case 10 :
+        case 13 :
             if( msDelay(4000) ) passStage++;
             break;
-        case 11 :
+        case 14 :
             greenLightDirection = cvInfo.greenLightReply;
             if(greenLightDirection == 1) { // Left
                 CameraYServoControl_Write(1650);
@@ -392,10 +414,10 @@ void Driver::passLeft(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInf
                 passStage++;
             }
             break;
-        case 12 :
+        case 15 :
             if( msDelay(2000) ) passStage++;
             break;
-        case 13 : // When green light road is close, turn. 
+        case 16 : // When green light road is close, turn. 
             Steering_Write(1500);
             DesireSpeed_Write(80);
             if(cvInfo.isGreenLightRoadClose) {
@@ -404,70 +426,85 @@ void Driver::passLeft(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInf
                 passStage++;
             }
             break;
-        case 14 :
+        case 17 :
             if( msDelay(5000) ) passStage++;
             break;
-        case 15 : // Go foward
+        case 18 : // Go foward
             Steering_Write(1500);
             if( msDelay(3000) ) passStage++;
             break;
-        case 16 :
+        case 19 :
             DesireSpeed_Write(0);
             break;
     }
 }
-void Driver::passRight(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
+void Driver::Driver::passRight(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
 {
     switch(passStage)
     {
-        case 0 : // Front Right.
-            passStage++;
+        case 0 : // Front Left.
             Steering_Write(1000);
             DesireSpeed_Write(100);
+            if(msDelay(1500)) passStage++;
             break;
         case 1 : // When SideRoad is close, go Front Right.
-            if(cvInfo.isSideRoadClose) {
-                passStage++;
-                Steering_Write(2000);
-            }
+            Steering_Write(1500);
+            DesireSpeed_Write(70);
+            if(cvInfo.isSideRoadClose) passStage++;
             break;
         case 2 : // When road direction < 1500, Hand over.
-            if(cvInfo.direction < 1500) {
-                passStage++;
-            }
+            Steering_Write(1900);
+            DesireSpeed_Write(70);
+            if(cvInfo.direction <= 1500) passStage++;
             break;
-        case 3 : // When white line detected, Alarm ON. Wait traffic lights.
-            Steering_Write(2000);
-            if(1200 < sensorInfo.distance[6]) passStage++;
+        case 3 :
+            Steering_Write(1500);
+            DesireSpeed_Write(0);
+            if(msDelay(500)) passStage++;
             break;
         case 4 :
-            if( msDelay(660) ) passStage++;
+            Steering_Write(cvInfo.direction);
+            DesireSpeed_Write(70);
+            if(cvInfo.isSideRoadClose2) passStage++;
             break;
         case 5 :
-            Steering_Write(1500);
-            if( msDelay(100) ) passStage++;
+            Steering_Write(2000);
+            if( msDelay(2500) ) passStage++;
             break;
         case 6 :
+            Steering_Write(1500);
+            if( msDelay(500) ) passStage++;
+            break;
+        case 7 :
+            Steering_Write(1500);
+            DesireSpeed_Write(70);
+            if(cvInfo.isSideRoadClose) passStage++;
+            break;
+        case 8 :
+            Steering_Write(1000);
+            if( msDelay(2500) ) passStage++;
+            break;
+        case 9 :
             Steering_Write(cvInfo.direction);
             if( isWhiteLineDetected(sensorInfo) )   passStage++;
             break;
-        case 7 :
+        case 10 :
             DesireSpeed_Write(0);
             Alarm_Write(ON);
             CameraYServoControl_Write(1550);
             if( msDelay(1000) ) passStage++;
             break;
-        case 8 :
+        case 11 :
             Alarm_Write(OFF);
             if( cvInfo.isTrafficLightsRed ) passStage++;
             break;
-        case 9 :
+        case 12 :
             if( cvInfo.isTrafficLightsGreen )   passStage++;
             break;
-        case 10 :
-            if( msDelay(2000) ) passStage++;
+        case 13 :
+            if( msDelay(4000) ) passStage++;
             break;
-        case 11 :
+        case 14 :
             greenLightDirection = cvInfo.greenLightReply;
             if(greenLightDirection == 1) { // Left
                 CameraYServoControl_Write(1650);
@@ -478,10 +515,10 @@ void Driver::passRight(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorIn
                 passStage++;
             }
             break;
-        case 12 :
+        case 15 :
             if( msDelay(2000) ) passStage++;
             break;
-        case 13 : // When green light road is close, turn. 
+        case 16 : // When green light road is close, turn. 
             Steering_Write(1500);
             DesireSpeed_Write(80);
             if(cvInfo.isGreenLightRoadClose) {
@@ -490,100 +527,17 @@ void Driver::passRight(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorIn
                 passStage++;
             }
             break;
-        case 14 :
+        case 17 :
             if( msDelay(5000) ) passStage++;
             break;
-        case 15 : // Go foward
+        case 18 : // Go foward
             Steering_Write(1500);
             if( msDelay(3000) ) passStage++;
             break;
-        case 16 :
+        case 19 :
             DesireSpeed_Write(0);
             break;
-        /*
-            Steering_Write(cvInfo.exitDirection);
-            if( isWhiteLineDetected(sensorInfo) ) {
-                Alarm_Write(ON);
-                CameraYServoControl_Write(1550);
-                DesireSpeed_Write(0);
-                passStage++;
-                globalDelay = 0;
-            }
-            break;
-        case 4 : // Delay. Alram OFF.
-            globalDelay++;
-            if(globalDelay == 50) {
-                globalDelay = 0;
-                passStage++;
-                Alarm_Write(OFF);
-            }
-            break;
-        case 5 : // Wait TrafficLightsGreen
-            if(cvInfo.isTrafficLightsGreen) {
-                globalDelay = 0;
-                passStage++;
-            }
-            break;
-        case 6 : // Delay.
-            globalDelay++;
-            if(globalDelay == 150) {
-                globalDelay = 0;
-                passStage++;
-            }
-            break;
-        case 7 : // Judge the direction. Camera Y Servo adjustment.
-            greenLightDirection = cvInfo.greenLightReply;
-            if(greenLightDirection == 1) { // Left
-                CameraYServoControl_Write(1650);
-                Steering_Write(1500);
-                passStage++;
-            }
-            else if(greenLightDirection == 2) { // Right
-                CameraYServoControl_Write(1650);
-                Steering_Write(1500);
-                passStage++;
-            }
-            globalDelay = 0;
-            break;
-        case 8 : // Delay.
-            globalDelay++;
-            if(globalDelay == 30) {
-                DesireSpeed_Write(100);
-                globalDelay = 0;
-                passStage++;
-            }
-            break;
-        case 9 : // When green light road is close, turn. 
-            if(cvInfo.isGreenLightRoadClose) {
-                if(greenLightDirection == 1) {
-                    Steering_Write(2000);
-                    passStage++;
-                }
-                else if(greenLightDirection == 2) {
-                    Steering_Write(1000);
-                    passStage++;
-                }
-            }
-            break;
-        case 10 : // Go foward
-            if(cvInfo.isUpperSafezoneDetected) {
-                passStage++;
-                Steering_Write(1500);
-                DesireSpeed_Write(100);
-            }
-            break;
-        case 11 :
-            if(!cvInfo.isUpperSafezoneDetected) {
-                passStage++;
-                DesireSpeed_Write(0);
-            }
-            break;
-        case 12 :
-            break;
-    */
     }
-    //passStage = 0;
-    //data->passRequest = false;
 }
 void Driver::requestHorizonParking(struct thr_data *data) {
     data->horizonParkingRequest = true;

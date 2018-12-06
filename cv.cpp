@@ -47,7 +47,8 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
      *  Passing
      */
     cvInfo.isCarinFront_CV = isCarinFront_CV(yellow);//( isLeftDetected(yellow) | isRightDetected(yellow) );
-    cvInfo.isSideRoadClose = isRoadClose(yellow, IS_GREENLIGHT_ROADCLOSE_DISTANCE);
+    cvInfo.isSideRoadClose = isRoadClose(yellow, IS_SIDE_ROADCLOSE_DISTANCE);
+    cvInfo.isSideRoadClose2 = isRoadClose(yellow, IS_SIDE_ROADCLOSE_DISTANCE2);
     cvInfo.exitDirection = getExitDirection(yellow);
     cvInfo.passNumber = getWidePass(yellow);
     /**
@@ -792,7 +793,7 @@ bool Navigator::isRoadClose(uint8_t src[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint16_t
 {
     uint8_t y,i,temp;
     temp = 0;
-    for( y = 179; y > 100; y--) {
+    for( y = 179; y > 0; y--) {
         if( src[y][159][0] ) {
             for(i=1; i<11; i++) {
                 if( src[y-i][159][0] ) temp++;

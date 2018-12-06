@@ -71,11 +71,12 @@
 #define PASSING_WHITE_DETECT_THRESHOLD	200    // FRONT_UP
 #define FIND_EXIT_FRONT_UP					78
 #define FIND_EXIT_FRONT_DOWN				179
-#define IS_SIDE_ROADCLOSE_DISTANCE		70	   // Bigger than ISROADCLOSE_THRESHOLD, for Passing
+#define IS_SIDE_ROADCLOSE_DISTANCE		40	   // Bigger than ISROADCLOSE_THRESHOLD, for Passing
+#define IS_SIDE_ROADCLOSE_DISTANCE2	80
 
 #define isCarinFront_CV_UP				90
 #define isCarinFront_CV_DOWN			179
-#define isCarinFront_CV_THRESHOLD		5
+#define isCarinFront_CV_THRESHOLD		3
 /**
  *  Safe Zone
  */
@@ -193,6 +194,7 @@ struct CVinfo {
 	 */
 	bool isCarinFront_CV;
 	bool isSideRoadClose;
+	bool isSideRoadClose2;
 	uint16_t exitDirection;
 	uint16_t passNumber;
 	/**
