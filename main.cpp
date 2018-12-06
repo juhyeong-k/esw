@@ -279,6 +279,8 @@ void signal_handler(int sig)
         CarLight_Write(ALL_OFF);
         pthread_cancel(pexam_data->threads[0]);
         pthread_cancel(pexam_data->threads[1]);
+        pthread_cancel(pexam_data->threads[2]);
+        pthread_cancel(pexam_data->threads[3]);
         
         msgctl(pexam_data->msgq_id, IPC_RMID, 0);
         
