@@ -143,10 +143,6 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         }
     }
     if(driveState.isTurningRight) {
-        if(cvInfo.isDownHillDetected) {
-            StateisGoing(&driveState);
-            return;
-        }
         if( !LineDetected(cvInfo) ) {
             StateisGoing(&driveState);
             return;
@@ -154,10 +150,6 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         else return;
     }
     if(driveState.isTurningLeft) {
-        if(cvInfo.isDownHillDetected) {
-            StateisGoing(&driveState);
-            return;
-        }
         if( !LineDetected(cvInfo) ) {
             StateisGoing(&driveState);
             return;
