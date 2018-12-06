@@ -277,6 +277,9 @@ void signal_handler(int sig)
     if(sig == SIGINT) {
 
         CarLight_Write(ALL_OFF);
+        DesireSpeed_Write(0);
+        Steering_Write(1500);
+        
         pthread_cancel(pexam_data->threads[0]);
         pthread_cancel(pexam_data->threads[1]);
         pthread_cancel(pexam_data->threads[2]);
@@ -294,10 +297,7 @@ void signal_handler(int sig)
         disp_close(pexam_data->vpe->disp);
         vpe_close(pexam_data->vpe);
         v4l2_close(pexam_data->v4l2);
-        fileout.close();
         
-        DesireSpeed_Write(0);
-        Steering_Write(1500);
         printf("-- Project End --\n");
     }
 }
