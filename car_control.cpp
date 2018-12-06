@@ -708,7 +708,7 @@ void Driver::verticalPark(struct thr_data *data, SensorInfo sensorInfo)
             if( msDelay(7000) )  verticalParkingStage++;
             break;
         case 7 : // Untill LB not detected
-            data->mission.isHorizontalEnd = true;
+            data->mission.isVerticalEnd = true;
             data->verticalParkingRequest = false;
             break;
     }
