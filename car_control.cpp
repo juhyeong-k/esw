@@ -7,7 +7,6 @@ Driver::Driver()
     driveState = {1,0,};
     I_term = 0;
     prev_error = 0;
-
     emergencyTimeout = 0;
     globalDelay = 0;
 
@@ -37,15 +36,15 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
     /**
      *  Emergency
      */
-        data->mission.isEmergencyEnd = true;
-    if(cvInfo.isEmergency && !data->mission.isEmergencyEnd) {
+    if (cvInfo.isEmergency && !data->mission.isEmergencyEnd) {
         DesireSpeed_Write(0);
         emergencyTimeout = 50;
         return;
     }
     else if(emergencyTimeout == 1) {
+        if(!data->mission.isEmergencyEnd) DesireSpeed_Write(NORMAL_SPEED);
         data->mission.isEmergencyEnd = true;
-        DesireSpeed_Write(NORMAL_SPEED);
+        emergencyTimeout = 0;
         return;
     }
     else if(emergencyTimeout) {
@@ -84,6 +83,7 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         uint32_t optime = getOptime(roundaboutState.startTime, roundaboutState.endTime);
         if(optime < 7000) {
             if(!cvInfo.isLeftDetected && !cvInfo.isRightDetected) {
+                gettimeofday(&passState.startTime, NULL);
                 data->roundaboutRequest = true;
             }
         }
@@ -107,8 +107,11 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
      */
     if(cvInfo.isCarinFront_CV) {
         if( data->mission.isRoundaboutEnd && data->mission.isHorizontalEnd
-            && data->mission.isVerticalEnd && data->mission.isRoundaboutEnd)
-                data->passRequest = true;
+            && data->mission.isVerticalEnd && data->mission.isRoundaboutEnd) {
+                gettimeofday(&passState.endTime, NULL);
+                uint32_t passOptime = getOptime(passState.startTime, passState.endTime);
+                if(passOptime > 12000) data->passRequest = true;
+            }
     }
     /**
      */
@@ -141,7 +144,7 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         }
     }
     if(driveState.isTurningRight) {
-        if( !LineDetected(cvInfo) | (sensorInfo.distance[2] > 4000) ) {
+        if( !LineDetected(cvInfo) | (sensorInfo.distance[2] > 3000) ) {
             StateisGoing(&driveState);
             return;
         }
@@ -258,7 +261,7 @@ void Driver::roundabout(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorI
             }
             break;
         case 1 :
-            if( msDelay(5000) ) roundaboutStage++;
+            if( msDelay(10000) ) roundaboutStage++;
             break;
         case 2 :
             drive(data, cvInfo, sensorInfo);
@@ -268,7 +271,7 @@ void Driver::roundabout(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorI
             break;
         case 3 :
             Steering_Write(1000);
-            if( msDelay(300) ) roundaboutStage++;
+            if( msDelay(200) ) roundaboutStage++;
             break;
         case 4 :
             Steering_Write(2000);
@@ -279,7 +282,10 @@ void Driver::roundabout(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorI
             }
             break;
         case 5 :
-            Steering_Write(cvInfo.direction);
+            if(cvInfo.direction < 1500) 
+                Steering_Write(1500);
+            else 
+                Steering_Write(cvInfo.direction);
             DesireSpeed_Write(140);
             if(cvInfo.isWhiteRightDetected) {
                 roundaboutStage++;
@@ -557,7 +563,7 @@ void Driver::horizonPark(struct thr_data *data, SensorInfo sensorInfo)
         case 0 :
             Steering_Write(1500);
             DesireSpeed_Write(-90);
-            if( msDelay(700) ) horizonParkingStage++;
+            if( msDelay(1400) ) horizonParkingStage++;
             break;
         case 1 : // Foward Left
             Steering_Write(2000);
@@ -565,7 +571,7 @@ void Driver::horizonPark(struct thr_data *data, SensorInfo sensorInfo)
             if(sensorInfo.distance[3] < 400) horizonParkingStage++;
             break;
         case 2 : // Backward
-            Steering_Write(1700);
+            Steering_Write(1300);
             DesireSpeed_Write(-90);
             if(sensorInfo.distance[2] > 700) horizonParkingStage++;
             break;
@@ -575,9 +581,9 @@ void Driver::horizonPark(struct thr_data *data, SensorInfo sensorInfo)
             if(sensorInfo.distance[3] < 200) horizonParkingStage++;
             break;
         case 4 : // Backward
-            Steering_Write(1500);
+            Steering_Write(1300);
             DesireSpeed_Write(-90);
-            if(sensorInfo.distance[2] > 1500) horizonParkingStage++;
+            if(msDelay(2000)) horizonParkingStage++;
             break;
         case 5 : // Backward Left
             Steering_Write(2000);
@@ -585,14 +591,14 @@ void Driver::horizonPark(struct thr_data *data, SensorInfo sensorInfo)
             if(sensorInfo.distance[4] > 2200) horizonParkingStage++;
             break;
         case 6 : // Foward Right
-            Steering_Write(1000);
+            Steering_Write(1500);
             DesireSpeed_Write(90);
-            if(sensorInfo.distance[1] > 2700) horizonParkingStage++;
+            if(sensorInfo.distance[1] > 2200) horizonParkingStage++;
             break;
         case 7 : // Backward
-            Steering_Write(1700);
+            Steering_Write(1500);
             DesireSpeed_Write(-90);
-            if(sensorInfo.distance[4] > 2500) horizonParkingStage++;
+            if(sensorInfo.distance[4] > 2200) horizonParkingStage++;
             break;
         case 8 :
             Alarm_Write(ON);
@@ -636,12 +642,12 @@ void Driver::verticalPark(struct thr_data *data, SensorInfo sensorInfo)
         case 0 :
             Steering_Write(1500);
             DesireSpeed_Write(90);
-            if( msDelay(700) )  verticalParkingStage++;
+            if( msDelay(100) )  verticalParkingStage++;
             break;
         case 1 : // Backward Right
             Steering_Write(1000);
             DesireSpeed_Write(-90);
-            if( msDelay(5000) )  verticalParkingStage++;
+            if( msDelay(3500) )  verticalParkingStage++;
             break;
         case 2 : // Backward
             Steering_Write(1500);
@@ -667,7 +673,7 @@ void Driver::verticalPark(struct thr_data *data, SensorInfo sensorInfo)
         case 6 : // Foward Right
             Steering_Write(1000);
             DesireSpeed_Write(90);
-            if( msDelay(7000) )  verticalParkingStage++;
+            if( msDelay(3500) )  verticalParkingStage++;
             break;
         case 7 : // Untill LB not detected
             data->mission.isVerticalEnd = true;

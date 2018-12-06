@@ -94,6 +94,7 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
 
     // Print CV information
     /* Normal Drive */
+    /*
     printf("\r\n--- Normal Drive\r\n");
     printf("\tdirection\t\t%d\r\n", cvInfo.direction);
     printf("\tLeftDetected\t\t%d\tRightDetected\t\t%d\r\n", cvInfo.isLeftDetected, cvInfo.isRightDetected);
@@ -104,30 +105,37 @@ uint8_t green[VPE_OUTPUT_H][VPE_OUTPUT_W][3], uint8_t red[VPE_OUTPUT_H][VPE_OUTP
     printf("\tisPathStraight\t\t%d", cvInfo.isPathStraight);
     printf("\tRoadClose\t\t%d\r\n", cvInfo.isRoadClose);
     printf("\tisWhiteLineDetected_CV\t%d\r\n", cvInfo.isWhiteLineDetected_CV);
-    
+    */
     /* Emergency */
+    /*
     printf("\r\n--- Emergency\r\n");
     printf("\tisEmergency\t\t%d\r\n", cvInfo.isEmergency);
+    */
     /* Passing */
+    /*
     printf("\r\n--- Passing\r\n");
     printf("\tisCarinFront_CV\t\t%d", cvInfo.isCarinFront_CV);
-    printf("\tSideRoadClose\t\t%d\r\n", cvInfo.isSideRoadClose);
+    printf("\tSideRoadClose\t\t%d\r\n", cvInfo.isSideRoadClose);*/
     /* Traffic Light */
+    /*
     printf("\r\n--- Traffic Light\r\n");
     printf("\tisTrafficLightsGreen\t%d", cvInfo.isTrafficLightsGreen);
     printf("\tgreenLightReply\t\t%d", cvInfo.greenLightReply);
-    printf("\tisGreenLightRoadClose\t%d\r\n", cvInfo.isGreenLightRoadClose);
+    printf("\tisGreenLightRoadClose\t%d\r\n", cvInfo.isGreenLightRoadClose);*/
     /* Safe Zone */
+    /*
     printf("\r\n--- Safe Zone\r\n");
     printf("\tUpperSafezoneDetected\t%d", cvInfo.isUpperSafezoneDetected);
     printf("\tLowerSafezoneDetected\t%d\r\n", cvInfo.isLowerSafezoneDetected);
     /* Tunnel */
+    /*
     printf("\r\n--- Tunnel\r\n");
-    printf("\tTunnelDetected\t\t%d\r\n", cvInfo.isTunnelDetected);
+    printf("\tTunnelDetected\t\t%d\r\n", cvInfo.isTunnelDetected);*/
     /* Down Hill */
+    /*
     printf("\r\n--- Down Hill\r\n");
     printf("\tcvInfo.isDownHillDetected : %d\r\n", cvInfo.isDownHillDetected);
-
+*/
     return cvInfo;
 }
 /**
