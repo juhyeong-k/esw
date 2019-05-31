@@ -39,11 +39,13 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
     if (cvInfo.isEmergency && !data->mission.isEmergencyEnd) {
         DesireSpeed_Write(0);
         emergencyTimeout = 50;
+        parkingStage = 0;
         return;
     }
     else if(emergencyTimeout == 1) {
         if(!data->mission.isEmergencyEnd) DesireSpeed_Write(NORMAL_SPEED);
         data->mission.isEmergencyEnd = true;
+        parkingStage = 0;
         emergencyTimeout = 0;
         return;
     }
@@ -110,7 +112,7 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
             && data->mission.isVerticalEnd && data->mission.isRoundaboutEnd) {
                 gettimeofday(&passState.endTime, NULL);
                 uint32_t passOptime = getOptime(passState.startTime, passState.endTime);
-                if(passOptime > 12000) data->passRequest = true;
+                if(passOptime > 35000) data->passRequest = true;
             }
     }
     /**
@@ -144,7 +146,7 @@ void Driver::drive(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInfo)
         }
     }
     if(driveState.isTurningRight) {
-        if( !LineDetected(cvInfo) | (sensorInfo.distance[2] > 3000) ) {
+        if( !LineDetected(cvInfo) | (sensorInfo.distance[2] > 2775) ) {
             StateisGoing(&driveState);
             return;
         }
@@ -254,26 +256,31 @@ void Driver::roundabout(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorI
     switch(roundaboutStage)
     {
         case 0 :
+            DesireSpeed_Write(80);
+            Steering_Write(2000);
+            if( msDelay(500) ) roundaboutStage++;
+            break;
+        case 1 :
             DesireSpeed_Write(0);
             globalDelay = 0;
             if( sensorInfo.distance[1] > 800 ) {
                 roundaboutStage++;
             }
             break;
-        case 1 :
+        case 2 :
             if( msDelay(10000) ) roundaboutStage++;
             break;
-        case 2 :
+        case 3 :
             drive(data, cvInfo, sensorInfo);
             if(cvInfo.isLeftTurnDetected | ( sensorInfo.distance[1] > 2500 )) {
                 roundaboutStage++;
             }
             break;
-        case 3 :
+        case 4 :
             Steering_Write(1000);
             if( msDelay(200) ) roundaboutStage++;
             break;
-        case 4 :
+        case 5 :
             Steering_Write(2000);
             DesireSpeed_Write(0);
             Steering_Write(cvInfo.direction);
@@ -281,9 +288,9 @@ void Driver::roundabout(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorI
                 roundaboutStage++;
             }
             break;
-        case 5 :
-            if(cvInfo.direction < 1500) 
-                Steering_Write(1500);
+        case 6 :
+            if(cvInfo.direction < 1700) 
+                Steering_Write(1700);
             else 
                 Steering_Write(cvInfo.direction);
             DesireSpeed_Write(140);
@@ -291,14 +298,14 @@ void Driver::roundabout(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorI
                 roundaboutStage++;
             }
             break;
-        case 6 :
+        case 7 :
             Steering_Write(cvInfo.direction);
             DesireSpeed_Write(120);
             if(!cvInfo.isWhiteRightDetected) {
                 roundaboutStage++;
             }
             break;
-        case 7 :
+        case 8 :
             data->mission.isRoundaboutEnd = true;
             data->roundaboutRequest = false;
             break;
@@ -391,7 +398,7 @@ void Driver::passLeft(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInf
             break;
         case 9 :
             Steering_Write(cvInfo.direction);
-            if( isWhiteLineDetected(sensorInfo) )   passStage++;
+            passStage++;
             break;
         case 10 :
             DesireSpeed_Write(0);
@@ -407,7 +414,7 @@ void Driver::passLeft(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInf
             if( cvInfo.isTrafficLightsGreen )   passStage++;
             break;
         case 13 :
-            if( msDelay(4000) ) passStage++;
+            if( msDelay(1500) ) passStage++;
             break;
         case 14 :
             greenLightDirection = cvInfo.greenLightReply;
@@ -433,7 +440,7 @@ void Driver::passLeft(struct thr_data *data, CVinfo cvInfo, SensorInfo sensorInf
             }
             break;
         case 17 :
-            if( msDelay(5000) ) passStage++;
+            if( msDelay(4500) ) passStage++;
             break;
         case 18 : // Go foward
             Steering_Write(1500);
@@ -492,7 +499,7 @@ void Driver::Driver::passRight(struct thr_data *data, CVinfo cvInfo, SensorInfo 
             break;
         case 9 :
             Steering_Write(cvInfo.direction);
-            if( isWhiteLineDetected(sensorInfo) )   passStage++;
+            passStage++;
             break;
         case 10 :
             DesireSpeed_Write(0);
@@ -508,7 +515,7 @@ void Driver::Driver::passRight(struct thr_data *data, CVinfo cvInfo, SensorInfo 
             if( cvInfo.isTrafficLightsGreen )   passStage++;
             break;
         case 13 :
-            if( msDelay(4000) ) passStage++;
+            if( msDelay(1500) ) passStage++;
             break;
         case 14 :
             greenLightDirection = cvInfo.greenLightReply;
@@ -534,7 +541,7 @@ void Driver::Driver::passRight(struct thr_data *data, CVinfo cvInfo, SensorInfo 
             }
             break;
         case 17 :
-            if( msDelay(5000) ) passStage++;
+            if( msDelay(4500) ) passStage++;
             break;
         case 18 : // Go foward
             Steering_Write(1500);

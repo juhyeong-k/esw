@@ -375,8 +375,8 @@ int main(int argc, char **argv)
      *  Init isEnd
      */
     tdata.mission.isDownHillEnd = false;
-    tdata.mission.isHorizontalEnd = true;
-    tdata.mission.isVerticalEnd = true;
+    tdata.mission.isHorizontalEnd = false;
+    tdata.mission.isVerticalEnd = false;
     tdata.mission.isRoundaboutEnd = false;
     tdata.mission.isPassEnd = false;
 

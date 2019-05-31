@@ -51,7 +51,7 @@
 #define GREENLIGHT_DETECTED_THRESHOLD		5 // Low -> sensitive
 #define GREEN_DETECT_PIXEL_THRESHOLD      80
 #define RED_DETECT_PIXEL_THRESHOLD      80
-#define IS_GREENLIGHT_ROADCLOSE_DISTANCE	100 // Bigger than ISROADCLOSE_THRESHOLD
+#define IS_GREENLIGHT_ROADCLOSE_DISTANCE	60 // Bigger than ISROADCLOSE_THRESHOLD
 /**
  *  Tunnel
  */
@@ -94,7 +94,7 @@
 */
 #define YELLOW 0
 #define yellow_HUE_MAX    45
-#define yellow_HUE_MIN    0
+#define yellow_HUE_MIN    5
 #define yellow_SAT_MAX    255
 #define yellow_SAT_MIN    30
 #define yellow_VAL_MAX    255
